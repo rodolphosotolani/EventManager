@@ -16,7 +16,7 @@ public class CategoriaDTO {
 
     private Long id;
 
-    private Long instituicao_id;
+    private Long instituicao;
 
     @NotNull
     @Size(max = 100)

@@ -24,12 +24,15 @@ public class SubCategoria {
     @GeneratedValue(strategy = GenerationType.TABLE)
     private Long id;
 
-    private Long instituicao_id;
+    @Column(name = "instituicao_id", nullable = false, updatable = false)
+    private Long instituicao;
 
     @Column(length = 100)
     private String nome;
 
-    @ManyToOne()
+    private Boolean ativo;
+
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;
 

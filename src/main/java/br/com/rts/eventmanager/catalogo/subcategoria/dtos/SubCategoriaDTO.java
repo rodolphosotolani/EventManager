@@ -11,7 +11,7 @@ public class SubCategoriaDTO {
 
     private Long id;
 
-    private Long instituicao_id;
+    private Long instituicao;
 
     @Size(max = 100)
     private String nome;

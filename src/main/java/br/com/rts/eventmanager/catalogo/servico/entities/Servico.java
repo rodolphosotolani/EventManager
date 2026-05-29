@@ -1,5 +1,6 @@
-package br.com.rts.eventmanager.catalogo.categoria.entities;
+package br.com.rts.eventmanager.catalogo.servico.entities;
 
+import br.com.rts.eventmanager.catalogo.categoria.entities.Categoria;
 import br.com.rts.eventmanager.catalogo.subcategoria.entities.SubCategoria;
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,37 +8,48 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.UUID;
 
-@Entity
 @Getter
 @Setter
 @Builder
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "SERVICO", schema = "CATALOGO")
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "CATEGORIA", schema = "CATALOGO")
-public class Categoria {
+public class Servico {
 
     @Id
     @Column(nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.TABLE)
     private Long id;
 
-    @Column(name = "instituicao_id", nullable = false, updatable = false)
+    @Builder.Default
+    @Column(nullable = false, unique = true, updatable = false)
+    private UUID uuid = UUID.randomUUID();
+
+    @Column(name = "instituicao_id")
     private Long instituicao;
+
+    @Column(name = "evento_id")
+    private Long evento;
 
     @Column(nullable = false, length = 100)
     private String nome;
 
-    private Boolean ativo;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal valorVenda;
 
-    // Mapeamento bidirecional referenciando o atributo 'venda' da entidade ItemVenda
-    @Builder.Default
-    @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SubCategoria> subCategorias = new ArrayList<>();
+    @ManyToOne()
+    @JoinColumn(name = "categoria_id", nullable = false)
+    private Categoria categoria;
+
+    @ManyToOne()
+    @JoinColumn(name = "sub_categoria_id")
+    private SubCategoria subCategoria;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
