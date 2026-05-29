@@ -13,10 +13,4 @@ public interface MovimentacaoRepository extends JpaRepository<Movimentacao, Long
     @Query("SELECT e FROM Movimentacao e WHERE e.produto.id = :produtoId AND e.quantidade > 0 ORDER BY e.id ASC LIMIT 1")
     Optional<Movimentacao> findFirstByProdutoId(@Param("produtoId") Long produtoId);
 
-    @Query("SELECT SUM(e.quantidade) FROM Movimentacao e WHERE e.produto.id = :produtoId")
-    Integer sumQuantidadeByProdutoId(@Param("produtoId") Long produtoId);
-
-    @Query("SELECT AVG(e.valorCompra) FROM Movimentacao e WHERE e.produto.id = :produtoId")
-    Double avgValorCompraByProdutoId(@Param("produtoId") Long produtoId);
-
 }

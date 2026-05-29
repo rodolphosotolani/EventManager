@@ -27,8 +27,6 @@ public class ServicoDTO {
     @Size(max = 100)
     private String nome;
 
-    private String especificacao;
-
     @NotNull
     @Digits(integer = 10, fraction = 2)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
@@ -46,6 +44,6 @@ public class ServicoDTO {
 
     @Override
     public String toString() {
-        return nome + " - " + especificacao;
+        return nome;
     }
 }

@@ -15,6 +15,4 @@ public interface ServicoService {
     void update(final Long id, final Servico produtoNew);
 
     void delete(final Long id);
-
-    List<Servico> findAllByCategoriaIdAndSubCategoriaId(Long categoriaId, Long subCategoriaId);
 }

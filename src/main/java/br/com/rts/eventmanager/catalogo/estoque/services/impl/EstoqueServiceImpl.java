@@ -47,42 +47,9 @@ public class EstoqueServiceImpl implements EstoqueService {
         estoqueRepository.delete(estoque);
     }
 
-    private Estoque findEstoqueByProdutoId(Long produtoId) {
-
-        return estoqueRepository
-                .findFirstByProdutoId(produtoId)
-                .orElseThrow(() -> new NotFoundException("Estoque para o produto não encontrado!"));
-    }
-
-//    @Override
-//    public void registrarSaidaEstoque(ItemVenda itemVenda) {
-//
-//        Estoque estoque = this.findEstoqueByProdutoId(itemVenda.getProduto().getId());
-//
-//        estoque.setQuantidade(estoque.getQuantidade() - itemVenda.getQuantidade());
-//
-//        estoqueRepository.save(estoque);
-//    }
-//
-//    @Override
-//    public void registrarEntradaEstoque(ItemVenda itemVenda) {
-//
-//        Estoque estoque = this.findEstoqueByProdutoId(itemVenda.getProduto().getId());
-//
-//        estoque.setQuantidade(estoque.getQuantidade() + itemVenda.getQuantidade());
-//
-//        estoqueRepository.save(estoque);
-//
-//    }
-
     @Override
     public Integer quantidadeEstoqueByProdutoId(Long produtoId) {
         return estoqueRepository.sumQuantidadeByProdutoId(produtoId);
-    }
-
-    @Override
-    public Double avgValorCompraByProdutoId(Long produtoId) {
-        return estoqueRepository.avgValorCompraByProdutoId(produtoId);
     }
 
 }

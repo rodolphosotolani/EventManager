@@ -16,12 +16,6 @@ public interface EstoqueService {
 
     void delete(final Long id);
 
-//    void registrarSaidaEstoque(ItemVenda itemVenda);
-//
-//    void registrarEntradaEstoque(ItemVenda itemVenda);
-
     Integer quantidadeEstoqueByProdutoId(Long produtoId);
-
-    Double avgValorCompraByProdutoId(Long produtoId);
 
 }

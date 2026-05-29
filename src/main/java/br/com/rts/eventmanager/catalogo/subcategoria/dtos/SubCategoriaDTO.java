@@ -16,6 +16,8 @@ public class SubCategoriaDTO {
     @Size(max = 100)
     private String nome;
 
+    private Boolean ativo;
+
     @NotNull
     private Long categoriaId;
 

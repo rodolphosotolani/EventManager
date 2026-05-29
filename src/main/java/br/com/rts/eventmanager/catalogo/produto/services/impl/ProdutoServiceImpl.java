@@ -6,7 +6,6 @@ import br.com.rts.eventmanager.catalogo.produto.repositories.ProdutoRepository;
 import br.com.rts.eventmanager.catalogo.produto.services.ProdutoService;
 import br.com.rts.eventmanager.utils.NotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +17,6 @@ public class ProdutoServiceImpl implements ProdutoService {
 
     private final ProdutoRepository repository;
     private final EstoqueService estoqueService;
-    private final ApplicationEventPublisher publisher;
 
     public List<Produto> findAll() {
         return repository.findAll(Sort.by(Sort.Direction.ASC, "nome"));

@@ -22,6 +22,8 @@ public class CategoriaDTO {
     @Size(max = 100)
     private String nome;
 
+    private Boolean ativo;
+
     private List<SubCategoriaDTO> subcategorias = new ArrayList<>();
 
     @Override

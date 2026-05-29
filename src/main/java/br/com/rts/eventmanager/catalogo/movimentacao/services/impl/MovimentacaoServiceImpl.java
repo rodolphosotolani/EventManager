@@ -43,13 +43,6 @@ public class MovimentacaoServiceImpl implements MovimentacaoService {
         movimentacaoRepository.delete(movimentacao);
     }
 
-    private Movimentacao findMovimentacaoByProdutoId(Long produtoId) {
-
-        return movimentacaoRepository
-                .findFirstByProdutoId(produtoId)
-                .orElseThrow(() -> new NotFoundException("Movimentacao para o produto não encontrado!"));
-    }
-
 //    @Override
 //    public void registrarSaidaMovimentacao(ItemVenda itemVenda) {
 //
