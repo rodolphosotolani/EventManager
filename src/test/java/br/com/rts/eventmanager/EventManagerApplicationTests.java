@@ -2,12 +2,13 @@ package br.com.rts.eventmanager;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.modulith.core.ApplicationModules;
 
-@SpringBootTest
 class EventManagerApplicationTests {
 
     @Test
     void contextLoads() {
+        ApplicationModules.of(EventManagerApplication.class).verify();
     }
 
 }
