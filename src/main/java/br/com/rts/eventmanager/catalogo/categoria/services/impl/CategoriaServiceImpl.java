@@ -5,7 +5,10 @@ import br.com.rts.eventmanager.catalogo.categoria.repositories.CategoriaReposito
 import br.com.rts.eventmanager.catalogo.categoria.services.CategoriaService;
 import br.com.rts.eventmanager.utils.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -15,36 +18,42 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoriaServiceImpl implements CategoriaService {
 
-    private final CategoriaRepository categoriaRepository;
+    private final CategoriaRepository repository;
     private final ApplicationEventPublisher publisher;
 
     @Override
     public List<Categoria> findAll() {
-        return categoriaRepository.findAll(Sort.by(Sort.Direction.ASC, "nome"));
+        return repository.findAll(Sort.by(Sort.Direction.ASC, "nome"));
     }
 
     @Override
-    public Categoria findById(final Long categoriaId) {
-        return categoriaRepository.findById(categoriaId)
-                .orElseThrow(() -> new NotFoundException("Categoria não encontrada!"));
+    public Categoria create(final Long instituicaoId, final Categoria categoriaNew) {
+        return repository.save(categoriaNew);
     }
 
     @Override
-    public Long create(final Categoria categoriaNew) {
-        return categoriaRepository.save(categoriaNew).getId();
-    }
-
-    @Override
-    public void update(final Long id, final Categoria categoriaNew) {
-        final Categoria categoria = this.findById(id);
+    public Categoria update(final Long instituicaoId, final Long id, final Categoria categoriaNew) {
+        Categoria categoria = this.findByIdAndInstituicao(id, instituicaoId);
         categoria.setNome(categoriaNew.getNome());
-        categoriaRepository.save(categoria);
+        return repository.save(categoria);
     }
 
     @Override
-    public void delete(final Long categoriaId) {
-        final Categoria categoria = this.findById(categoriaId);
+    public void delete(final Long instituicaoId, final Long categoriaId) {
+        final Categoria categoria = this.findByIdAndInstituicao(categoriaId, instituicaoId);
 
-        categoriaRepository.delete(categoria);
+        repository.delete(categoria);
+    }
+
+    @Override
+    public @Nullable Page<Categoria> findAllByInstituicao(Long instituicaoId, Pageable pageable) {
+        return repository.findAllByInstituicao(instituicaoId, pageable);
+    }
+
+    @Override
+    public Categoria findByIdAndInstituicao(Long categoriaId, Long instituicaoId) {
+        return repository.findByIdAndInstituicao(categoriaId, instituicaoId)
+                .orElseThrow(() -> new NotFoundException("Categoria não encontrada!"));
+
     }
 }
