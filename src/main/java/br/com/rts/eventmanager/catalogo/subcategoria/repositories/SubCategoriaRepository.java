@@ -15,4 +15,8 @@ public interface SubCategoriaRepository extends JpaRepository<SubCategoria, Long
 
     Optional<SubCategoria> findByIdAndInstituicao(Long id, Long instituicaoId);
 
+    Page<SubCategoria> findAllByInstituicaoAndCategoriaId(Long instituicaoId,
+                                                           Long categoriaId,
+                                                           Pageable pageable);
+
 }

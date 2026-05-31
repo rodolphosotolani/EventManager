@@ -35,7 +35,7 @@ public class SubCategoriaRestController {
             @ApiResponse(responseCode = "200", description = "Sub-categorias retornadas com sucesso"),
             @ApiResponse(responseCode = "204", description = "Nenhuma sub-categoria cadastrada para esta instituição")
     })
-    public ResponseEntity<Page<SubCategoriaResponse>> getAllSubCategorias(
+    public ResponseEntity<Page<SubCategoriaResponse>> getAllByInstituicao(
             @Parameter(description = "ID da instituição dona do catálogo", required = true)
             @RequestHeader("instituicao_id") Long instituicaoId,
             Pageable pageable) {
@@ -44,6 +44,26 @@ public class SubCategoriaRestController {
 
         if (subCategorias == null || subCategorias.isEmpty())
             return ResponseEntity.noContent().build();
+
+        return ResponseEntity
+                .ok(subCategorias.map(mapper::entityToResponse));
+    }
+
+    @GetMapping("/categorias/{categoriaId}")
+    @Operation(summary = "Listar todas as sub-categorias por instituição",
+            description = "Retorna uma página com a lista de sub-categorias vinculadas a uma instituição específica informada no cabeçalho.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Sub-categorias retornadas com sucesso"),
+            @ApiResponse(responseCode = "204", description = "Nenhuma sub-categoria cadastrada para esta instituição")
+    })
+    public ResponseEntity<Page<SubCategoriaResponse>> getAllByInstituicaoAndCategoria(
+            @Parameter(description = "ID da instituição dona do catálogo", required = true)
+            @RequestHeader("instituicao_id") Long instituicaoId,
+            @Parameter(description = "ID da categoria relacionada", required = true)
+            @PathVariable Long categoriaId,
+            Pageable pageable) {
+
+        Page<SubCategoria> subCategorias = service.findAllByInstituicaoAndCategoria(instituicaoId, categoriaId, pageable);
 
         return ResponseEntity
                 .ok(subCategorias.map(mapper::entityToResponse));

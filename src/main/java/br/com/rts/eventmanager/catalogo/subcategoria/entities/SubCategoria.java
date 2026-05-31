@@ -31,7 +31,7 @@ public class SubCategoria {
 
     private Boolean ativo;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;
 

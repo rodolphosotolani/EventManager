@@ -1,4 +1,6 @@
 package br.com.rts.eventmanager.catalogo.subcategoria.controllers.requests;
 
-public record SubCategoriaRequest() {
+public record SubCategoriaRequest(String nome,
+                                  Boolean ativo,
+                                  Long categoriaId) {
 }

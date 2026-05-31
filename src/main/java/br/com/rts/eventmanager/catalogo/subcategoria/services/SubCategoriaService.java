@@ -7,6 +7,10 @@ import org.springframework.data.domain.Pageable;
 
 public interface SubCategoriaService {
 
+    Page<SubCategoria> findAllByInstituicaoAndCategoria(@NotNull final Long instituicaoId,
+                                                        @NotNull final Long categoriaId,
+                                                        Pageable pageable);
+
     Page<SubCategoria> findAllByInstituicao(@NotNull final Long instituicaoId,
                                             Pageable pageable);
 
@@ -22,4 +26,5 @@ public interface SubCategoriaService {
 
     void delete(@NotNull final Long subCategoriaId,
                 @NotNull final Long instituicaoId);
+
 }
