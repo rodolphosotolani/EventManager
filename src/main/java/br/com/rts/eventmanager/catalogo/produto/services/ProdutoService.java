@@ -1,22 +1,31 @@
 package br.com.rts.eventmanager.catalogo.produto.services;
 
 import br.com.rts.eventmanager.catalogo.produto.entities.Produto;
-
-import java.util.List;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ProdutoService {
 
-    List<Produto> findAll();
+    Page<Produto> findAllByInstituicaoAndEvento(@NotNull final Long instituicaoId,
+                                                @NotNull final Long eventoId,
+                                                Pageable pageable);
 
-    Produto findById(final Long produtoId);
+    Produto findByIdAndInstituicaoAndEvento(@NotNull final Long produtoId,
+                                            @NotNull final Long instituicaoId,
+                                            @NotNull final Long eventoId);
 
-    Long create(final Produto produtoNew);
+    Produto create(final Produto produtoNew,
+                   @NotNull final Long instituicaoId,
+                   @NotNull final Long eventoId);
 
-    void update(final Long id, final Produto produtoNew);
+    Produto update(final Long produtoId,
+                final Produto produtoNew,
+                @NotNull final Long instituicaoId,
+                @NotNull final Long eventoId);
 
-    void delete(final Long id);
+    void delete(@NotNull final Long produtoId,
+                @NotNull final Long instituicaoId,
+                @NotNull final Long eventoId);
 
-    Integer quantidadeEstoqueProduto(Produto produto);
-
-    List<Produto> findAllByCategoriaIdAndSubCategoriaId(Long categoriaId, Long subCategoriaId);
 }
