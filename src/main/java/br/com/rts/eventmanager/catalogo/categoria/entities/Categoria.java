@@ -33,9 +33,10 @@ public class Categoria {
 
     private Boolean ativo;
 
-    // Mapeamento bidirecional referenciando o atributo 'venda' da entidade ItemVenda
     @Builder.Default
-    @OneToMany(mappedBy = "categoria", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "categoria",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     private List<SubCategoria> subCategorias = new ArrayList<>();
 
     @CreatedDate

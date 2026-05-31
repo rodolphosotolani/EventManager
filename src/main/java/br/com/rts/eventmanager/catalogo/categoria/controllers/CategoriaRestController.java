@@ -40,9 +40,6 @@ public class CategoriaRestController {
 
         Page<Categoria> categorias = service.findAllByInstituicao(instituicaoId, pageable);
 
-        if (categorias == null || categorias.isEmpty())
-            return ResponseEntity.noContent().build();
-
         return ResponseEntity
                 .ok(categorias.map(mapper::entityToResponse));
     }

@@ -3,6 +3,7 @@ package br.com.rts.eventmanager.catalogo.categoria.services.impl;
 import br.com.rts.eventmanager.catalogo.categoria.entities.Categoria;
 import br.com.rts.eventmanager.catalogo.categoria.repositories.CategoriaRepository;
 import br.com.rts.eventmanager.catalogo.categoria.services.CategoriaService;
+import br.com.rts.eventmanager.gestao.GestaoFacade;
 import br.com.rts.eventmanager.utils.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
@@ -19,7 +20,7 @@ import java.util.List;
 public class CategoriaServiceImpl implements CategoriaService {
 
     private final CategoriaRepository repository;
-    private final ApplicationEventPublisher publisher;
+    private final GestaoFacade gestaoFacade;
 
     @Override
     public List<Categoria> findAll() {
@@ -28,18 +29,28 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     @Override
     public Categoria create(final Long instituicaoId, final Categoria categoriaNew) {
+
+        gestaoFacade.validateIfInstituicaoIsValid(instituicaoId);
+
+        categoriaNew.setInstituicao(instituicaoId);
         return repository.save(categoriaNew);
     }
 
     @Override
     public Categoria update(final Long instituicaoId, final Long id, final Categoria categoriaNew) {
+
+        gestaoFacade.validateIfInstituicaoIsValid(instituicaoId);
+
         Categoria categoria = this.findByIdAndInstituicao(id, instituicaoId);
         categoria.setNome(categoriaNew.getNome());
+        categoria.setAtivo(categoriaNew.getAtivo());
+
         return repository.save(categoria);
     }
 
     @Override
     public void delete(final Long instituicaoId, final Long categoriaId) {
+
         final Categoria categoria = this.findByIdAndInstituicao(categoriaId, instituicaoId);
 
         repository.delete(categoria);
@@ -52,6 +63,7 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     @Override
     public Categoria findByIdAndInstituicao(Long categoriaId, Long instituicaoId) {
+
         return repository.findByIdAndInstituicao(categoriaId, instituicaoId)
                 .orElseThrow(() -> new NotFoundException("Categoria não encontrada!"));
 

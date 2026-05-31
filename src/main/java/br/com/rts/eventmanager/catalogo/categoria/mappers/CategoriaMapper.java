@@ -6,8 +6,11 @@ import br.com.rts.eventmanager.catalogo.categoria.entities.Categoria;
 import br.com.rts.eventmanager.catalogo.subcategoria.mappers.SubCategoriaMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", uses = {SubCategoriaMapper.class})
+@Mapper(componentModel = "spring",
+        uses = {SubCategoriaMapper.class},
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public abstract class CategoriaMapper {
 
     abstract public CategoriaResponse entityToResponse(Categoria categoria);
