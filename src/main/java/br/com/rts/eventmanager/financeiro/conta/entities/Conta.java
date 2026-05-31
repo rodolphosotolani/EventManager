@@ -24,7 +24,6 @@ import java.util.UUID;
 public class Conta {
 
     @Id
-    @Column(nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

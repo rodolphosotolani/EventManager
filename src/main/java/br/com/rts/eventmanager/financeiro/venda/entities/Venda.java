@@ -24,8 +24,7 @@ import java.util.List;
 public class Venda {
 
     @Id
-    @Column(nullable = false, updatable = false)
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "instituicao_id", nullable = false, updatable = false)

@@ -4,9 +4,30 @@ CREATE SCHEMA IF NOT EXISTS catalogo;
 CREATE SCHEMA IF NOT EXISTS financeiro;
 CREATE SCHEMA IF NOT EXISTS seguranca;
 
+-- Create sequences for entities using sequence generator strategy (matching Hibernate's default allocationSize of 50)
+CREATE SEQUENCE IF NOT EXISTS gestao.instituicao_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS gestao.evento_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS catalogo.categoria_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS catalogo.sub_categoria_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS catalogo.produto_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS catalogo.servico_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS catalogo.estoque_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS catalogo.movimentacao_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS financeiro.venda_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS financeiro.item_venda_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS financeiro.caixa_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS financeiro.fluxo_caixa_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS financeiro.cliente_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS financeiro.conta_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS seguranca.perfil_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS seguranca.permissao_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS seguranca.usuario_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS seguranca.usuario_instituicao_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS seguranca.perfil_usuario_seq START WITH 1 INCREMENT BY 50;
+
 -- 1. Instituicao Table (Schema: gestao)
 CREATE TABLE IF NOT EXISTS gestao.instituicao (
-    id bigint NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('gestao.instituicao_seq'),
     nome varchar(100) NOT NULL,
     ativo boolean NOT NULL DEFAULT true,
     date_created timestamp with time zone NOT NULL,
@@ -15,7 +36,7 @@ CREATE TABLE IF NOT EXISTS gestao.instituicao (
 
 -- 2. Evento Table (Schema: gestao)
 CREATE TABLE IF NOT EXISTS gestao.evento (
-    id bigint NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('gestao.evento_seq'),
     nome varchar(100) NOT NULL,
     ativo boolean NOT NULL DEFAULT true,
     instituicao_id bigint NOT NULL CONSTRAINT fk_evento_instituicao REFERENCES gestao.instituicao(id),
@@ -25,7 +46,7 @@ CREATE TABLE IF NOT EXISTS gestao.evento (
 
 -- 3. Categoria Table (Schema: catalogo)
 CREATE TABLE IF NOT EXISTS catalogo.categoria (
-    id bigint NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('catalogo.categoria_seq'),
     instituicao_id bigint NOT NULL CONSTRAINT fk_categoria_instituicao REFERENCES gestao.instituicao(id),
     nome varchar(100) NOT NULL,
     ativo boolean NOT NULL DEFAULT true,
@@ -35,7 +56,7 @@ CREATE TABLE IF NOT EXISTS catalogo.categoria (
 
 -- 4. Sub-Categoria Table (Schema: catalogo)
 CREATE TABLE IF NOT EXISTS catalogo.sub_categoria (
-    id bigint NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('catalogo.sub_categoria_seq'),
     instituicao_id bigint NOT NULL CONSTRAINT fk_sub_categoria_instituicao REFERENCES gestao.instituicao(id),
     nome varchar(100),
     ativo boolean NOT NULL DEFAULT true,
@@ -46,7 +67,7 @@ CREATE TABLE IF NOT EXISTS catalogo.sub_categoria (
 
 -- 5. Produto Table (Schema: catalogo)
 CREATE TABLE IF NOT EXISTS catalogo.produto (
-    id bigint NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('catalogo.produto_seq'),
     uuid uuid NOT NULL UNIQUE,
     instituicao_id bigint CONSTRAINT fk_produto_instituicao REFERENCES gestao.instituicao(id),
     evento_id bigint CONSTRAINT fk_produto_evento REFERENCES gestao.evento(id),
@@ -62,7 +83,7 @@ CREATE TABLE IF NOT EXISTS catalogo.produto (
 
 -- 6. Servico Table (Schema: catalogo)
 CREATE TABLE IF NOT EXISTS catalogo.servico (
-    id bigint NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('catalogo.servico_seq'),
     uuid uuid NOT NULL UNIQUE,
     instituicao_id bigint CONSTRAINT fk_servico_instituicao REFERENCES gestao.instituicao(id),
     evento_id bigint CONSTRAINT fk_servico_evento REFERENCES gestao.evento(id),
@@ -76,7 +97,7 @@ CREATE TABLE IF NOT EXISTS catalogo.servico (
 
 -- 7. Estoque Table (Schema: catalogo)
 CREATE TABLE IF NOT EXISTS catalogo.estoque (
-    id bigint NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('catalogo.estoque_seq'),
     uuid uuid NOT NULL UNIQUE,
     instituicao bigint NOT NULL CONSTRAINT fk_estoque_instituicao REFERENCES gestao.instituicao(id),
     evento bigint NOT NULL CONSTRAINT fk_estoque_evento REFERENCES gestao.evento(id),
@@ -90,7 +111,7 @@ CREATE TABLE IF NOT EXISTS catalogo.estoque (
 
 -- 8. Movimentacao Table (Schema: catalogo)
 CREATE TABLE IF NOT EXISTS catalogo.movimentacao (
-    id bigint NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('catalogo.movimentacao_seq'),
     uuid uuid NOT NULL UNIQUE,
     instituicao bigint NOT NULL CONSTRAINT fk_movimentacao_instituicao REFERENCES gestao.instituicao(id),
     evento bigint NOT NULL CONSTRAINT fk_movimentacao_evento REFERENCES gestao.evento(id),
@@ -107,7 +128,7 @@ CREATE TABLE IF NOT EXISTS catalogo.movimentacao (
 
 -- 9. Venda Table (Schema: financeiro)
 CREATE TABLE IF NOT EXISTS financeiro.venda (
-    id bigint NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('financeiro.venda_seq'),
     instituicao_id bigint NOT NULL CONSTRAINT fk_venda_instituicao REFERENCES gestao.instituicao(id),
     evento_id bigint NOT NULL CONSTRAINT fk_venda_evento REFERENCES gestao.evento(id),
     valor_total numeric(10,2) NOT NULL,
@@ -123,7 +144,7 @@ ALTER TABLE financeiro.venda ADD COLUMN IF NOT EXISTS evento_id bigint;
 
 -- 10. Item Venda Table (Schema: financeiro)
 CREATE TABLE IF NOT EXISTS financeiro.item_venda (
-    id bigint NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('financeiro.item_venda_seq'),
     instituicao_id bigint NOT NULL CONSTRAINT fk_item_venda_instituicao REFERENCES gestao.instituicao(id),
     evento_id bigint NOT NULL CONSTRAINT fk_item_venda_evento REFERENCES gestao.evento(id),
     quantidade integer NOT NULL,
@@ -138,7 +159,7 @@ ALTER TABLE financeiro.item_venda ADD COLUMN IF NOT EXISTS evento_id bigint;
 
 -- 11. Cliente Table (Schema: financeiro)
 CREATE TABLE IF NOT EXISTS financeiro.cliente (
-    id bigserial NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('financeiro.cliente_seq'),
     instituicao_id bigint NOT NULL CONSTRAINT fk_cliente_instituicao REFERENCES gestao.instituicao(id),
     nome varchar(255) NOT NULL,
     celular varchar(255) NOT NULL,
@@ -152,7 +173,7 @@ ALTER TABLE financeiro.cliente ADD COLUMN IF NOT EXISTS instituicao_id bigint;
 
 -- 12. Conta Table (Schema: financeiro)
 CREATE TABLE IF NOT EXISTS financeiro.conta (
-    id bigserial NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('financeiro.conta_seq'),
     uuid uuid NOT NULL UNIQUE,
     instituicao_id bigint NOT NULL CONSTRAINT fk_conta_instituicao REFERENCES gestao.instituicao(id),
     evento_id bigint NOT NULL CONSTRAINT fk_conta_evento REFERENCES gestao.evento(id),
@@ -169,7 +190,7 @@ ALTER TABLE financeiro.conta ADD COLUMN IF NOT EXISTS instituicao_id bigint;
 
 -- 13. Caixa Table (Schema: financeiro)
 CREATE TABLE IF NOT EXISTS financeiro.caixa (
-    id bigint NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('financeiro.caixa_seq'),
     uuid uuid NOT NULL UNIQUE,
     instituicao_id bigint NOT NULL CONSTRAINT fk_caixa_instituicao REFERENCES gestao.instituicao(id),
     evento_id bigint NOT NULL CONSTRAINT fk_caixa_evento REFERENCES gestao.evento(id),
@@ -189,7 +210,7 @@ ALTER TABLE financeiro.caixa ADD COLUMN IF NOT EXISTS evento_id bigint;
 
 -- 14. Fluxo Caixa Table (Schema: financeiro)
 CREATE TABLE IF NOT EXISTS financeiro.fluxo_caixa (
-    id bigint NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('financeiro.fluxo_caixa_seq'),
     instituicao_id bigint NOT NULL CONSTRAINT fk_fluxo_caixa_instituicao REFERENCES gestao.instituicao(id),
     evento_id bigint NOT NULL CONSTRAINT fk_fluxo_caixa_evento REFERENCES gestao.evento(id),
     caixa_id bigint CONSTRAINT fk_fluxo_caixa_caixa REFERENCES financeiro.caixa(id),
@@ -206,7 +227,7 @@ ALTER TABLE financeiro.fluxo_caixa ADD COLUMN IF NOT EXISTS evento_id bigint;
 
 -- 15. Usuario Table (Schema: seguranca)
 CREATE TABLE IF NOT EXISTS seguranca.usuario (
-    id bigserial NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('seguranca.usuario_seq'),
     email varchar(100) NOT NULL UNIQUE,
     nome varchar(150) NOT NULL,
     url_foto varchar(500),
@@ -218,7 +239,7 @@ CREATE TABLE IF NOT EXISTS seguranca.usuario (
 
 -- 16. Usuario Instituicao Table (Schema: seguranca)
 CREATE TABLE IF NOT EXISTS seguranca.usuario_instituicao (
-    id bigserial NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('seguranca.usuario_instituicao_seq'),
     usuario_id bigint NOT NULL CONSTRAINT fk_usuario_instituicao_usuario REFERENCES seguranca.usuario(id),
     instituicao_id bigint NOT NULL CONSTRAINT fk_usuario_instituicao_instituicao REFERENCES gestao.instituicao(id),
     created_at timestamp with time zone NOT NULL,
@@ -227,7 +248,7 @@ CREATE TABLE IF NOT EXISTS seguranca.usuario_instituicao (
 
 -- 17. Perfil Table (Schema: seguranca)
 CREATE TABLE IF NOT EXISTS seguranca.perfil (
-    id bigserial NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('seguranca.perfil_seq'),
     instituicao_id bigint NOT NULL CONSTRAINT fk_perfil_instituicao REFERENCES gestao.instituicao(id),
     nome varchar(50) NOT NULL,
     created_at timestamp with time zone NOT NULL,
@@ -237,7 +258,7 @@ CREATE TABLE IF NOT EXISTS seguranca.perfil (
 
 -- 18. Permissao Table (Schema: seguranca)
 CREATE TABLE IF NOT EXISTS seguranca.permissao (
-    id bigserial NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('seguranca.permissao_seq'),
     tela varchar(50) NOT NULL,
     acao varchar(50) NOT NULL,
     created_at timestamp with time zone NOT NULL,
@@ -254,7 +275,7 @@ CREATE TABLE IF NOT EXISTS seguranca.tb_perfil_permissao (
 
 -- 20. Perfil Usuario Table (Schema: seguranca)
 CREATE TABLE IF NOT EXISTS seguranca.perfil_usuario (
-    id bigserial NOT NULL PRIMARY KEY,
+    id bigint NOT NULL PRIMARY KEY DEFAULT nextval('seguranca.perfil_usuario_seq'),
     usuario_id bigint NOT NULL CONSTRAINT fk_perfil_usuario_usuario REFERENCES seguranca.usuario(id),
     perfil_id bigint NOT NULL CONSTRAINT fk_perfil_usuario_perfil REFERENCES seguranca.perfil(id),
     evento_id bigint NOT NULL CONSTRAINT fk_perfil_usuario_evento REFERENCES gestao.evento(id),
@@ -262,5 +283,3 @@ CREATE TABLE IF NOT EXISTS seguranca.perfil_usuario (
     updated_at timestamp with time zone NOT NULL
 );
 
--- 21. Drop obsolete check constraint on venda if it exists
-ALTER TABLE financeiro.venda DROP CONSTRAINT IF EXISTS venda_forma_pagamento_check;
