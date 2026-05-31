@@ -5,10 +5,9 @@ import br.com.rts.eventmanager.catalogo.servico.repositories.ServicoRepository;
 import br.com.rts.eventmanager.catalogo.servico.services.ServicoService;
 import br.com.rts.eventmanager.utils.NotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -16,31 +15,44 @@ public class ServicoServiceImpl implements ServicoService {
 
     private final ServicoRepository repository;
 
-    public List<Servico> findAll() {
-        return repository.findAll(Sort.by(Sort.Direction.ASC, "nome"));
+    @Override
+    public Page<Servico> findAllByInstituicaoAndEvento(Long instituicaoId, Long eventoId, Pageable pageable) {
+        return repository.findAllByInstituicaoAndEvento(instituicaoId, eventoId, pageable);
     }
 
-    public Servico findById(final Long servicoId) {
-        return repository.findById(servicoId)
+    @Override
+    public Servico findByInstituicaoAndEvento(Long servicoId, Long instituicaoId, Long eventoId) {
+        return repository.findByIdAndInstituicaoAndEvento(servicoId, instituicaoId, eventoId)
                 .orElseThrow(() -> new NotFoundException("servico não encontrado!"));
+
     }
 
     @Override
-    public Long create(Servico servicoNew) {
-        return repository.save(servicoNew).getId();
+    public Servico create(Servico servico, Long instituicaoId, Long eventoId) {
+        //TODO: Validar se instituicao e evento estao corretos, atribuir á entidade
+        servico.setInstituicao(instituicaoId);
+        servico.setEvento(eventoId);
+        return repository.save(servico);
     }
 
     @Override
-    public void update(Long id, Servico servicoNew) {
-        Servico servico = this.findById(id);
-        servico.setNome(servicoNew.getNome());
-        servico.setValorVenda(servicoNew.getValorVenda());
-        repository.save(servico);
+    public Servico update(Long servicoId, Servico servicoUpdate, Long instituicaoId, Long eventoId) {
+        Servico servico = this.findByInstituicaoAndEvento(servicoId, instituicaoId, eventoId);
+
+        servico.setNome(servicoUpdate.getNome());
+        servico.setValorVenda(servicoUpdate.getValorVenda());
+        if (servicoUpdate.getCategoria() != null) {
+            servico.setCategoria(servicoUpdate.getCategoria());
+        }
+        if (servicoUpdate.getSubCategoria() != null) {
+            servico.setSubCategoria(servicoUpdate.getSubCategoria());
+        }
+        return repository.save(servico);
     }
 
-    public void delete(final Long servicoId) {
-
-        final Servico servico = this.findById(servicoId);
+    @Override
+    public void delete(Long servicoId, Long instituicaoId, Long eventoId) {
+        final Servico servico = this.findByInstituicaoAndEvento(servicoId, instituicaoId, eventoId);
 
         repository.delete(servico);
     }

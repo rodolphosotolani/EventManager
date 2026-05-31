@@ -1,18 +1,30 @@
 package br.com.rts.eventmanager.catalogo.servico.services;
 
 import br.com.rts.eventmanager.catalogo.servico.entities.Servico;
-
-import java.util.List;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ServicoService {
 
-    List<Servico> findAll();
+    Page<Servico> findAllByInstituicaoAndEvento(@NotNull final Long instituicaoId,
+                                                @NotNull final Long eventoId,
+                                                Pageable pageable);
 
-    Servico findById(final Long produtoId);
+    Servico findByInstituicaoAndEvento(@NotNull final Long servicoId,
+                                       @NotNull final Long instituicaoId,
+                                       @NotNull final Long eventoId);
 
-    Long create(final Servico produtoNew);
+    Servico create(Servico servico,
+                   @NotNull final Long instituicaoId,
+                   @NotNull final Long eventoId);
 
-    void update(final Long id, final Servico produtoNew);
+    Servico update(@NotNull final Long servicoId,
+                   Servico servicoUpdate,
+                   @NotNull final Long instituicaoId,
+                   @NotNull final Long eventoId);
 
-    void delete(final Long id);
+    void delete(@NotNull final Long servicoId,
+                @NotNull final Long instituicaoId,
+                @NotNull final Long eventoId);
 }
