@@ -28,16 +28,15 @@ public class ServicoServiceImpl implements ServicoService {
     }
 
     @Override
-    public Servico create(Servico servico, Long instituicaoId, Long eventoId) {
+    public Servico create(Servico servico, Long instituicaoId) {
         //TODO: Validar se instituicao e evento estao corretos, atribuir á entidade
         servico.setInstituicao(instituicaoId);
-        servico.setEvento(eventoId);
         return repository.save(servico);
     }
 
     @Override
-    public Servico update(Long servicoId, Servico servicoUpdate, Long instituicaoId, Long eventoId) {
-        Servico servico = this.findByInstituicaoAndEvento(servicoId, instituicaoId, eventoId);
+    public Servico update(Long servicoId, Servico servicoUpdate, Long instituicaoId) {
+        Servico servico = this.findByInstituicaoAndEvento(servicoId, instituicaoId, servicoUpdate.getEvento());
 
         servico.setNome(servicoUpdate.getNome());
         servico.setValorVenda(servicoUpdate.getValorVenda());

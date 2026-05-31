@@ -16,13 +16,11 @@ public interface ServicoService {
                                        @NotNull final Long eventoId);
 
     Servico create(Servico servico,
-                   @NotNull final Long instituicaoId,
-                   @NotNull final Long eventoId);
+                   @NotNull final Long instituicaoId);
 
     Servico update(@NotNull final Long servicoId,
                    Servico servicoUpdate,
-                   @NotNull final Long instituicaoId,
-                   @NotNull final Long eventoId);
+                   @NotNull final Long instituicaoId);
 
     void delete(@NotNull final Long servicoId,
                 @NotNull final Long instituicaoId,

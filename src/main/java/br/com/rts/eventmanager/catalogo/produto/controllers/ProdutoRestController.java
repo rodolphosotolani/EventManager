@@ -75,7 +75,7 @@ public class ProdutoRestController {
                 .ok(mapper.entityToResponse(produto));
     }
 
-    @PostMapping("/eventos/{eventoId}")
+    @PostMapping()
     @Operation(summary = "Cadastrar um novo produto (Evento informado no payload)",
             description = "Cadastra um novo produto. O cabeçalho deve conter o ID da instituição e os dados do produto (incluindo o ID do evento obrigatoriamente) no corpo.")
     @ApiResponses(value = {
@@ -85,21 +85,19 @@ public class ProdutoRestController {
     public ResponseEntity<ProdutoResponse> createProduto(
             @Parameter(description = "ID da instituição dona do catálogo", required = true)
             @RequestHeader("instituicao_id") Long instituicaoId,
-            @Parameter(description = "ID do evento", required = true)
-            @PathVariable Long eventoId,
             @Parameter(description = "Dados do produto com evento no payload", required = true)
             @RequestBody ProdutoRequest request) {
 
         Produto produto = mapper.requestToEntity(request);
 
-        Produto produtoCriado = service.create(produto, instituicaoId, eventoId);
+        Produto produtoCriado = service.create(produto, instituicaoId);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(mapper.entityToResponse(produtoCriado));
     }
 
-    @PutMapping("/eventos/{eventoId}/{produtoId}")
+    @PutMapping("/{produtoId}")
     @Operation(summary = "Atualizar um produto existente",
             description = "Atualiza os dados de um produto pelo ID no path, validando o evento no path e a instituição no cabeçalho.")
     @ApiResponses(value = {
@@ -110,8 +108,6 @@ public class ProdutoRestController {
     public ResponseEntity<ProdutoResponse> updateProduto(
             @Parameter(description = "ID da instituição dona do catálogo", required = true)
             @RequestHeader("instituicao_id") Long instituicaoId,
-            @Parameter(description = "ID do evento", required = true)
-            @PathVariable Long eventoId,
             @Parameter(description = "ID do produto a ser atualizado", required = true)
             @PathVariable Long produtoId,
             @Parameter(description = "Novos dados para atualização", required = true)
@@ -119,7 +115,7 @@ public class ProdutoRestController {
 
         Produto produtoUpdate = mapper.requestToEntity(request);
 
-        Produto produtoAtualizado = service.update(produtoId, produtoUpdate, instituicaoId, eventoId);
+        Produto produtoAtualizado = service.update(produtoId, produtoUpdate, instituicaoId);
 
         return ResponseEntity.ok(mapper.entityToResponse(produtoAtualizado));
     }

@@ -75,7 +75,7 @@ public class ServicoRestController {
                 .ok(mapper.entityToResponse(servico));
     }
 
-    @PostMapping("/eventos/{eventoId}")
+    @PostMapping()
     @Operation(summary = "Cadastrar um novo serviço (Evento informado no payload)",
             description = "Cadastra um novo serviço. O cabeçalho deve conter o ID da instituição e os dados do serviço (incluindo o ID do evento obrigatoriamente) no corpo.")
     @ApiResponses(value = {
@@ -85,21 +85,19 @@ public class ServicoRestController {
     public ResponseEntity<ServicoResponse> createServico(
             @Parameter(description = "ID da instituição dona do catálogo", required = true)
             @RequestHeader("instituicao_id") Long instituicaoId,
-            @Parameter(description = "ID do evento", required = true)
-            @PathVariable Long eventoId,
             @Parameter(description = "Dados do serviço com evento no payload", required = true)
             @RequestBody ServicoRequest request) {
 
         Servico servico = mapper.requestToEntity(request);
 
-        Servico servicoCriado = service.create(servico, instituicaoId, eventoId);
+        Servico servicoCriado = service.create(servico, instituicaoId);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(mapper.entityToResponse(servicoCriado));
     }
 
-    @PutMapping("/eventos/{eventoId}/{servicoId}")
+    @PutMapping("/{servicoId}")
     @Operation(summary = "Atualizar um serviço existente",
             description = "Atualiza os dados de um serviço pelo ID no path, validando o evento no path e a instituição no cabeçalho.")
     @ApiResponses(value = {
@@ -110,8 +108,6 @@ public class ServicoRestController {
     public ResponseEntity<ServicoResponse> updateServico(
             @Parameter(description = "ID da instituição dona do catálogo", required = true)
             @RequestHeader("instituicao_id") Long instituicaoId,
-            @Parameter(description = "ID do evento", required = true)
-            @PathVariable Long eventoId,
             @Parameter(description = "ID do serviço a ser atualizado", required = true)
             @PathVariable Long servicoId,
             @Parameter(description = "Novos dados para atualização", required = true)
@@ -119,7 +115,7 @@ public class ServicoRestController {
 
         Servico servicoUpdate = mapper.requestToEntity(request);
 
-        Servico servicoAtualizado = service.update(servicoId, servicoUpdate, instituicaoId, eventoId);
+        Servico servicoAtualizado = service.update(servicoId, servicoUpdate, instituicaoId);
 
         return ResponseEntity.ok(mapper.entityToResponse(servicoAtualizado));
     }

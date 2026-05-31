@@ -5,12 +5,15 @@ import br.com.rts.eventmanager.catalogo.estoque.controllers.responses.EstoqueRes
 import br.com.rts.eventmanager.catalogo.estoque.entities.Estoque;
 import br.com.rts.eventmanager.catalogo.produto.mappers.ProdutoMapper;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = {ProdutoMapper.class})
 public abstract class EstoqueMapper {
 
     abstract public EstoqueResponse entityToResponse(Estoque estoque);
 
+    @Mapping(target = "dateCreated", expression = "java(java.time.OffsetDateTime.now())")
+    @Mapping(target = "lastUpdated", expression = "java(java.time.OffsetDateTime.now())")
     abstract public Estoque requestToEntity(EstoqueRequest request);
 
 }

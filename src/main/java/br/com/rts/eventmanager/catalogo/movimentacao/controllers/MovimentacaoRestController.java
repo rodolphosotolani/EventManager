@@ -75,7 +75,7 @@ public class MovimentacaoRestController {
         return ResponseEntity.ok(mapper.entityToResponse(movimentacao));
     }
 
-    @PostMapping("/eventos/{eventoId}")
+    @PostMapping()
     @Operation(summary = "Cadastrar uma nova movimentação (Evento informado no payload)",
             description = "Cadastra um novo registro de movimentação. O cabeçalho deve conter o ID da instituição e os dados de movimentação (incluindo o ID do evento obrigatoriamente) no corpo.")
     @ApiResponses(value = {
@@ -85,21 +85,19 @@ public class MovimentacaoRestController {
     public ResponseEntity<MovimentacaoResponse> createMovimentacao(
             @Parameter(description = "ID da instituição dona do catálogo", required = true)
             @RequestHeader("instituicao_id") Long instituicaoId,
-            @Parameter(description = "ID do evento", required = true)
-            @PathVariable Long eventoId,
             @Parameter(description = "Dados da movimentação com evento no payload", required = true)
             @RequestBody MovimentacaoRequest request) {
 
         Movimentacao movimentacao = mapper.requestToEntity(request);
 
-        Movimentacao movimentacaoCriada = service.create(movimentacao, instituicaoId, eventoId);
+        Movimentacao movimentacaoCriada = service.create(movimentacao, instituicaoId);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(mapper.entityToResponse(movimentacaoCriada));
     }
 
-    @PutMapping("/eventos/{eventoId}/{movimentacaoId}")
+    @PutMapping("/{movimentacaoId}")
     @Operation(summary = "Atualizar uma movimentação existente",
             description = "Atualiza os dados de uma movimentação pelo ID no path, validando o evento no path e a instituição no cabeçalho.")
     @ApiResponses(value = {
@@ -110,8 +108,6 @@ public class MovimentacaoRestController {
     public ResponseEntity<MovimentacaoResponse> updateMovimentacao(
             @Parameter(description = "ID da instituição dona do catálogo", required = true)
             @RequestHeader("instituicao_id") Long instituicaoId,
-            @Parameter(description = "ID do evento", required = true)
-            @PathVariable Long eventoId,
             @Parameter(description = "ID da movimentação a ser atualizada", required = true)
             @PathVariable Long movimentacaoId,
             @Parameter(description = "Novos dados para atualização", required = true)
@@ -119,7 +115,7 @@ public class MovimentacaoRestController {
 
         Movimentacao movimentacaoUpdate = mapper.requestToEntity(request);
 
-        Movimentacao movimentacaoAtualizada = service.update(movimentacaoId, movimentacaoUpdate, instituicaoId, eventoId);
+        Movimentacao movimentacaoAtualizada = service.update(movimentacaoId, movimentacaoUpdate, instituicaoId);
 
         return ResponseEntity.ok(mapper.entityToResponse(movimentacaoAtualizada));
     }

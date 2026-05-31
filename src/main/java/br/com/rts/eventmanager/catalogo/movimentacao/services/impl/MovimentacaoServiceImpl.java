@@ -25,16 +25,15 @@ public class MovimentacaoServiceImpl implements MovimentacaoService {
     }
 
     @Override
-    public Movimentacao create(Movimentacao movimentacao, Long instituicaoId, Long eventoId) {
+    public Movimentacao create(Movimentacao movimentacao, Long instituicaoId) {
         //TODO: Validar instituicao e evento e adicionar a entidade
         movimentacao.setInstituicao(instituicaoId);
-        movimentacao.setEvento(eventoId);
         return movimentacaoRepository.save(movimentacao);
     }
 
     @Override
-    public Movimentacao update(Long movimentacaoId, Movimentacao movimentacaoUpdate, Long instituicaoId, Long eventoId) {
-        final Movimentacao movimentacao = this.findByIdAndInstituicao(movimentacaoId, instituicaoId, eventoId);
+    public Movimentacao update(Long movimentacaoId, Movimentacao movimentacaoUpdate, Long instituicaoId) {
+        final Movimentacao movimentacao = this.findByIdAndInstituicao(movimentacaoId, instituicaoId, movimentacaoUpdate.getEvento());
         movimentacao.setQuantidade(movimentacaoUpdate.getQuantidade());
         movimentacao.setTipoMovimentacao(movimentacaoUpdate.getTipoMovimentacao());
         movimentacao.setMotivoMovimentacao(movimentacaoUpdate.getMotivoMovimentacao());

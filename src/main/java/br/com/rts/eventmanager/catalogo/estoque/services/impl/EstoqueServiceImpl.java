@@ -27,7 +27,7 @@ public class EstoqueServiceImpl implements EstoqueService {
     }
 
     @Override
-    public Estoque create(Estoque estoque, Long instituicaoId, Long eventoId) {
+    public Estoque create(Estoque estoque, Long instituicaoId) {
         if (estoque.getQuantidadeInicial() == null) {
             estoque.setQuantidadeInicial(estoque.getQuantidadeAtual());
         }
@@ -35,9 +35,9 @@ public class EstoqueServiceImpl implements EstoqueService {
     }
 
     @Override
-    public Estoque update(Long estoqueId, Estoque estoqueNew, Long instituicaoId, Long eventoId) {
+    public Estoque update(Long estoqueId, Estoque estoqueNew, Long instituicaoId) {
 
-        Estoque estoque = this.findByIdAndInstituicaoAndEvento(estoqueId, instituicaoId, eventoId);
+        Estoque estoque = this.findByIdAndInstituicaoAndEvento(estoqueId, instituicaoId, estoqueNew.getEvento());
 
         estoque.setQuantidadeAtual(estoqueNew.getQuantidadeAtual());
         estoque.setValorCompraUnitario(estoqueNew.getValorCompraUnitario());

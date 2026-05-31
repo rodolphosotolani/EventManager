@@ -16,13 +16,11 @@ public interface MovimentacaoService {
                                         @NotNull final Long eventoId);
 
     Movimentacao create(Movimentacao movimentacao,
-                        @NotNull final Long instituicaoId,
-                        @NotNull final Long eventoId);
+                        @NotNull final Long instituicaoId);
 
     Movimentacao update(@NotNull final Long movimentacaoId,
                         Movimentacao movimentacaoUpdate,
-                        @NotNull final Long instituicaoId,
-                        @NotNull final Long eventoId);
+                        @NotNull final Long instituicaoId);
 
     void delete(@NotNull final Long movimentacaoId,
                 @NotNull final Long instituicaoId,

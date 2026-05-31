@@ -16,13 +16,11 @@ public interface ProdutoService {
                                             @NotNull final Long eventoId);
 
     Produto create(final Produto produtoNew,
-                   @NotNull final Long instituicaoId,
-                   @NotNull final Long eventoId);
+                   @NotNull final Long instituicaoId);
 
     Produto update(final Long produtoId,
                 final Produto produtoNew,
-                @NotNull final Long instituicaoId,
-                @NotNull final Long eventoId);
+                @NotNull final Long instituicaoId);
 
     void delete(@NotNull final Long produtoId,
                 @NotNull final Long instituicaoId,

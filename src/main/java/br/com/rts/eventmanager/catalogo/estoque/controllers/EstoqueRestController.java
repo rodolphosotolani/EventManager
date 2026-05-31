@@ -75,7 +75,7 @@ public class EstoqueRestController {
                 .ok(mapper.entityToResponse(estoque));
     }
 
-    @PostMapping("/eventos/{eventoId}")
+    @PostMapping()
     @Operation(summary = "Cadastrar um novo estoque (Evento informado no payload)",
             description = "Cadastra um novo registro de estoque. O cabeçalho deve conter o ID da instituição e os dados de estoque (incluindo o ID do evento obrigatoriamente) no corpo.")
     @ApiResponses(value = {
@@ -85,21 +85,19 @@ public class EstoqueRestController {
     public ResponseEntity<EstoqueResponse> createEstoque(
             @Parameter(description = "ID da instituição dona do catálogo", required = true)
             @RequestHeader("instituicao_id") Long instituicaoId,
-            @Parameter(description = "ID do evento", required = true)
-            @PathVariable Long eventoId,
             @Parameter(description = "Dados do estoque com evento no payload", required = true)
             @RequestBody EstoqueRequest request) {
 
         Estoque estoque = mapper.requestToEntity(request);
 
-        Estoque estoqueCriado = service.create(estoque, instituicaoId, eventoId);
+        Estoque estoqueCriado = service.create(estoque, instituicaoId);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(mapper.entityToResponse(estoqueCriado));
     }
 
-    @PutMapping("/eventos/{eventoId}/{estoqueId}")
+    @PutMapping("/{estoqueId}")
     @Operation(summary = "Atualizar um estoque existente",
             description = "Atualiza os dados de um estoque pelo ID no path, validando o evento no path e a instituição no cabeçalho.")
     @ApiResponses(value = {
@@ -110,8 +108,6 @@ public class EstoqueRestController {
     public ResponseEntity<EstoqueResponse> updateEstoque(
             @Parameter(description = "ID da instituição dona do catálogo", required = true)
             @RequestHeader("instituicao_id") Long instituicaoId,
-            @Parameter(description = "ID do evento", required = true)
-            @PathVariable Long eventoId,
             @Parameter(description = "ID do registro de estoque a ser atualizado", required = true)
             @PathVariable Long estoqueId,
             @Parameter(description = "Novos dados para atualização", required = true)
@@ -119,7 +115,7 @@ public class EstoqueRestController {
 
         Estoque estoqueUpdate = mapper.requestToEntity(request);
 
-        Estoque estoqueAtualizado = service.update(estoqueId, estoqueUpdate, instituicaoId, eventoId);
+        Estoque estoqueAtualizado = service.update(estoqueId, estoqueUpdate, instituicaoId);
 
         return ResponseEntity.ok(mapper.entityToResponse(estoqueAtualizado));
     }

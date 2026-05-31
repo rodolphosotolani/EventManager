@@ -25,13 +25,13 @@ public class ProdutoServiceImpl implements ProdutoService {
     }
 
     @Override
-    public Produto create(Produto produtoNew, Long instituicaoId, Long eventoId) {
+    public Produto create(Produto produtoNew, Long instituicaoId) {
         return repository.save(produtoNew);
     }
 
     @Override
-    public Produto update(Long produtoId, Produto produtoNew, Long instituicaoId, Long eventoId) {
-        Produto produto = this.findByIdAndInstituicaoAndEvento(produtoId, instituicaoId, eventoId);
+    public Produto update(Long produtoId, Produto produtoNew, Long instituicaoId) {
+        Produto produto = this.findByIdAndInstituicaoAndEvento(produtoId, instituicaoId, produtoNew.getEvento());
 
         produto.setNome(produtoNew.getNome());
         produto.setEspecificacao(produtoNew.getEspecificacao());

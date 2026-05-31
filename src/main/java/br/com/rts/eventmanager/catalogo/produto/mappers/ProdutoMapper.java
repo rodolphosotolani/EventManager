@@ -16,5 +16,7 @@ public abstract class ProdutoMapper {
 
     @Mapping(target = "categoria.id", source = "categoriaId")
     @Mapping(target = "subCategoria.id", source = "subCategoriaId")
+    @Mapping(target = "dateCreated", expression = "java(java.time.OffsetDateTime.now())")
+    @Mapping(target = "lastUpdated", expression = "java(java.time.OffsetDateTime.now())")
     abstract public Produto requestToEntity(ProdutoRequest request);
 }
