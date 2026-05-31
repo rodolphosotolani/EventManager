@@ -1,14 +1,16 @@
 package br.com.rts.eventmanager.catalogo.estoque.repositories;
 
 import br.com.rts.eventmanager.catalogo.estoque.entities.Estoque;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
 
 public interface EstoqueRepository extends JpaRepository<Estoque, Long> {
 
-    @Query("SELECT SUM(e.quantidadeAtual) FROM Estoque e WHERE e.produto.id = :produtoId")
-    Integer sumQuantidadeByProdutoId(@Param("produtoId") Long produtoId);
+    Page<Estoque> findAllByInstituicaoAndEvento(Long instituicao, Long evento, Pageable pageable);
+
+    Optional<Estoque> findByIdAndInstituicaoAndEvento(Long id, Long instituicao, Long evento);
 
 }

@@ -1,21 +1,31 @@
 package br.com.rts.eventmanager.catalogo.estoque.services;
 
 import br.com.rts.eventmanager.catalogo.estoque.entities.Estoque;
-
-import java.util.List;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface EstoqueService {
 
-    List<Estoque> findAll();
+    Page<Estoque> findAllByInstituicaoAndEvento(@NotNull final Long instituicaoId,
+                                                @NotNull final Long eventoId,
+                                                Pageable pageable);
 
-    Estoque get(final Long id);
+    Estoque findByIdAndInstituicaoAndEvento(@NotNull final Long estoqueId,
+                                            @NotNull final Long instituicaoId,
+                                            @NotNull final Long eventoId);
 
-    Long create(final Estoque estoque);
+    Estoque create(final Estoque estoque,
+                   @NotNull final Long instituicaoId,
+                   @NotNull final Long eventoId);
 
-    void update(final Long id, final Estoque estoqueNew);
+    Estoque update(@NotNull final Long estoqueId,
+                   final Estoque estoqueNew,
+                   @NotNull final Long instituicaoId,
+                   @NotNull final Long eventoId);
 
-    void delete(final Long id);
-
-    Integer quantidadeEstoqueByProdutoId(Long produtoId);
+    void delete(@NotNull final Long estoqueId,
+                @NotNull final Long instituicaoId,
+                @NotNull final Long eventoId);
 
 }
