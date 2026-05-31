@@ -12,8 +12,6 @@ import java.util.UUID;
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
 
-    Optional<Cliente> findByUuid(UUID uuid);
-
     Page<Cliente> findAllByInstituicao(Long instituicao, Pageable pageable);
 
     Optional<Cliente> findByIdAndInstituicao(Long id, Long instituicao);

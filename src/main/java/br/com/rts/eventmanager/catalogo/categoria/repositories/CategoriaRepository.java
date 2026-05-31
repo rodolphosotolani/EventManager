@@ -15,6 +15,5 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
     @Nullable
     Page<Categoria> findAllByInstituicao(Long instituicaoId, Pageable pageable);
 
-    @Nullable
     Optional<Categoria> findByIdAndInstituicao(Long categoriaId, Long instituicaoId);
 }

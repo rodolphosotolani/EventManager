@@ -17,7 +17,6 @@ public interface CategoriaService {
 
     void delete(final Long instituicaoId, final Long categoriaId);
 
-    @Nullable
     Page<Categoria> findAllByInstituicao(final Long instituicaoId, Pageable pageable);
 
     Categoria findByIdAndInstituicao(final Long categoriaId, final Long instituicaoId);

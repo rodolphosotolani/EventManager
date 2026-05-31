@@ -5,7 +5,6 @@ import br.com.rts.eventmanager.gestao.instituicao.repositories.InstituicaoReposi
 import br.com.rts.eventmanager.gestao.instituicao.services.InstituicaoService;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,7 +16,6 @@ import java.util.Optional;
 public class InstituicaoServiceImpl implements InstituicaoService {
 
     private final InstituicaoRepository repository;
-    private final ApplicationEventPublisher publisher;
 
     @Override
     public Page<Instituicao> findAll(Pageable pageable) {
