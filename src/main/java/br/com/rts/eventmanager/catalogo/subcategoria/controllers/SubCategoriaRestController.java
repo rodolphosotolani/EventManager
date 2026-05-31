@@ -42,9 +42,6 @@ public class SubCategoriaRestController {
 
         Page<SubCategoria> subCategorias = service.findAllByInstituicao(instituicaoId, pageable);
 
-        if (subCategorias == null || subCategorias.isEmpty())
-            return ResponseEntity.noContent().build();
-
         return ResponseEntity
                 .ok(subCategorias.map(mapper::entityToResponse));
     }
