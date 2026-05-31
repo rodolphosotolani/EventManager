@@ -1,26 +1,30 @@
 package br.com.rts.eventmanager.catalogo.movimentacao.services;
 
 import br.com.rts.eventmanager.catalogo.movimentacao.entities.Movimentacao;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface MovimentacaoService {
 
-    List<Movimentacao> findAll();
+    Page<Movimentacao> findAllByInstituicaoAndEvento(@NotNull final Long instituicaoId,
+                                                     @NotNull final Long eventoId,
+                                                     Pageable pageable);
 
-    Movimentacao get(final Long id);
+    Movimentacao findByIdAndInstituicao(@NotNull final Long movimentacaoId,
+                                        @NotNull final Long instituicaoId,
+                                        @NotNull final Long eventoId);
 
-    Movimentacao create(final Movimentacao movimentacao);
+    Movimentacao create(Movimentacao movimentacao,
+                        @NotNull final Long instituicaoId,
+                        @NotNull final Long eventoId);
 
-    Movimentacao update(final Long id, final Movimentacao movimentacaoNew);
+    Movimentacao update(@NotNull final Long movimentacaoId,
+                        Movimentacao movimentacaoUpdate,
+                        @NotNull final Long instituicaoId,
+                        @NotNull final Long eventoId);
 
-    void delete(final Long id);
-
-    Page<Movimentacao> findAllByInstituicaoAndEvento(Long instituicao, Long evento, Pageable pageable);
-
-    Movimentacao findByIdAndInstituicao(Long id, Long instituicao);
-
-    Movimentacao findByIdAndInstituicaoAndEvento(Long id, Long instituicao, Long evento);
+    void delete(@NotNull final Long movimentacaoId,
+                @NotNull final Long instituicaoId,
+                @NotNull final Long eventoId);
 }

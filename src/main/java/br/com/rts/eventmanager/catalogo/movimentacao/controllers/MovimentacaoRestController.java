@@ -51,7 +51,7 @@ public class MovimentacaoRestController {
         return ResponseEntity.ok(movimentacoes.map(mapper::entityToResponse));
     }
 
-    @GetMapping("/{movimentacaoId}")
+    @GetMapping("/eventos/{eventoId}/{movimentacaoId}")
     @Operation(summary = "Obter detalhes de uma movimentação específica (Busca direta por ID)",
             description = "Retorna os detalhes de um único registro de movimentação pelo seu ID, validando a instituição no cabeçalho.")
     @ApiResponses(value = {
@@ -61,10 +61,12 @@ public class MovimentacaoRestController {
     public ResponseEntity<MovimentacaoResponse> getMovimentacaoById(
             @Parameter(description = "ID da instituição dona do catálogo", required = true)
             @RequestHeader("instituicao_id") Long instituicaoId,
+            @Parameter(description = "ID do evento", required = true)
+            @PathVariable Long eventoId,
             @Parameter(description = "ID da movimentação", required = true)
             @PathVariable Long movimentacaoId) {
 
-        Movimentacao movimentacao = service.findByIdAndInstituicao(movimentacaoId, instituicaoId);
+        Movimentacao movimentacao = service.findByIdAndInstituicao(movimentacaoId, instituicaoId, eventoId);
 
         if (Objects.isNull(movimentacao)) {
             return ResponseEntity.notFound().build();
@@ -88,9 +90,9 @@ public class MovimentacaoRestController {
             @Parameter(description = "Dados da movimentação com evento no payload", required = true)
             @RequestBody MovimentacaoRequest request) {
 
-        Movimentacao movimentacao = mapper.requestToEntity(request, instituicaoId, eventoId);
+        Movimentacao movimentacao = mapper.requestToEntity(request);
 
-        Movimentacao movimentacaoCriada = service.create(movimentacao);
+        Movimentacao movimentacaoCriada = service.create(movimentacao, instituicaoId, eventoId);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -115,14 +117,9 @@ public class MovimentacaoRestController {
             @Parameter(description = "Novos dados para atualização", required = true)
             @RequestBody MovimentacaoRequest request) {
 
-        Movimentacao movimentacaoExistente = service.findByIdAndInstituicaoAndEvento(movimentacaoId, instituicaoId, eventoId);
-        if (Objects.isNull(movimentacaoExistente)) {
-            return ResponseEntity.notFound().build();
-        }
+        Movimentacao movimentacaoUpdate = mapper.requestToEntity(request);
 
-        Movimentacao movimentacaoUpdate = mapper.updateEntity(movimentacaoExistente, request);
-
-        Movimentacao movimentacaoAtualizada = service.update(movimentacaoId, movimentacaoUpdate);
+        Movimentacao movimentacaoAtualizada = service.update(movimentacaoId, movimentacaoUpdate, instituicaoId, eventoId);
 
         return ResponseEntity.ok(mapper.entityToResponse(movimentacaoAtualizada));
     }
@@ -142,12 +139,8 @@ public class MovimentacaoRestController {
             @Parameter(description = "ID da movimentação a ser deletada", required = true)
             @PathVariable Long movimentacaoId) {
 
-        Movimentacao movimentacao = service.findByIdAndInstituicaoAndEvento(movimentacaoId, instituicaoId, eventoId);
-        if (Objects.isNull(movimentacao)) {
-            return ResponseEntity.notFound().build();
-        }
+        service.delete(movimentacaoId, instituicaoId, eventoId);
 
-        service.delete(movimentacaoId);
         return ResponseEntity.noContent().build();
     }
 }

@@ -7,10 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MovimentacaoRepository extends JpaRepository<Movimentacao, Long> {
 
-    Page<Movimentacao> findAllByInstituicaoAndEvento(Long instituicao, Long evento, Pageable pageable);
+    Page<Movimentacao> findAllByInstituicaoAndEvento(Long instituicaoId, Long eventoId, Pageable pageable);
 
-    Movimentacao findByIdAndInstituicao(Long id, Long instituicao);
-
-    Movimentacao findByIdAndInstituicaoAndEvento(Long id, Long instituicao, Long evento);
-
+    Movimentacao findByIdAndInstituicaoAndEvento(Long movimentacaoId, Long instituicaoId, Long eventoId);
 }
