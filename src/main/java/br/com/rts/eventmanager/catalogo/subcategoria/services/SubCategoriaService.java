@@ -1,21 +1,25 @@
 package br.com.rts.eventmanager.catalogo.subcategoria.services;
 
 import br.com.rts.eventmanager.catalogo.subcategoria.entities.SubCategoria;
-
-import java.util.List;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface SubCategoriaService {
 
-    SubCategoria findById(Long subCategoriaId);
+    Page<SubCategoria> findAllByInstituicao(@NotNull final Long instituicaoId,
+                                            Pageable pageable);
 
-    List<SubCategoria> findAll();
+    SubCategoria findByIdAndInstituicao(@NotNull final Long subCategoriaId,
+                                        @NotNull final Long instituicaoId);
 
-    List<SubCategoria> findAllByCategoria(Long categoriaId);
+    SubCategoria create(SubCategoria subCategoria,
+                        @NotNull final Long instituicaoId);
 
-    Long create(final SubCategoria subCategoriaNew);
+    SubCategoria update(@NotNull final Long subCategoriaId,
+                        SubCategoria subCategoriaUpdate,
+                        @NotNull final Long instituicaoId);
 
-    void update(final Long id, final SubCategoria subCategoriaNew);
-
-    void delete(final Long id);
-
+    void delete(@NotNull final Long subCategoriaId,
+                @NotNull final Long instituicaoId);
 }

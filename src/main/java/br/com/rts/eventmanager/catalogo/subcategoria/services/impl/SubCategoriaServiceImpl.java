@@ -5,65 +5,50 @@ import br.com.rts.eventmanager.catalogo.subcategoria.repositories.SubCategoriaRe
 import br.com.rts.eventmanager.catalogo.subcategoria.services.SubCategoriaService;
 import br.com.rts.eventmanager.utils.NotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 
 @Service
 @RequiredArgsConstructor
 public class SubCategoriaServiceImpl implements SubCategoriaService {
 
-    private final SubCategoriaRepository subCategoriaRepository;
+    private final SubCategoriaRepository repository;
 
     @Override
-    public SubCategoria findById(Long subCategoriaId) {
-        return subCategoriaRepository
-                .findById(subCategoriaId)
+    public Page<SubCategoria> findAllByInstituicao(Long instituicaoId, Pageable pageable) {
+        return repository.findAllByInstituicao(instituicaoId, pageable);
+    }
+
+    @Override
+    public SubCategoria findByIdAndInstituicao(Long subCategoriaId, Long instituicaoId) {
+        return repository.findByIdAndInstituicao(subCategoriaId, instituicaoId)
                 .orElseThrow(() -> new NotFoundException("SubCategoria não encontrada"));
-    }
 
-    public List<SubCategoria> findAll() {
-        return subCategoriaRepository.findAll(Sort.by(Sort.Direction.ASC, "nome"))
-                .stream()
-                .toList();
     }
 
     @Override
-    public List<SubCategoria> findAllByCategoria(Long categoriaId) {
-        return subCategoriaRepository.findAllByCategoriaId(categoriaId)
-                .stream()
-                .toList();
+    public SubCategoria create(SubCategoria subCategoria, Long instituicaoId) {
+        //TODO: Validar se instituicao estao corretos, atribuir á entidade
+        subCategoria.setInstituicao(instituicaoId);
+        return repository.save(subCategoria);
     }
 
     @Override
-    public Long create(SubCategoria subCategoriaNew) {
-        return subCategoriaRepository.save(subCategoriaNew)
-                .getId();
+    public SubCategoria update(Long subCategoriaId, SubCategoria subCategoriaUpdate, Long instituicaoId) {
+        final SubCategoria subCategoria = this.findByIdAndInstituicao(subCategoriaId, instituicaoId);
+        subCategoria.setNome(subCategoria.getNome());
+        subCategoria.setAtivo(subCategoria.getAtivo());
+
+        return repository.save(subCategoria);
     }
 
     @Override
-    public void update(Long id, SubCategoria subCategoriaNew) {
-        final SubCategoria subCategoria = this.findById(id);
-        subCategoria.setNome(subCategoriaNew.getNome());
+    public void delete(Long subCategoriaId, Long instituicaoId) {
 
-        subCategoriaRepository.save(subCategoria);
+        SubCategoria subCategoria = this.findByIdAndInstituicao(subCategoriaId, instituicaoId);
+        repository.delete(subCategoria);
+
     }
-
-    @Override
-    public void delete(final Long id) {
-        subCategoriaRepository.deleteById(id);
-    }
-
-//    @EventListener(BeforeDeleteCategoria.class)
-//    public void on(final BeforeDeleteCategoria event) {
-//        final ReferencedException referencedException = new ReferencedException();
-//        final SubCategoria categoriaIdSubCategoria = subCategoriaRepository.findFirstByCategoriaId(event.getId());
-//        if (categoriaIdSubCategoria != null) {
-//            referencedException.setKey("categoria.subCategoria.categoriaId.referenced");
-//            referencedException.addParam(categoriaIdSubCategoria.getNome());
-//            throw referencedException;
-//        }
-//    }
 }

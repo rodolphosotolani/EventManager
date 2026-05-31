@@ -1,7 +1,7 @@
 package br.com.rts.eventmanager.catalogo.servico.controllers.responses;
 
 import br.com.rts.eventmanager.catalogo.categoria.controllers.responses.CategoriaResponse;
-import br.com.rts.eventmanager.catalogo.subcategoria.controllers.SubCategoriaResponse;
+import br.com.rts.eventmanager.catalogo.subcategoria.controllers.responses.SubCategoriaResponse;
 
 import java.math.BigDecimal;
 import java.util.UUID;
