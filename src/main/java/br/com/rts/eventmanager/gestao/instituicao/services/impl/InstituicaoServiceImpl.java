@@ -49,4 +49,9 @@ public class InstituicaoServiceImpl implements InstituicaoService {
                 .orElseThrow(() -> new br.com.rts.eventmanager.utils.NotFoundException("Instituição não encontrada!"));
         repository.delete(instituicao);
     }
+
+    @Override
+    public Boolean existsById(Long instituicaoId) {
+        return repository.existsById(instituicaoId);
+    }
 }

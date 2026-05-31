@@ -19,4 +19,6 @@ public interface InstituicaoService {
     void update(Long id, Instituicao instituicaoNew);
 
     void delete(Long id);
+
+    Boolean existsById(Long instituicaoId);
 }

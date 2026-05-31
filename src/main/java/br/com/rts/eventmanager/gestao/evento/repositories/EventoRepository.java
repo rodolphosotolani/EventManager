@@ -14,4 +14,6 @@ public interface EventoRepository extends JpaRepository<Evento, Long> {
     Page<Evento> findAllByInstituicaoId(Long instituicaoId, Pageable pageable);
 
     Optional<Evento> findByIdAndInstituicaoId(Long id, Long instituicaoId);
+
+    Boolean existsByInstituicaoIdAndId(Long instituicaoId, Long eventoId);
 }

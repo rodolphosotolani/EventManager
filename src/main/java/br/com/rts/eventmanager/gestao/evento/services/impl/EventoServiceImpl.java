@@ -54,4 +54,9 @@ public class EventoServiceImpl implements EventoService {
                 .orElseThrow(() -> new NotFoundException("Evento não encontrado para esta instituição!"));
         repository.delete(evento);
     }
+
+    @Override
+    public Boolean existsByInstituicaoAndId(Long instituicaoId, Long eventoId) {
+        return repository.existsByInstituicaoIdAndId(instituicaoId, eventoId);
+    }
 }
