@@ -5,6 +5,8 @@ import br.com.rts.eventmanager.catalogo.movimentacao.repositories.MovimentacaoRe
 import br.com.rts.eventmanager.catalogo.movimentacao.services.MovimentacaoService;
 import br.com.rts.eventmanager.utils.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -26,21 +28,46 @@ public class MovimentacaoServiceImpl implements MovimentacaoService {
     }
 
     @Override
-    public Long create(Movimentacao movimentacao) {
-        return movimentacaoRepository.save(movimentacao).getId();
+    public Movimentacao create(Movimentacao movimentacao) {
+        return movimentacaoRepository.save(movimentacao);
     }
 
     @Override
-    public void update(Long id, Movimentacao movimentacaoNew) {
+    public Movimentacao update(Long id, Movimentacao movimentacaoNew) {
         final Movimentacao movimentacao = this.get(id);
         movimentacao.setQuantidade(movimentacaoNew.getQuantidade());
-        movimentacaoRepository.save(movimentacao);
+        movimentacao.setTipoMovimentacao(movimentacaoNew.getTipoMovimentacao());
+        movimentacao.setMotivoMovimentacao(movimentacaoNew.getMotivoMovimentacao());
+        movimentacao.setValorUnitario(movimentacaoNew.getValorUnitario());
+        movimentacao.setDataMovimentacao(movimentacaoNew.getDataMovimentacao());
+        if (movimentacaoNew.getProduto() != null) {
+            movimentacao.setProduto(movimentacaoNew.getProduto());
+        }
+        if (movimentacaoNew.getEstoque() != null) {
+            movimentacao.setEstoque(movimentacaoNew.getEstoque());
+        }
+        return movimentacaoRepository.save(movimentacao);
     }
 
     public void delete(final Long id) {
         final Movimentacao movimentacao = movimentacaoRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
         movimentacaoRepository.delete(movimentacao);
+    }
+
+    @Override
+    public Page<Movimentacao> findAllByInstituicaoAndEvento(Long instituicao, Long evento, Pageable pageable) {
+        return movimentacaoRepository.findAllByInstituicaoAndEvento(instituicao, evento, pageable);
+    }
+
+    @Override
+    public Movimentacao findByIdAndInstituicao(Long id, Long instituicao) {
+        return movimentacaoRepository.findByIdAndInstituicao(id, instituicao);
+    }
+
+    @Override
+    public Movimentacao findByIdAndInstituicaoAndEvento(Long id, Long instituicao, Long evento) {
+        return movimentacaoRepository.findByIdAndInstituicaoAndEvento(id, instituicao, evento);
     }
 
 //    @Override
