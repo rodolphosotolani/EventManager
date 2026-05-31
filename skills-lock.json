@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "skills": {
+    "docker-compose-orchestration": {
+      "source": "manutej/luxor-claude-marketplace",
+      "sourceType": "github",
+      "skillPath": "plugins/luxor-devops-suite/skills/docker-compose-orchestration/SKILL.md",
+      "computedHash": "01831d0723a2ac491e233bd9bfdffdac8c0ae5500f140a3ca0382ac5f4a26159"
+    },
+    "java-pro": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/java-pro/SKILL.md",
+      "computedHash": "47baa85dbc511d22db28a2507835e94a7d2bbc608e208e338fc62b947f22c96b"
+    },
+    "lombok": {
+      "source": "claude-dev-suite/claude-dev-suite",
+      "sourceType": "github",
+      "skillPath": "skills/languages/lombok/SKILL.md",
+      "computedHash": "b27bd55f695271de1c22fbdc1c4c4520ed48f05e6352eb760bfc32822139475e"
+    },
+    "spring-boot": {
+      "source": "mindrally/skills",
+      "sourceType": "github",
+      "skillPath": "spring-boot/SKILL.md",
+      "computedHash": "f52dd6546c0a276aa8dc92850596ccdc4b71de81482ef7a23efabf8073f494dc"
+    },
+    "thymeleaf": {
+      "source": "claude-dev-suite/claude-dev-suite",
+      "sourceType": "github",
+      "skillPath": "skills/backend-frameworks/thymeleaf/SKILL.md",
+      "computedHash": "76e73bf259ff97222704ca69c3edba095484fc210e43ea930de32869b615bbdd"
+    }
+  }
+}

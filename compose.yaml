@@ -2,8 +2,39 @@ services:
   postgres:
     image: 'postgres:latest'
     environment:
-      - 'POSTGRES_DB=mydatabase'
-      - 'POSTGRES_PASSWORD=secret'
-      - 'POSTGRES_USER=myuser'
+      - 'POSTGRES_DB=EventManager'
+      - 'POSTGRES_PASSWORD=P4ssword!'
+      - 'POSTGRES_USER=postgres'
     ports:
       - '5432'
+
+  prometheus:
+    image: 'prom/prometheus:latest'
+    ports:
+      - '9090:9090'
+    volumes:
+      - './prometheus.yml:/etc/prometheus/prometheus.yml'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+
+  pgadmin:
+    image: 'dpage/pgadmin4:latest'
+    ports:
+      - '5050:80'
+    environment:
+      - 'PGADMIN_DEFAULT_EMAIL=admin@admin.com'
+      - 'PGADMIN_DEFAULT_PASSWORD=admin'
+    volumes:
+      - './servers.json:/pgadmin4/servers.json:ro'
+      - './pgpass:/tmp/pgpass-mount:ro'
+    entrypoint: >
+      /bin/sh -c "
+      cp /tmp/pgpass-mount /tmp/pgpass &&
+      chmod 600 /tmp/pgpass &&
+      /entrypoint.sh
+      "
+    depends_on:
+      postgres:
+        condition: service_started
+
+
