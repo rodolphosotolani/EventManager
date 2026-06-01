@@ -19,4 +19,5 @@ public interface SubCategoriaRepository extends JpaRepository<SubCategoria, Long
                                                            Long categoriaId,
                                                            Pageable pageable);
 
+    Boolean existsByIdAndCategoria_Id(Long id, Long id1);
 }

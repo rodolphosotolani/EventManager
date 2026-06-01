@@ -27,4 +27,6 @@ public interface SubCategoriaService {
     void delete(@NotNull final Long subCategoriaId,
                 @NotNull final Long instituicaoId);
 
+    void validIfSubCategoriaPertenceCategoria(@NotNull final Long subCategoriaId,
+                                              @NotNull final Long categoriaId);
 }

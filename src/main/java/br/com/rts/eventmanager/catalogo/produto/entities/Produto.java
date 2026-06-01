@@ -51,11 +51,11 @@ public class Produto {
     @Column
     private Integer quantidadeMinima;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "sub_categoria_id")
     private SubCategoria subCategoria;
 

@@ -44,9 +44,6 @@ public class ProdutoRestController {
 
         Page<Produto> produtos = service.findAllByInstituicaoAndEvento(instituicaoId, eventoId, pageable);
 
-        if (produtos == null || produtos.isEmpty())
-            return ResponseEntity.noContent().build();
-
         return ResponseEntity
                 .ok(produtos.map(mapper::entityToResponse));
     }

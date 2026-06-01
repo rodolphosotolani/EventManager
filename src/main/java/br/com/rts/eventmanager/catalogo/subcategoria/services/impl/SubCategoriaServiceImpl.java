@@ -72,4 +72,13 @@ public class SubCategoriaServiceImpl implements SubCategoriaService {
         repository.delete(subCategoria);
 
     }
+
+    @Override
+    public void validIfSubCategoriaPertenceCategoria(Long subCategoriaId, Long categoriaId) {
+
+        Boolean exists = repository.existsByIdAndCategoria_Id(subCategoriaId, categoriaId);
+
+        if (!exists)
+            throw new NotFoundException("SubCategoria não pertence a esta categoria");
+    }
 }

@@ -4,13 +4,12 @@ import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
-public record ProdutoRequest(
-        @NotNull Long evento,
-        String nome,
-        String especificacao,
-        BigDecimal valorVendaUnitario,
-        Integer quantidadeMinima,
-        Long categoriaId,
-        Long subCategoriaId) {
+public record ProdutoRequest(@NotNull Long evento,
+                             @NotNull String nome,
+                             String especificacao,
+                             @NotNull BigDecimal valorVendaUnitario,
+                             @NotNull Integer quantidadeMinima,
+                             @NotNull Long categoriaId,
+                             Long subCategoriaId) {
 
 }
