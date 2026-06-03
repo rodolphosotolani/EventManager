@@ -25,6 +25,18 @@
       "skillPath": "spring-boot/SKILL.md",
       "computedHash": "f52dd6546c0a276aa8dc92850596ccdc4b71de81482ef7a23efabf8073f494dc"
     },
+    "tailwind": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/tailwind/SKILL.md",
+      "computedHash": "97bf0007f24e6275dcabc084c4d42f434ba48a84cec5a5b060036220239d6ddc"
+    },
+    "tailwind-css-patterns": {
+      "source": "giuseppe-trisciuoglio/developer-kit",
+      "sourceType": "github",
+      "skillPath": "plugins/developer-kit-typescript/skills/tailwind-css-patterns/SKILL.md",
+      "computedHash": "2fa1b2d4e0bc020dcbaa1e65af6f7ba75715116686e0fd663a4b268c8ace22d4"
+    },
     "thymeleaf": {
       "source": "claude-dev-suite/claude-dev-suite",
       "sourceType": "github",

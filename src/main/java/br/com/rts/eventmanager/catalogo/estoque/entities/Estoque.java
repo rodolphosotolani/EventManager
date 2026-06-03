@@ -39,11 +39,11 @@ public class Estoque {
     @Column(nullable = false, updatable = false)
     private Long evento;
 
-    @ManyToOne()
-    @JoinColumn(name = "produto_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "produto_id", nullable = false, updatable = false)
     private Produto produto;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private Integer quantidadeInicial;
 
     @Column(nullable = false)

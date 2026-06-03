@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 public record EstoqueRequest(@NotNull Long evento,
                              Long produtoId,
-                             Integer quantidadeInicial,
-                             BigDecimal valorCompraUnitario) {
+                             @NotNull Integer quantidade,
+                             @NotNull BigDecimal valorCompraUnitario) {
+
 }

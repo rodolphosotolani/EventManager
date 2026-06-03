@@ -44,9 +44,6 @@ public class EstoqueRestController {
 
         Page<Estoque> estoques = service.findAllByInstituicaoAndEvento(instituicaoId, eventoId, pageable);
 
-        if (estoques == null || estoques.isEmpty())
-            return ResponseEntity.noContent().build();
-
         return ResponseEntity
                 .ok(estoques.map(mapper::entityToResponse));
     }
@@ -97,15 +94,15 @@ public class EstoqueRestController {
                 .body(mapper.entityToResponse(estoqueCriado));
     }
 
-    @PutMapping("/{estoqueId}")
-    @Operation(summary = "Atualizar um estoque existente",
+    @PatchMapping("/{estoqueId}/adicionar")
+    @Operation(summary = "Adiciona uma quantidade a um estoque existente",
             description = "Atualiza os dados de um estoque pelo ID no path, validando o evento no path e a instituição no cabeçalho.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Estoque atualizado com sucesso"),
             @ApiResponse(responseCode = "404", description = "Estoque não encontrado para esta instituição neste evento"),
             @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos")
     })
-    public ResponseEntity<EstoqueResponse> updateEstoque(
+    public ResponseEntity<EstoqueResponse> adicionaAoEstoque(
             @Parameter(description = "ID da instituição dona do catálogo", required = true)
             @RequestHeader("instituicao_id") Long instituicaoId,
             @Parameter(description = "ID do registro de estoque a ser atualizado", required = true)
@@ -115,7 +112,30 @@ public class EstoqueRestController {
 
         Estoque estoqueUpdate = mapper.requestToEntity(request);
 
-        Estoque estoqueAtualizado = service.update(estoqueId, estoqueUpdate, instituicaoId);
+        Estoque estoqueAtualizado = service.adicionaAoEstoque(estoqueId, estoqueUpdate, instituicaoId);
+
+        return ResponseEntity.ok(mapper.entityToResponse(estoqueAtualizado));
+    }
+
+    @PatchMapping("/{estoqueId}/subtrair")
+    @Operation(summary = "Subtrai uma quantidade a um estoque existente",
+            description = "Atualiza os dados de um estoque pelo ID no path, validando o evento no path e a instituição no cabeçalho.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Estoque atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Estoque não encontrado para esta instituição neste evento"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos fornecidos")
+    })
+    public ResponseEntity<EstoqueResponse> subtrairDoEstoque(
+            @Parameter(description = "ID da instituição dona do catálogo", required = true)
+            @RequestHeader("instituicao_id") Long instituicaoId,
+            @Parameter(description = "ID do registro de estoque a ser atualizado", required = true)
+            @PathVariable Long estoqueId,
+            @Parameter(description = "Novos dados para atualização", required = true)
+            @RequestBody EstoqueRequest request) {
+
+        Estoque estoqueUpdate = mapper.requestToEntity(request);
+
+        Estoque estoqueAtualizado = service.subtrairDoEstoque(estoqueId, estoqueUpdate, instituicaoId);
 
         return ResponseEntity.ok(mapper.entityToResponse(estoqueAtualizado));
     }

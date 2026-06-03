@@ -18,12 +18,16 @@ public interface EstoqueService {
     Estoque create(final Estoque estoque,
                    @NotNull final Long instituicaoId);
 
-    Estoque update(@NotNull final Long estoqueId,
-                   final Estoque estoqueNew,
-                   @NotNull final Long instituicaoId);
-
     void delete(@NotNull final Long estoqueId,
                 @NotNull final Long instituicaoId,
                 @NotNull final Long eventoId);
+
+    Estoque adicionaAoEstoque(@NotNull final Long estoqueId,
+                              final Estoque estoqueNew,
+                              @NotNull final Long instituicaoId);
+
+    Estoque subtrairDoEstoque(@NotNull final Long estoqueId,
+                              final Estoque estoqueNew,
+                              @NotNull final Long instituicaoId);
 
 }
