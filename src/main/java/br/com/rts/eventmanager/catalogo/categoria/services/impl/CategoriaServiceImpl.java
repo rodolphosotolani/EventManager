@@ -22,11 +22,6 @@ public class CategoriaServiceImpl implements CategoriaService {
     private final GestaoFacade gestaoFacade;
 
     @Override
-    public List<Categoria> findAll() {
-        return repository.findAll(Sort.by(Sort.Direction.ASC, "nome"));
-    }
-
-    @Override
     public Categoria create(final Long instituicaoId, final Categoria categoriaNew) {
 
         gestaoFacade.validateIfInstituicaoIsValid(instituicaoId);
@@ -58,6 +53,11 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Override
     public @Nullable Page<Categoria> findAllByInstituicao(Long instituicaoId, Pageable pageable) {
         return repository.findAllByInstituicao(instituicaoId, pageable);
+    }
+
+    @Override
+    public List<Categoria> findAllByInstituicao(Long instituicaoId) {
+        return repository.findAllByInstituicao(instituicaoId);
     }
 
     @Override

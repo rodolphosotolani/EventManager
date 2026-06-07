@@ -1,15 +1,12 @@
 package br.com.rts.eventmanager.catalogo.categoria.services;
 
 import br.com.rts.eventmanager.catalogo.categoria.entities.Categoria;
-import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface CategoriaService {
-
-    List<Categoria> findAll();
 
     Categoria create(final Long instituicaoId, final Categoria categoriaNew);
 
@@ -18,6 +15,8 @@ public interface CategoriaService {
     void delete(final Long instituicaoId, final Long categoriaId);
 
     Page<Categoria> findAllByInstituicao(final Long instituicaoId, Pageable pageable);
+
+    List<Categoria> findAllByInstituicao(final Long instituicaoId);
 
     Categoria findByIdAndInstituicao(final Long categoriaId, final Long instituicaoId);
 }

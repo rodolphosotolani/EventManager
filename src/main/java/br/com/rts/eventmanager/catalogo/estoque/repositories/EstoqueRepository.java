@@ -13,4 +13,6 @@ public interface EstoqueRepository extends JpaRepository<Estoque, Long> {
 
     Optional<Estoque> findByIdAndInstituicaoAndEvento(Long id, Long instituicao, Long evento);
 
+    Optional<Estoque> findByProdutoIdAndInstituicaoAndEvento(Long produtoId, Long instituicao, Long evento);
+
 }

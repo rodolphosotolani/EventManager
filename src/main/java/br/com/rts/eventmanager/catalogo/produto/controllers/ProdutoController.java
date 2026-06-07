@@ -1,46 +1,199 @@
-//package br.com.rts.eventmanager.catalogo.produto.controllers;
-//
-//import br.com.rts.eventmanager.catalogo.categoria.mappers.CategoriaMapper;
-//import br.com.rts.eventmanager.catalogo.categoria.services.CategoriaService;
-//import br.com.rts.eventmanager.catalogo.produto.dtos.ProdutoDTO;
-//import br.com.rts.eventmanager.catalogo.produto.mappers.ProdutoMapper;
-//import br.com.rts.eventmanager.catalogo.produto.services.ProdutoService;
-//import br.com.rts.eventmanager.catalogo.subcategoria.mappers.SubCategoriaMapper;
-//import br.com.rts.eventmanager.catalogo.subcategoria.services.SubCategoriaService;
-//import br.com.rts.eventmanager.utils.ReferencedException;
-//import br.com.rts.eventmanager.utils.WebUtils;
-//import jakarta.validation.Valid;
-//import lombok.RequiredArgsConstructor;
-//import lombok.extern.log4j.Log4j2;
-//import org.springframework.security.access.prepost.PreAuthorize;
-//import org.springframework.stereotype.Controller;
-//import org.springframework.ui.Model;
-//import org.springframework.validation.BindingResult;
-//import org.springframework.web.bind.annotation.*;
-//import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-//
-//import static java.util.Collections.emptyMap;
-//
-//@Log4j2
-//@Controller
-//@RequiredArgsConstructor
-//@RequestMapping("/produtos")
-//public class ProdutoController {
-//
-//    private final ProdutoService service;
-//    private final ProdutoMapper mapper;
-//
-//    private final CategoriaService categoriaService;
-//    private final CategoriaMapper categoriaMapper;
-//
-//    private final SubCategoriaService subCategoriaService;
-//    private final SubCategoriaMapper subCategoriaMapper;
-//
-//    @ModelAttribute
+package br.com.rts.eventmanager.catalogo.produto.controllers;
+
+import br.com.rts.eventmanager.catalogo.categoria.services.CategoriaService;
+import br.com.rts.eventmanager.catalogo.produto.entities.Produto;
+import br.com.rts.eventmanager.catalogo.produto.mappers.ProdutoMapper;
+import br.com.rts.eventmanager.catalogo.produto.services.ProdutoService;
+import br.com.rts.eventmanager.catalogo.subcategoria.services.SubCategoriaService;
+import br.com.rts.eventmanager.data.ProdutoDTO;
+import br.com.rts.eventmanager.utils.WebUtils;
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+@Log4j2
+@Controller
+@RequestMapping("/produtos")
+@RequiredArgsConstructor
+public class ProdutoController {
+
+    private final ProdutoService service;
+    private final ProdutoMapper mapper;
+
+    private final CategoriaService categoriaService;
+    private final SubCategoriaService subCategoriaService;
+
+    //    @ModelAttribute
 //    public void prepareContext(final Model model) {
 //        model.addAttribute("categoriaIdValues", categoriaMapper.entityToDTO(categoriaService.findAll()));
 //    }
-//
+
+    @GetMapping
+    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTOS_LISTAR')")
+    public String list(HttpSession session,
+                       Model model) {
+
+        Long tenantId = (Long) session.getAttribute("activeInstituicaoId");
+        Long activeEvId = (Long) session.getAttribute("activeEventoId");
+
+        if (tenantId == null) {
+            return "redirect:/dashboard";
+        }
+
+        if (activeEvId != null) {
+            model.addAttribute("produtos",
+                    service.findAllByInstituicaoAndEvento(tenantId, activeEvId)
+                            .stream()
+                            .map(mapper::entityToDTO));
+        } else {
+            model.addAttribute("produtos", java.util.Collections.emptyList());
+        }
+
+        model.addAttribute("pageTitle", "Produtos");
+        return "produto/list";
+    }
+
+    @GetMapping("/add")
+    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTOS_CADASTRAR')")
+    public String add(HttpSession session,
+                      RedirectAttributes redirectAttributes,
+                      Model model) {
+
+        Long tenantId = (Long) session.getAttribute("activeInstituicaoId");
+        Long activeEvId = (Long) session.getAttribute("activeEventoId");
+
+        if (activeEvId == null) {
+            redirectAttributes.addFlashAttribute(WebUtils.MSG_ERROR, "Nenhum evento ativo cadastrado! Apenas usuários Master/Admin podem criar eventos.");
+            return "redirect:/produtos";
+        }
+
+        Produto produto = new Produto();
+        model.addAttribute("produto", produto);
+        model.addAttribute("categorias", categoriaService.findAllByInstituicao(tenantId));
+        //TODO subcategoria somente deve ser carregado, quando selecionado uma categoria
+//        model.addAttribute("subCategorias", subCategoriaService.findAllByInstituicao(tenantId, Pageable.ofSize(100)).getContent());
+        model.addAttribute("pageTitle", "Novo Produto");
+        return "produto/add";
+    }
+
+    @PostMapping("/add")
+    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTOS_CADASTRAR')")
+    public String add(HttpSession session,
+                      @ModelAttribute("produto") @Valid final ProdutoDTO produtoNovo,
+                      final BindingResult bindingResult,
+                      final RedirectAttributes redirectAttributes,
+                      Model model) {
+
+        Long tenantId = (Long) session.getAttribute("activeInstituicaoId");
+        Long activeEvId = (Long) session.getAttribute("activeEventoId");
+
+        if (activeEvId == null) {
+            redirectAttributes.addFlashAttribute(WebUtils.MSG_ERROR, "Nenhum evento ativo cadastrado!");
+            return "redirect:/produtos";
+        }
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("categorias", categoriaService.findAllByInstituicao(tenantId, Pageable.ofSize(100)).getContent());
+            //TODO subcategoria somente deve ser carregado, quando selecionado uma categoria
+            model.addAttribute("subCategorias", subCategoriaService.findAllByInstituicao(tenantId, Pageable.ofSize(100)).getContent());
+            model.addAttribute("pageTitle", "Novo Produto");
+            return "produto/add";
+        }
+
+        Produto produto = mapper.dtoToEntity(produtoNovo);
+
+        service.create(produto, tenantId);
+        redirectAttributes.addFlashAttribute(WebUtils.MSG_SUCCESS, "Produto cadastrado com sucesso!");
+        return "redirect:/produtos";
+    }
+
+    @GetMapping("/edit/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTOS_EDITAR')")
+    public String edit(@PathVariable Long id, HttpSession session, Model model) {
+        Long tenantId = (Long) session.getAttribute("activeInstituicaoId");
+        Long activeEvId = (Long) session.getAttribute("activeEventoId");
+
+        if (tenantId == null || activeEvId == null) {
+            return "redirect:/produtos";
+        }
+
+        Produto produto = service.findByIdAndInstituicaoAndEvento(id, tenantId, activeEvId);
+        if (produto == null) {
+            throw new IllegalArgumentException("Produto não encontrado!");
+        }
+
+        model.addAttribute("produto", produto);
+        model.addAttribute("categorias", categoriaService.findAllByInstituicao(tenantId, Pageable.ofSize(100)).getContent());
+        model.addAttribute("subCategorias", subCategoriaService.findAllByInstituicao(tenantId, Pageable.ofSize(100)).getContent());
+        model.addAttribute("pageTitle", "Editar Produto");
+        return "produto/edit";
+    }
+
+    @PostMapping("/edit/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTOS_EDITAR')")
+    public String edit(@PathVariable Long id,
+                       HttpSession session,
+                       @ModelAttribute("produto") @Valid final Produto produto,
+                       final BindingResult bindingResult,
+                       final RedirectAttributes redirectAttributes,
+                       Model model) {
+        Long tenantId = (Long) session.getAttribute("activeInstituicaoId");
+        Long activeEvId = (Long) session.getAttribute("activeEventoId");
+
+        if (tenantId == null || activeEvId == null) {
+            return "redirect:/produtos";
+        }
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("categorias", categoriaService.findAllByInstituicao(tenantId, Pageable.ofSize(100)).getContent());
+            model.addAttribute("subCategorias", subCategoriaService.findAllByInstituicao(tenantId, Pageable.ofSize(100)).getContent());
+            model.addAttribute("pageTitle", "Editar Produto");
+            return "produto/edit";
+        }
+
+        Produto existing = service.findByIdAndInstituicaoAndEvento(id, tenantId, activeEvId);
+        if (existing == null) {
+            throw new IllegalArgumentException("Produto não encontrado!");
+        }
+
+        existing.setNome(produto.getNome());
+        existing.setEspecificacao(produto.getEspecificacao());
+        existing.setValorVendaUnitario(produto.getValorVendaUnitario());
+        existing.setQuantidadeMinima(produto.getQuantidadeMinima());
+        existing.setCategoria(produto.getCategoria());
+        existing.setSubCategoria(produto.getSubCategoria());
+        existing.setLastUpdated(java.time.LocalDateTime.now());
+
+        service.update(id, existing, tenantId);
+        redirectAttributes.addFlashAttribute(WebUtils.MSG_SUCCESS, "Produto atualizado com sucesso!");
+        return "redirect:/produtos";
+    }
+
+    @PostMapping("/delete/{id}")
+    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTOS_DELETAR')")
+    public String delete(@PathVariable Long id, HttpSession session, final RedirectAttributes redirectAttributes) {
+        Long tenantId = (Long) session.getAttribute("activeInstituicaoId");
+        Long activeEvId = (Long) session.getAttribute("activeEventoId");
+
+        if (tenantId != null && activeEvId != null) {
+            try {
+                service.delete(id, tenantId, activeEvId);
+                redirectAttributes.addFlashAttribute(WebUtils.MSG_INFO, "Produto excluído com sucesso!");
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute(WebUtils.MSG_ERROR, "Não foi possível excluir o produto pois ele está referenciado em vendas ou estoques.");
+            }
+        }
+        return "redirect:/produtos";
+    }
+
 //    @GetMapping("/subcategorias-fragment")
 //    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTO_LISTAGEM', 'PRODUTO_CADASTRAR', 'PRODUTO_EDITAR')")
 //    public String getSubCategoriasFragment(@RequestParam(name = "categoriaId", required = false) final Long categoriaId,
@@ -59,100 +212,5 @@
 //
 //        return "produto/fragments/subCategoriaOptions :: select";
 //    }
-//
-//    @GetMapping
-//    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTO_LISTAGEM')")
-//    public String list(final Model model) {
-//
-//        model.addAttribute("produtos", mapper.entityToDTO(service.findAll()));
-//
-//        return "produto/list";
-//    }
-//
-//    @GetMapping("/add")
-//    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTO_CADASTRAR')")
-//    public String add(@ModelAttribute("produto") final ProdutoDTO produtoDTO) {
-//        return "produto/add";
-//    }
-//
-//    @PostMapping("/add")
-//    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTO_CADASTRAR')")
-//    public String add(@ModelAttribute("produto") @Valid final ProdutoDTO produtoDTO,
-//                      final BindingResult bindingResult,
-//                      final Model model,
-//                      final RedirectAttributes redirectAttributes) {
-//
-//        if (bindingResult.hasErrors()) {
-//            redirectAttributes.addFlashAttribute(WebUtils.MSG_ERROR, "Não é possível cadastrar o produto pois o formulário esta com erro.");
-//            log.error("Não é possível cadastrar o produto pois o formulário esta com erro. ERRO: {}", bindingResult.getAllErrors());
-//            if (produtoDTO.getCategoriaId() != null) {
-//                model.addAttribute("subCategoriaValues", subCategoriaMapper.entityToDTO(subCategoriaService.findAllByCategoria(produtoDTO.getCategoriaId())));
-//            } else {
-//                model.addAttribute("subCategoriaValues", emptyMap());
-//            }
-//            return "produto/add";
-//        }
-//
-//        service.create(mapper.dtoToEntity(produtoDTO));
-//
-//        redirectAttributes.addFlashAttribute(WebUtils.MSG_SUCCESS, WebUtils.getMessage("produto.create.success"));
-//
-//        return "redirect:/produtos";
-//    }
-//
-//    @GetMapping("/edit/{id}")
-//    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTO_EDITAR')")
-//    public String edit(@PathVariable(name = "id") final Long id, final Model model) {
-//
-//        ProdutoDTO produto = mapper.entityToDTO(service.findById(id));
-//
-//        model.addAttribute("produto", produto);
-//
-//        return "produto/edit";
-//    }
-//
-//    @PostMapping("/edit/{id}")
-//    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTO_EDITAR')")
-//    public String edit(@PathVariable(name = "id") final Long id,
-//                       @ModelAttribute("produto") @Valid final ProdutoDTO produtoDTO,
-//                       final BindingResult bindingResult,
-//                       final Model model,
-//                       final RedirectAttributes redirectAttributes) {
-//
-//        if (bindingResult.hasErrors()) {
-//            redirectAttributes.addFlashAttribute(WebUtils.MSG_ERROR, "Não é possível editar o produto pois o formulário esta com erro.");
-//            log.error("Não é possível editar o produto pois o formulário esta com erro. ERRO: {}", bindingResult.getAllErrors());
-//            if (produtoDTO.getCategoriaId() != null) {
-//                model.addAttribute("subCategoriaIdValues", subCategoriaMapper.entityToDTO(subCategoriaService.findAllByCategoria(produtoDTO.getCategoriaId())));
-//            } else {
-//                model.addAttribute("subCategoriaIdValues", emptyMap());
-//            }
-//            return "produto/edit";
-//        }
-//
-//        service.update(id, mapper.dtoToEntity(produtoDTO));
-//
-//        redirectAttributes.addFlashAttribute(WebUtils.MSG_SUCCESS, WebUtils.getMessage("produto.update.success"));
-//
-//        return "redirect:/produtos";
-//    }
-//
-//    @PostMapping("/delete/{id}")
-//    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTO_DELETAR')")
-//    public String delete(@PathVariable(name = "id") final Long id,
-//                         final RedirectAttributes redirectAttributes) {
-//        try {
-//
-//            service.delete(id);
-//
-//            redirectAttributes.addFlashAttribute(WebUtils.MSG_INFO, WebUtils.getMessage("produto.delete.success"));
-//
-//        } catch (final ReferencedException referencedException) {
-//            redirectAttributes.addFlashAttribute(WebUtils.MSG_ERROR, WebUtils.getMessage(
-//                    referencedException.getKey(), referencedException.getParams().toArray()));
-//        }
-//
-//        return "redirect:/produtos";
-//    }
-//
-//}
+// }
+}

@@ -2,8 +2,11 @@ package br.com.rts.eventmanager.catalogo.produto.services;
 
 import br.com.rts.eventmanager.catalogo.produto.entities.Produto;
 import jakarta.validation.constraints.NotNull;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface ProdutoService {
 
@@ -26,4 +29,6 @@ public interface ProdutoService {
                 @NotNull final Long instituicaoId,
                 @NotNull final Long eventoId);
 
+    List<Produto> findAllByInstituicaoAndEvento(@NotNull final Long instituicaoId,
+                                                @NotNull final Long eventoId);
 }

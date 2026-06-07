@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -26,6 +27,12 @@ public class ProdutoServiceImpl implements ProdutoService {
     public Page<Produto> findAllByInstituicaoAndEvento(Long instituicaoId, Long eventoId, Pageable pageable) {
         return repository.findAllByInstituicaoAndEvento(instituicaoId, eventoId, pageable);
     }
+
+    @Override
+    public List<Produto> findAllByInstituicaoAndEvento(Long instituicaoId, Long eventoId) {
+        return repository.findAllByInstituicaoAndEvento(instituicaoId, eventoId);
+    }
+
 
     @Override
     public Produto findByIdAndInstituicaoAndEvento(Long produtoId, Long instituicaoId, Long eventoId) {
@@ -88,5 +95,6 @@ public class ProdutoServiceImpl implements ProdutoService {
         repository.delete(produto);
 
     }
+
 
 }

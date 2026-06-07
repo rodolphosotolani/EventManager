@@ -15,8 +15,8 @@ public abstract class SubCategoriaMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "categoria.id", source = "categoriaId")
-    @Mapping(target = "dateCreated", expression = "java(java.time.OffsetDateTime.now())")
-    @Mapping(target = "lastUpdated", expression = "java(java.time.OffsetDateTime.now())")
+    @Mapping(target = "dateCreated", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "lastUpdated", expression = "java(java.time.LocalDateTime.now())")
     abstract public SubCategoria requestToEntity(SubCategoriaRequest request);
 
 }

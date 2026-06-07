@@ -46,6 +46,7 @@ public class EstoqueServiceImpl implements EstoqueService {
         return estoqueRepository.save(estoque);
     }
 
+    @Override
     public Estoque updateEstoque(Long estoqueId, Estoque estoqueNew, Long instituicaoId) {
 
         gestaoFacade.validateIfInstituicaoAndEventoIsValid(instituicaoId, estoqueNew.getEvento());
@@ -75,7 +76,7 @@ public class EstoqueServiceImpl implements EstoqueService {
 
         Estoque estoque = this.findByIdAndInstituicaoAndEvento(estoqueId, instituicaoId, estoqueNew.getEvento());
 
-        if (estoque.getQuantidadeInicial().equals(estoque.getQuantidadeAtual())){
+        if (estoque.getQuantidadeInicial().equals(estoque.getQuantidadeAtual())) {
             estoque.setQuantidadeInicial(estoque.getQuantidadeInicial() + estoqueNew.getQuantidadeAtual());
             //Fazer a media de valores para adicionar
             estoque.setValorCompraUnitario(estoqueNew.getValorCompraUnitario());
@@ -87,8 +88,23 @@ public class EstoqueServiceImpl implements EstoqueService {
     }
 
     @Override
-    public Estoque subtrairDoEstoque(Long estoqueId, Estoque estoqueNew, Long instituicaoId) {
-        return null;
+    public void subtrairEstoqueProduto(Long produtoId, Long instituicaoId, Long eventoId, int quantidade) {
+        estoqueRepository.findByProdutoIdAndInstituicaoAndEvento(produtoId, instituicaoId, eventoId)
+                .ifPresent(estoque -> {
+                    estoque.setQuantidadeAtual(Math.max(0, estoque.getQuantidadeAtual() - quantidade));
+                    estoqueRepository.save(estoque);
+                });
+    }
+
+    @Override
+    public Estoque subtrairDoEstoque(Long estoqueId, Estoque estoqueUpdate, Long instituicaoId) {
+        gestaoFacade.validateIfInstituicaoAndEventoIsValid(instituicaoId, estoqueUpdate.getEvento());
+
+        Estoque estoque = this.findByIdAndInstituicaoAndEvento(estoqueId, instituicaoId, estoqueUpdate.getEvento());
+
+        estoque.setQuantidadeAtual(estoque.getQuantidadeAtual() - estoqueUpdate.getQuantidadeAtual());
+
+        return estoqueRepository.save(estoque);
     }
 
 }

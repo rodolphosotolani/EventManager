@@ -5,6 +5,7 @@ import br.com.rts.eventmanager.catalogo.produto.controllers.requests.ProdutoRequ
 import br.com.rts.eventmanager.catalogo.produto.controllers.responses.ProdutoResponse;
 import br.com.rts.eventmanager.catalogo.produto.entities.Produto;
 import br.com.rts.eventmanager.catalogo.subcategoria.mappers.SubCategoriaMapper;
+import br.com.rts.eventmanager.data.ProdutoDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -18,7 +19,12 @@ public abstract class ProdutoMapper {
 
     @Mapping(target = "categoria.id", source = "categoriaId")
     @Mapping(target = "subCategoria.id", source = "subCategoriaId")
-    @Mapping(target = "dateCreated", expression = "java(java.time.OffsetDateTime.now())")
-    @Mapping(target = "lastUpdated", expression = "java(java.time.OffsetDateTime.now())")
+    @Mapping(target = "dateCreated", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "lastUpdated", expression = "java(java.time.LocalDateTime.now())")
     abstract public Produto requestToEntity(ProdutoRequest request);
+
+    public abstract ProdutoDTO entityToDTO(Produto produto);
+
+    public abstract Produto dtoToEntity(ProdutoDTO produtoDTO);
+
 }

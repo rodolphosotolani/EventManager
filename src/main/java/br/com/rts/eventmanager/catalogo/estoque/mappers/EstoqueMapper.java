@@ -15,8 +15,8 @@ public abstract class EstoqueMapper {
 
     @Mapping(target = "produto.id", source = "produtoId")
     @Mapping(target = "quantidadeAtual", source = "quantidade")
-    @Mapping(target = "dateCreated", expression = "java(java.time.OffsetDateTime.now())")
-    @Mapping(target = "lastUpdated", expression = "java(java.time.OffsetDateTime.now())")
+    @Mapping(target = "dateCreated", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "lastUpdated", expression = "java(java.time.LocalDateTime.now())")
     abstract public Estoque requestToEntity(EstoqueRequest request);
 
 }

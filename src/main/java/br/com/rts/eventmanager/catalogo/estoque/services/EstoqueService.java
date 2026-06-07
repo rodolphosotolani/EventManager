@@ -26,8 +26,11 @@ public interface EstoqueService {
                               final Estoque estoqueNew,
                               @NotNull final Long instituicaoId);
 
-    Estoque subtrairDoEstoque(@NotNull final Long estoqueId,
-                              final Estoque estoqueNew,
-                              @NotNull final Long instituicaoId);
+    Estoque updateEstoque(@NotNull final Long estoqueId,
+                   final Estoque estoqueUpdate,
+                   @NotNull final Long instituicaoId);
 
+    void subtrairEstoqueProduto(Long produtoId, Long instituicaoId, Long eventoId, int quantidade);
+
+    Estoque subtrairDoEstoque(Long estoqueId, Estoque estoqueUpdate, Long instituicaoId);
 }
