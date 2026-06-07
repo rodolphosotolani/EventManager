@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -58,5 +59,10 @@ public class EventoServiceImpl implements EventoService {
     @Override
     public Boolean existsByInstituicaoAndId(Long instituicaoId, Long eventoId) {
         return repository.existsByInstituicaoIdAndId(instituicaoId, eventoId);
+    }
+
+    @Override
+    public List<Evento> findAllByInstituicao(Long instituicaoId) {
+        return repository.findAllByInstituicaoId(instituicaoId);
     }
 }

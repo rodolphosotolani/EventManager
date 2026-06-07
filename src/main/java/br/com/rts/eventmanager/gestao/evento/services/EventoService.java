@@ -1,10 +1,12 @@
 package br.com.rts.eventmanager.gestao.evento.services;
 
+import aj.org.objectweb.asm.commons.Remapper;
 import br.com.rts.eventmanager.gestao.evento.entities.Evento;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface EventoService {
@@ -27,4 +29,6 @@ public interface EventoService {
 
     Boolean existsByInstituicaoAndId(@NotNull final Long instituicaoId,
                                      @NotNull final Long eventoId);
+
+    List<Evento> findAllByInstituicao(Long instituicaoId);
 }

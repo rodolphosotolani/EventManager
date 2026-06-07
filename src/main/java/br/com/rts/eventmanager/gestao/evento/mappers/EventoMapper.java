@@ -1,5 +1,6 @@
 package br.com.rts.eventmanager.gestao.evento.mappers;
 
+import br.com.rts.eventmanager.data.EventoDTO;
 import br.com.rts.eventmanager.gestao.evento.controllers.requests.EventoRequest;
 import br.com.rts.eventmanager.gestao.evento.controllers.responses.EventoResponse;
 import br.com.rts.eventmanager.gestao.evento.entities.Evento;
@@ -16,9 +17,12 @@ public abstract class EventoMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "instituicao", ignore = true)
-    @Mapping(target = "dateCreated", expression = "java(java.time.OffsetDateTime.now())")
-    @Mapping(target = "lastUpdated", expression = "java(java.time.OffsetDateTime.now())")
+    @Mapping(target = "dateCreated", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "lastUpdated", expression = "java(java.time.LocalDateTime.now())")
     public abstract Evento requestToEntity(EventoRequest request);
 
     public abstract List<EventoResponse> entityToResponse(List<Evento> all);
+
+    @Mapping(target = "instituicaoId", source = "instituicao.id")
+    public abstract EventoDTO entityToDTO(Evento evento);
 }
