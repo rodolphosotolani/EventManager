@@ -1,9 +1,8 @@
 package br.com.rts.eventmanager.financeiro.venda.services.impl;
 
 import br.com.rts.eventmanager.catalogo.EstoqueFacade;
-import br.com.rts.eventmanager.financeiro.cliente.services.ClienteService;
-import br.com.rts.eventmanager.financeiro.itemvenda.entities.ItemVenda;
 import br.com.rts.eventmanager.data.VendaSumarioDTO;
+import br.com.rts.eventmanager.financeiro.itemvenda.entities.ItemVenda;
 import br.com.rts.eventmanager.financeiro.venda.entities.Venda;
 import br.com.rts.eventmanager.financeiro.venda.repositories.VendaRepository;
 import br.com.rts.eventmanager.financeiro.venda.services.VendaService;
@@ -31,8 +30,6 @@ public class VendaServiceImpl implements VendaService {
 
     private final VendaRepository repository;
     private final EntityManager entityManager;
-
-    private final ClienteService clienteService;
 
     private final GestaoFacade gestaoFacade;
     private final EstoqueFacade estoqueFacade;
