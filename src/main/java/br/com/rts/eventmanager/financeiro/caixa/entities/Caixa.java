@@ -10,7 +10,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -71,10 +70,10 @@ public class Caixa {
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    private OffsetDateTime dateCreated;
+    private LocalDateTime dateCreated;
 
     @LastModifiedDate
     @Column(nullable = false)
-    private OffsetDateTime lastUpdated;
+    private LocalDateTime lastUpdated;
 
 }

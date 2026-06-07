@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,6 +23,11 @@ public class ClienteServiceImpl implements ClienteService {
     @Override
     public Page<Cliente> findAllByInstituicao(Long instituicaoId, Pageable pageable) {
         return repository.findAllByInstituicao(instituicaoId, pageable);
+    }
+
+    @Override
+    public List<Cliente> findAllByInstituicao(Long instituicaoId) {
+        return repository.findAllByInstituicao(instituicaoId);
     }
 
     @Override

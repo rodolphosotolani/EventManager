@@ -21,7 +21,7 @@ public interface FluxoCaixaMapper {
     @Mapping(target = "venda.id", source = "vendaId")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "instituicao", ignore = true)
-    @Mapping(target = "dateCreated", expression = "java(java.time.OffsetDateTime.now())")
-    @Mapping(target = "lastUpdated", expression = "java(java.time.OffsetDateTime.now())")
+    @Mapping(target = "dateCreated", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "lastUpdated", expression = "java(java.time.LocalDateTime.now())")
     FluxoCaixa requestToEntity(FluxoCaixaRequest request);
 }

@@ -11,7 +11,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 
 @Getter
 @Setter
@@ -33,11 +32,11 @@ public class FluxoCaixa {
     @Column(name = "evento_id", nullable = false, updatable = false)
     private Long evento;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "caixa_id")
     private Caixa caixa;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "venda_id")
     private Venda venda;
 
@@ -57,10 +56,10 @@ public class FluxoCaixa {
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    private OffsetDateTime dateCreated;
+    private LocalDateTime dateCreated;
 
     @LastModifiedDate
     @Column(nullable = false)
-    private OffsetDateTime lastUpdated;
+    private LocalDateTime lastUpdated;
 
 }

@@ -16,8 +16,8 @@ public abstract class ClienteMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "uuid", ignore = true)
     @Mapping(target = "instituicao", ignore = true)
-    @Mapping(target = "dateCreated", expression = "java(java.time.OffsetDateTime.now())")
-    @Mapping(target = "lastUpdated", expression = "java(java.time.OffsetDateTime.now())")
+    @Mapping(target = "dateCreated", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "lastUpdated", expression = "java(java.time.LocalDateTime.now())")
     public abstract Cliente requestToEntity(ClienteRequest request);
 
     public abstract List<ClienteResponse> entityToResponse(List<Cliente> all);

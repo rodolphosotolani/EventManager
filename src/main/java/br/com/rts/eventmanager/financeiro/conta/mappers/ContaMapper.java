@@ -22,8 +22,8 @@ public abstract class ContaMapper {
     @Mapping(target = "uuid", ignore = true)
     @Mapping(target = "instituicao", ignore = true)
     @Mapping(target = "evento", ignore = true)
-    @Mapping(target = "dateCreated", expression = "java(java.time.OffsetDateTime.now())")
-    @Mapping(target = "lastUpdated", expression = "java(java.time.OffsetDateTime.now())")
+    @Mapping(target = "dateCreated", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "lastUpdated", expression = "java(java.time.LocalDateTime.now())")
     public abstract Conta requestToEntity(ContaRequest request);
 
     public abstract List<ContaResponse> entityToResponse(List<Conta> all);

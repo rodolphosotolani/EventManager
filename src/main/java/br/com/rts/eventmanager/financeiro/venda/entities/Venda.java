@@ -11,7 +11,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,10 +51,10 @@ public class Venda {
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    private OffsetDateTime dateCreated;
+    private LocalDateTime dateCreated;
 
     @LastModifiedDate
     @Column(nullable = false)
-    private OffsetDateTime lastUpdated;
+    private LocalDateTime lastUpdated;
 
 }
