@@ -6,18 +6,23 @@ import br.com.rts.eventmanager.seguranca.usuario.entities.Usuario;
 import br.com.rts.eventmanager.seguranca.usuario.entities.UsuarioInstituicao;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UsuarioService {
 
     Usuario create(Usuario request);
 
-    Usuario get(Long id);
+    Usuario createUsuario(String email, String nome, String urlFoto);
+
+    Usuario getUsuarioById(Long id);
 
     List<Usuario> list();
 
     UsuarioInstituicao linkToInstituicao(Long usuarioId, Long instituicaoId);
 
-    PerfilUsuario assignPerfilToEvent(Long usuarioId, Long perfilId, Long eventoId);
+    PerfilUsuario assignPerfilToInstituicao(Long usuarioId, Long perfilId, Long instituicaoId);
 
-    List<Perfil> listPerfisByEvent(Long usuarioId, Long eventoId);
+    List<Perfil> listPerfisByInstituicao(Long usuarioId, Long instituicaoId);
+
+    Optional<Usuario> findByEmail(String email);
 }

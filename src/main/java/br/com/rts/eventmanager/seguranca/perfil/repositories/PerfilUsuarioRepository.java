@@ -5,13 +5,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface PerfilUsuarioRepository extends JpaRepository<PerfilUsuario, Long> {
 
-    List<PerfilUsuario> findAllByUsuarioIdAndEvento(Long usuarioId, Long eventoId);
+    List<PerfilUsuario> findAllByUsuarioIdAndInstituicao(Long usuarioId, Long instituicaoId);
 
-    List<PerfilUsuario> findAllByUsuarioId(Long usuarioId);
+    Set<PerfilUsuario> findAllByUsuarioId(Long usuarioId);
 
-    boolean existsByUsuarioIdAndPerfilIdAndEvento(Long usuarioId, Long perfilId, Long eventoId);
+    boolean existsByUsuarioIdAndPerfilIdAndInstituicao(Long usuarioId, Long perfilId, Long instituicaoId);
 }

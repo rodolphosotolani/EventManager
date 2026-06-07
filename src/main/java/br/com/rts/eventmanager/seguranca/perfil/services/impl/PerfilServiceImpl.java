@@ -4,36 +4,58 @@ import br.com.rts.eventmanager.seguranca.perfil.entities.Perfil;
 import br.com.rts.eventmanager.seguranca.perfil.repositories.PerfilRepository;
 import br.com.rts.eventmanager.seguranca.perfil.services.PerfilService;
 import br.com.rts.eventmanager.seguranca.permissao.entities.Permissao;
-import br.com.rts.eventmanager.seguranca.permissao.repositories.PermissaoRepository;
+import br.com.rts.eventmanager.seguranca.permissao.services.PermissaoService;
 import br.com.rts.eventmanager.utils.NotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class PerfilServiceImpl implements PerfilService {
 
     private final PerfilRepository repository;
-    //    private final InstituicaoRepository instituicaoRepository;
-    private final PermissaoRepository permissaoRepository;
+    private final PermissaoService permissaoService;
+
+    private static final String MASTER_EMAIL = "rt.sotolani@gmail.com";
+
+    private static final String ROLE_MASTER = "MASTER";
+    private static final String ROLE_BASICO = "BASICO";
+
+    @Override
+    public Set<Perfil> getOrCreateInitialPerfil(String email) {
+
+        // Atribuir perfis iniciais
+        Set<Perfil> perfis = new HashSet<>();
+        if (MASTER_EMAIL.equalsIgnoreCase(email)) {
+            log.info("Assigning MASTER role to: {}", email);
+            Perfil perfilMaster = repository.findByNome(ROLE_MASTER).orElseGet(() -> this.createPerfil(ROLE_MASTER));
+            perfis.add(perfilMaster);
+        } else {
+            log.info("Assigning BASIC role to: {}", email);
+            Perfil perfilBasico = repository.findByNome(ROLE_BASICO).orElseGet(() -> this.createPerfil(ROLE_BASICO));
+            perfis.add(perfilBasico);
+        }
+
+        return perfis;
+    }
 
     @Override
     @Transactional
     public Perfil create(Perfil request, List<Long> permissaoIds) {
-//        if (!instituicaoRepository.existsById(request.getInstituicao())) {
-//            throw new NotFoundException("Instituição não encontrada!");
-//        }
 
         if (repository.findByNomeAndInstituicao(request.getNome(), request.getInstituicao()).isPresent()) {
             throw new IllegalArgumentException("Perfil com este nome já existe nesta instituição!");
         }
 
         if (permissaoIds != null && !permissaoIds.isEmpty()) {
-            List<Permissao> permissoes = permissaoRepository.findAllById(permissaoIds);
+            List<Permissao> permissoes = permissaoService.findAllById(permissaoIds);
             request.setPermissoes(new HashSet<>(permissoes));
         }
 
@@ -48,9 +70,15 @@ public class PerfilServiceImpl implements PerfilService {
 
     @Override
     public List<Perfil> listByInstituicao(Long instituicaoId) {
-//        if (!instituicaoRepository.existsById(instituicaoId)) {
-//            throw new NotFoundException("Instituição não encontrada!");
-//        }
         return repository.findAllByInstituicao(instituicaoId);
+    }
+
+    private Perfil createPerfil(String nomePerfil) {
+        Perfil perfil = Perfil
+                .builder()
+                .nome(nomePerfil)
+                .permissoes(permissaoService.getOrCreateInitialsPermissao())
+                .build();
+        return repository.save(perfil);
     }
 }

@@ -1,11 +1,11 @@
 package br.com.rts.eventmanager.seguranca.usuario.controllers;
 
 import br.com.rts.eventmanager.seguranca.perfil.controllers.responses.PerfilResponse;
+import br.com.rts.eventmanager.seguranca.perfil.mappers.PerfilMapper;
 import br.com.rts.eventmanager.seguranca.usuario.controllers.requests.UsuarioRequest;
 import br.com.rts.eventmanager.seguranca.usuario.controllers.responses.UsuarioResponse;
-import br.com.rts.eventmanager.seguranca.perfil.mappers.PerfilMapper;
-import br.com.rts.eventmanager.seguranca.usuario.mappers.UsuarioMapper;
 import br.com.rts.eventmanager.seguranca.usuario.entities.Usuario;
+import br.com.rts.eventmanager.seguranca.usuario.mappers.UsuarioMapper;
 import br.com.rts.eventmanager.seguranca.usuario.services.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,8 +31,8 @@ public class UsuarioRestController {
     private final PerfilMapper perfilMapper;
 
     @PostMapping
-    @Operation(summary = "Cadastrar um novo usuário independente de instituição", 
-               description = "Cadastra um novo usuário no sistema sem qualquer vínculo prévio a uma instituição.")
+    @Operation(summary = "Cadastrar um novo usuário independente de instituição",
+            description = "Cadastra um novo usuário no sistema sem qualquer vínculo prévio a uma instituição.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Usuário cadastrado com sucesso"),
             @ApiResponse(responseCode = "400", description = "Requisição inválida ou e-mail já cadastrado")
@@ -50,8 +50,8 @@ public class UsuarioRestController {
     }
 
     @GetMapping("/{usuarioId}")
-    @Operation(summary = "Obter detalhes de um usuário", 
-               description = "Retorna informações detalhadas do usuário pelo seu ID.")
+    @Operation(summary = "Obter detalhes de um usuário",
+            description = "Retorna informações detalhadas do usuário pelo seu ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuário localizado com sucesso"),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
@@ -60,7 +60,7 @@ public class UsuarioRestController {
             @Parameter(description = "ID do usuário", required = true)
             @PathVariable Long usuarioId) {
         try {
-            Usuario usuario = service.get(usuarioId);
+            Usuario usuario = service.getUsuarioById(usuarioId);
             return ResponseEntity.ok(mapper.entityToResponse(usuario));
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
@@ -68,8 +68,8 @@ public class UsuarioRestController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar todos os usuários do sistema", 
-               description = "Retorna uma lista contendo todos os usuários cadastrados globalmente.")
+    @Operation(summary = "Listar todos os usuários do sistema",
+            description = "Retorna uma lista contendo todos os usuários cadastrados globalmente.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuários listados com sucesso")
     })
@@ -78,8 +78,8 @@ public class UsuarioRestController {
     }
 
     @PostMapping("/{usuarioId}/instituicoes/{instituicaoId}")
-    @Operation(summary = "Vincular usuário a uma instituição", 
-               description = "Associa um usuário existente a uma instituição específica do sistema.")
+    @Operation(summary = "Vincular usuário a uma instituição",
+            description = "Associa um usuário existente a uma instituição específica do sistema.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuário vinculado com sucesso"),
             @ApiResponse(responseCode = "404", description = "Usuário ou instituição não encontrados"),
@@ -98,43 +98,43 @@ public class UsuarioRestController {
         }
     }
 
-    @PostMapping("/{usuarioId}/eventos/{eventoId}/perfis/{perfilId}")
-    @Operation(summary = "Atribuir perfil de acesso ao usuário em um evento específico", 
-               description = "Vincula um perfil de acesso ao usuário para um evento determinado, garantindo que o perfil e o evento pertençam à mesma instituição.")
+    @PostMapping("/{usuarioId}/instituicoes/{instituicaoId}/perfis/{perfilId}")
+    @Operation(summary = "Atribuir perfil de acesso ao usuário para uma instituição específica",
+            description = "Associa um perfil de acesso ao usuário no contexto da instituição informada.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Perfil atribuído ao evento com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Usuário, perfil ou evento não encontrados"),
-            @ApiResponse(responseCode = "400", description = "Perfil ou evento inválido ou usuário não vinculado à instituição")
+            @ApiResponse(responseCode = "200", description = "Perfil atribuído com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Usuário, perfil ou instituição não encontrados"),
+            @ApiResponse(responseCode = "400", description = "Perfil ou instituição inválido")
     })
     public ResponseEntity<Void> assignPerfil(
             @Parameter(description = "ID do usuário", required = true)
             @PathVariable Long usuarioId,
-            @Parameter(description = "ID do evento", required = true)
-            @PathVariable Long eventoId,
+            @Parameter(description = "ID da instituição", required = true)
+            @PathVariable Long instituicaoId,
             @Parameter(description = "ID do perfil de acesso", required = true)
             @PathVariable Long perfilId) {
         try {
-            service.assignPerfilToEvent(usuarioId, perfilId, eventoId);
+            service.assignPerfilToInstituicao(usuarioId, perfilId, instituicaoId);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @GetMapping("/{usuarioId}/eventos/{eventoId}/perfis")
-    @Operation(summary = "Listar perfis atribuídos a um usuário em um evento específico", 
-               description = "Retorna todos os perfis de acesso vinculados ao usuário para as ações e escopo do evento informado.")
+    @GetMapping("/{usuarioId}/instituicoes/{instituicaoId}/perfis")
+    @Operation(summary = "Listar perfis atribuídos a um usuário em uma instituição específica",
+            description = "Retorna todos os perfis de acesso vinculados ao usuário para as ações e escopo da instituição informada.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Perfis retornados com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Usuário ou evento não encontrados")
+            @ApiResponse(responseCode = "404", description = "Usuário ou instituição não encontrados")
     })
-    public ResponseEntity<List<PerfilResponse>> listPerfisByEvent(
+    public ResponseEntity<List<PerfilResponse>> listPerfisByInstituicao(
             @Parameter(description = "ID do usuário", required = true)
             @PathVariable Long usuarioId,
-            @Parameter(description = "ID do evento", required = true)
-            @PathVariable Long eventoId) {
+            @Parameter(description = "ID da instituição", required = true)
+            @PathVariable Long instituicaoId) {
         try {
-            return ResponseEntity.ok(perfilMapper.entityToResponse(service.listPerfisByEvent(usuarioId, eventoId)));
+            return ResponseEntity.ok(perfilMapper.entityToResponse(service.listPerfisByInstituicao(usuarioId, instituicaoId)));
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }

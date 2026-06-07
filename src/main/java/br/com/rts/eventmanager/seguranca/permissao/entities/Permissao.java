@@ -1,5 +1,6 @@
-package br.com.rts.eventmanager.seguranca.usuario.entities;
+package br.com.rts.eventmanager.seguranca.permissao.entities;
 
+import br.com.rts.eventmanager.seguranca.permissao.enumerators.AcaoPermissaoEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -15,19 +16,19 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(of = "id")
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "USUARIO_INSTITUICAO", schema = "SEGURANCA")
-public class UsuarioInstituicao {
+@Table(name = "PERMISSAO", schema = "SEGURANCA")
+public class Permissao {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false, updatable = false)
-    private Usuario usuario;
+    @Column(nullable = false, length = 50)
+    private String tela;
 
-    @Column(name = "instituicao_id", nullable = false, updatable = false)
-    private Long instituicao;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 50)
+    private AcaoPermissaoEnum acao;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -37,4 +38,9 @@ public class UsuarioInstituicao {
     @Column(nullable = false)
     private LocalDateTime lastUpdated;
 
+
+
+    public String getAuthority() {
+        return this.tela.toUpperCase() + "_" + this.acao.name();
+    }
 }

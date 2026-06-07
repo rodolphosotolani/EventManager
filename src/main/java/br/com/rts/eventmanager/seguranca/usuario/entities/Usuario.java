@@ -5,9 +5,9 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -17,6 +17,7 @@ import java.util.Set;
 @Builder
 @EqualsAndHashCode(of = "id")
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "USUARIO", schema = "SEGURANCA")
 public class Usuario {
 
@@ -50,10 +51,10 @@ public class Usuario {
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    private OffsetDateTime dateCreated;
+    private LocalDateTime dateCreated;
 
     @LastModifiedDate
     @Column(nullable = false)
-    private OffsetDateTime lastUpdated;
+    private LocalDateTime lastUpdated;
 
 }

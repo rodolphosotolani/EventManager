@@ -10,6 +10,8 @@ import java.util.Optional;
 @Repository
 public interface PerfilRepository extends JpaRepository<Perfil, Long> {
 
+    Optional<Perfil> findByNome(String nome);
+
     List<Perfil> findAllByInstituicao(Long instituicao);
 
     Optional<Perfil> findByIdAndInstituicao(Long id, Long instituicao);

@@ -1,5 +1,7 @@
 package br.com.rts.eventmanager.seguranca.usuario.mappers;
 
+import br.com.rts.eventmanager.data.UsuarioDTO;
+import br.com.rts.eventmanager.seguranca.perfil.mappers.PerfilUsuarioMapper;
 import br.com.rts.eventmanager.seguranca.usuario.controllers.requests.UsuarioRequest;
 import br.com.rts.eventmanager.seguranca.usuario.controllers.responses.UsuarioResponse;
 import br.com.rts.eventmanager.seguranca.usuario.entities.Usuario;
@@ -8,7 +10,8 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",
+        uses = {UsuarioInstituicaoMapper.class, PerfilUsuarioMapper.class})
 public interface UsuarioMapper {
 
     UsuarioResponse entityToResponse(Usuario usuario);
@@ -20,7 +23,10 @@ public interface UsuarioMapper {
     @Mapping(target = "ultimoAcesso", ignore = true)
     @Mapping(target = "usuarioInstituicaos", ignore = true)
     @Mapping(target = "perfilUsuarios", ignore = true)
-    @Mapping(target = "dateCreated", expression = "java(java.time.OffsetDateTime.now())")
-    @Mapping(target = "lastUpdated", expression = "java(java.time.OffsetDateTime.now())")
+    @Mapping(target = "dateCreated", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "lastUpdated", expression = "java(java.time.LocalDateTime.now())")
     Usuario requestToEntity(UsuarioRequest request);
+
+
+    UsuarioDTO entityToDTO(Usuario usuario);
 }
