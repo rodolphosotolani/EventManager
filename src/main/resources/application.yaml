@@ -1,6 +1,25 @@
 spring:
   application:
     name: EventManager
+  jackson:
+    time-zone: GMT-04:00
+  messages:
+    basename: messages
+    encoding: UTF-8
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:mock-client-id}
+            client-secret: ${GOOGLE_CLIENT_SECRET:mock-client-secret}
+            scope:
+              - email
+              - profile
+  data:
+    web:
+      pageable:
+        page-serialization-mode: via-dto
   datasource:
     url: ${JDBC_DATABASE_URL:jdbc:postgresql://localhost:5432/EventManager}
     username: ${JDBC_DATABASE_USERNAME:postgres}
@@ -12,15 +31,13 @@ spring:
     init:
       mode: always
   jpa:
-    hibernate:
-      ddl-auto: update
-    defer-datasource-initialization: true
     open-in-view: false
     properties:
       hibernate:
         jdbc:
           lob:
             non_contextual_creation: true
+          time_zone: GMT-04:00
         id:
           new_generator_mappings: true
     show-sql: true

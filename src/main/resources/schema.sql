@@ -5,25 +5,25 @@ CREATE SCHEMA IF NOT EXISTS financeiro;
 CREATE SCHEMA IF NOT EXISTS seguranca;
 
 -- Create sequences for entities using sequence generator strategy (matching Hibernate's default allocationSize of 50)
-CREATE SEQUENCE IF NOT EXISTS gestao.instituicao_seq START WITH 1 INCREMENT BY 50;
-CREATE SEQUENCE IF NOT EXISTS gestao.evento_seq START WITH 1 INCREMENT BY 50;
-CREATE SEQUENCE IF NOT EXISTS catalogo.categoria_seq START WITH 1 INCREMENT BY 50;
-CREATE SEQUENCE IF NOT EXISTS catalogo.sub_categoria_seq START WITH 1 INCREMENT BY 50;
-CREATE SEQUENCE IF NOT EXISTS catalogo.produto_seq START WITH 1 INCREMENT BY 50;
-CREATE SEQUENCE IF NOT EXISTS catalogo.servico_seq START WITH 1 INCREMENT BY 50;
-CREATE SEQUENCE IF NOT EXISTS catalogo.estoque_seq START WITH 1 INCREMENT BY 50;
-CREATE SEQUENCE IF NOT EXISTS catalogo.movimentacao_seq START WITH 1 INCREMENT BY 50;
-CREATE SEQUENCE IF NOT EXISTS financeiro.venda_seq START WITH 1 INCREMENT BY 50;
-CREATE SEQUENCE IF NOT EXISTS financeiro.item_venda_seq START WITH 1 INCREMENT BY 50;
-CREATE SEQUENCE IF NOT EXISTS financeiro.caixa_seq START WITH 1 INCREMENT BY 50;
-CREATE SEQUENCE IF NOT EXISTS financeiro.fluxo_caixa_seq START WITH 1 INCREMENT BY 50;
-CREATE SEQUENCE IF NOT EXISTS financeiro.cliente_seq START WITH 1 INCREMENT BY 50;
-CREATE SEQUENCE IF NOT EXISTS financeiro.conta_seq START WITH 1 INCREMENT BY 50;
-CREATE SEQUENCE IF NOT EXISTS seguranca.perfil_seq START WITH 1 INCREMENT BY 50;
-CREATE SEQUENCE IF NOT EXISTS seguranca.permissao_seq START WITH 1 INCREMENT BY 50;
-CREATE SEQUENCE IF NOT EXISTS seguranca.usuario_seq START WITH 1 INCREMENT BY 50;
-CREATE SEQUENCE IF NOT EXISTS seguranca.usuario_instituicao_seq START WITH 1 INCREMENT BY 50;
-CREATE SEQUENCE IF NOT EXISTS seguranca.perfil_usuario_seq START WITH 1 INCREMENT BY 50;
+CREATE SEQUENCE IF NOT EXISTS gestao.instituicao_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS gestao.evento_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS catalogo.categoria_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS catalogo.sub_categoria_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS catalogo.produto_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS catalogo.servico_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS catalogo.estoque_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS catalogo.movimentacao_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS financeiro.venda_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS financeiro.item_venda_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS financeiro.caixa_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS financeiro.fluxo_caixa_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS financeiro.cliente_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS financeiro.conta_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS seguranca.perfil_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS seguranca.permissao_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS seguranca.usuario_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS seguranca.usuario_instituicao_seq START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE IF NOT EXISTS seguranca.perfil_usuario_seq START WITH 1 INCREMENT BY 1;
 
 -- 1. Instituicao Table (Schema: gestao)
 CREATE TABLE IF NOT EXISTS gestao.instituicao (
@@ -160,8 +160,10 @@ ALTER TABLE financeiro.item_venda ADD COLUMN IF NOT EXISTS evento_id bigint;
 -- 11. Cliente Table (Schema: financeiro)
 CREATE TABLE IF NOT EXISTS financeiro.cliente (
     id bigint NOT NULL PRIMARY KEY DEFAULT nextval('financeiro.cliente_seq'),
+    uuid uuid NOT NULL UNIQUE,
     instituicao_id bigint NOT NULL CONSTRAINT fk_cliente_instituicao REFERENCES gestao.instituicao(id),
     nome varchar(255) NOT NULL,
+    apelido varchar(255),
     celular varchar(255) NOT NULL,
     telefone varchar(255),
     email varchar(255),
@@ -233,8 +235,8 @@ CREATE TABLE IF NOT EXISTS seguranca.usuario (
     url_foto varchar(500),
     ativo boolean NOT NULL DEFAULT true,
     ultimo_acesso timestamp without time zone,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
+    date_created timestamp with time zone NOT NULL,
+    last_updated timestamp with time zone NOT NULL
 );
 
 -- 16. Usuario Instituicao Table (Schema: seguranca)
@@ -242,27 +244,28 @@ CREATE TABLE IF NOT EXISTS seguranca.usuario_instituicao (
     id bigint NOT NULL PRIMARY KEY DEFAULT nextval('seguranca.usuario_instituicao_seq'),
     usuario_id bigint NOT NULL CONSTRAINT fk_usuario_instituicao_usuario REFERENCES seguranca.usuario(id),
     instituicao_id bigint NOT NULL CONSTRAINT fk_usuario_instituicao_instituicao REFERENCES gestao.instituicao(id),
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
+    date_created timestamp with time zone NOT NULL,
+    last_updated timestamp with time zone NOT NULL
 );
 
--- 17. Perfil Table (Schema: seguranca)
 CREATE TABLE IF NOT EXISTS seguranca.perfil (
     id bigint NOT NULL PRIMARY KEY DEFAULT nextval('seguranca.perfil_seq'),
-    instituicao_id bigint NOT NULL CONSTRAINT fk_perfil_instituicao REFERENCES gestao.instituicao(id),
+    instituicao_id bigint CONSTRAINT fk_perfil_instituicao REFERENCES gestao.instituicao(id),
     nome varchar(50) NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
-    CONSTRAINT uq_perfil_nome_instituicao UNIQUE (nome, instituicao_id)
+    date_created timestamp with time zone NOT NULL,
+    last_updated timestamp with time zone NOT NULL
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS uq_perfil_nome_instituicao_null ON seguranca.perfil (nome) WHERE instituicao_id IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_perfil_nome_instituicao_not_null ON seguranca.perfil (nome, instituicao_id) WHERE instituicao_id IS NOT NULL;
 
 -- 18. Permissao Table (Schema: seguranca)
 CREATE TABLE IF NOT EXISTS seguranca.permissao (
     id bigint NOT NULL PRIMARY KEY DEFAULT nextval('seguranca.permissao_seq'),
     tela varchar(50) NOT NULL,
     acao varchar(50) NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
+    date_created timestamp with time zone NOT NULL,
+    last_updated timestamp with time zone NOT NULL,
     CONSTRAINT uq_permissao_tela_acao UNIQUE (tela, acao)
 );
 
@@ -278,8 +281,8 @@ CREATE TABLE IF NOT EXISTS seguranca.perfil_usuario (
     id bigint NOT NULL PRIMARY KEY DEFAULT nextval('seguranca.perfil_usuario_seq'),
     usuario_id bigint NOT NULL CONSTRAINT fk_perfil_usuario_usuario REFERENCES seguranca.usuario(id),
     perfil_id bigint NOT NULL CONSTRAINT fk_perfil_usuario_perfil REFERENCES seguranca.perfil(id),
-    evento_id bigint NOT NULL CONSTRAINT fk_perfil_usuario_evento REFERENCES gestao.evento(id),
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
+    instituicao_id bigint CONSTRAINT fk_perfil_usuario_instituicao REFERENCES gestao.instituicao(id),
+    date_created timestamp with time zone NOT NULL,
+    last_updated timestamp with time zone NOT NULL
 );
 
