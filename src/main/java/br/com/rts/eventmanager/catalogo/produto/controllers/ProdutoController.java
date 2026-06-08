@@ -5,7 +5,7 @@ import br.com.rts.eventmanager.catalogo.produto.entities.Produto;
 import br.com.rts.eventmanager.catalogo.produto.mappers.ProdutoMapper;
 import br.com.rts.eventmanager.catalogo.produto.services.ProdutoService;
 import br.com.rts.eventmanager.catalogo.subcategoria.services.SubCategoriaService;
-import br.com.rts.eventmanager.data.ProdutoDTO;
+import br.com.rts.eventmanager.catalogo.ProdutoDTO;
 import br.com.rts.eventmanager.utils.WebUtils;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;

@@ -1,6 +1,6 @@
 package br.com.rts.eventmanager.financeiro.venda.services;
 
-import br.com.rts.eventmanager.data.VendaSumarioDTO;
+import br.com.rts.eventmanager.financeiro.VendaSumarioDTO;
 import br.com.rts.eventmanager.financeiro.venda.entities.Venda;
 import br.com.rts.eventmanager.financeiro.venda.specs.FiltroVendas;
 import org.springframework.data.domain.Page;

@@ -1,4 +1,4 @@
-package br.com.rts.eventmanager.data;
+package br.com.rts.eventmanager.catalogo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoriaDTO {
+public class SubCategoriaDTO {
 
     private Long id;
 
@@ -16,5 +16,7 @@ public class CategoriaDTO {
     private String nome;
 
     private Boolean ativo;
+
+    private Long categoriaId;
 
 }

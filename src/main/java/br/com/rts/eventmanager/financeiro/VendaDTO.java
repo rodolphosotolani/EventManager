@@ -1,4 +1,4 @@
-package br.com.rts.eventmanager.data;
+package br.com.rts.eventmanager.financeiro;
 
 import br.com.rts.eventmanager.financeiro.venda.enumerators.FormaPagamentoEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;

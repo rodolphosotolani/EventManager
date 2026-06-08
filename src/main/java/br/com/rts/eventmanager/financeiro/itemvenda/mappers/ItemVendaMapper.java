@@ -3,7 +3,7 @@ package br.com.rts.eventmanager.financeiro.itemvenda.mappers;
 import br.com.rts.eventmanager.financeiro.itemvenda.controllers.requests.ItemVendaRequest;
 import br.com.rts.eventmanager.financeiro.itemvenda.controllers.responses.ItemVendaResponse;
 import br.com.rts.eventmanager.financeiro.itemvenda.entities.ItemVenda;
-import br.com.rts.eventmanager.data.ItemVendaDTO;
+import br.com.rts.eventmanager.financeiro.ItemVendaDTO;
 import org.jspecify.annotations.Nullable;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

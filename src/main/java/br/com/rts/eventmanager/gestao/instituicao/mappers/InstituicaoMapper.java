@@ -1,6 +1,6 @@
 package br.com.rts.eventmanager.gestao.instituicao.mappers;
 
-import br.com.rts.eventmanager.data.InstituicaoDTO;
+import br.com.rts.eventmanager.gestao.InstituicaoDTO;
 import br.com.rts.eventmanager.gestao.instituicao.controllers.requests.InstituicaoRequest;
 import br.com.rts.eventmanager.gestao.instituicao.controllers.responses.InstituicaoResponse;
 import br.com.rts.eventmanager.gestao.instituicao.entities.Instituicao;

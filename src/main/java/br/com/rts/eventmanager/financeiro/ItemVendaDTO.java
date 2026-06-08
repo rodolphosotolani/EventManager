@@ -1,4 +1,4 @@
-package br.com.rts.eventmanager.data;
+package br.com.rts.eventmanager.financeiro;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

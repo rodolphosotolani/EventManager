@@ -5,7 +5,7 @@ import br.com.rts.eventmanager.catalogo.produto.controllers.requests.ProdutoRequ
 import br.com.rts.eventmanager.catalogo.produto.controllers.responses.ProdutoResponse;
 import br.com.rts.eventmanager.catalogo.produto.entities.Produto;
 import br.com.rts.eventmanager.catalogo.subcategoria.mappers.SubCategoriaMapper;
-import br.com.rts.eventmanager.data.ProdutoDTO;
+import br.com.rts.eventmanager.catalogo.ProdutoDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;

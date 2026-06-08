@@ -2,7 +2,6 @@ package br.com.rts.eventmanager.catalogo;
 
 import br.com.rts.eventmanager.catalogo.produto.mappers.ProdutoMapper;
 import br.com.rts.eventmanager.catalogo.produto.services.ProdutoService;
-import br.com.rts.eventmanager.data.ProdutoDTO;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

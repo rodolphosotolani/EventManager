@@ -1,11 +1,11 @@
 package br.com.rts.eventmanager.financeiro.venda.controllers;
 
-import br.com.rts.eventmanager.data.ProdutoDTO;
+import br.com.rts.eventmanager.catalogo.ProdutoDTO;
 import br.com.rts.eventmanager.catalogo.ProdutoFacade;
 import br.com.rts.eventmanager.financeiro.cliente.services.ClienteService;
-import br.com.rts.eventmanager.data.ItemVendaDTO;
-import br.com.rts.eventmanager.data.VendaDTO;
-import br.com.rts.eventmanager.data.VendaSumarioDTO;
+import br.com.rts.eventmanager.financeiro.ItemVendaDTO;
+import br.com.rts.eventmanager.financeiro.VendaDTO;
+import br.com.rts.eventmanager.financeiro.VendaSumarioDTO;
 import br.com.rts.eventmanager.financeiro.venda.entities.Venda;
 import br.com.rts.eventmanager.financeiro.venda.enumerators.FormaPagamentoEnum;
 import br.com.rts.eventmanager.financeiro.venda.mappers.VendaMapper;

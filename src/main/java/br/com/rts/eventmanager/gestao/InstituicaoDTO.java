@@ -1,4 +1,4 @@
-package br.com.rts.eventmanager.data;
+package br.com.rts.eventmanager.gestao;
 
 public record InstituicaoDTO(Long id,
                              String nome,

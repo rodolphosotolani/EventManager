@@ -1,4 +1,4 @@
-package br.com.rts.eventmanager.data;
+package br.com.rts.eventmanager.seguranca;
 
 import java.time.LocalDateTime;
 import java.util.Set;

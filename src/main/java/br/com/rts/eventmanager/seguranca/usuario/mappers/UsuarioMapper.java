@@ -1,6 +1,6 @@
 package br.com.rts.eventmanager.seguranca.usuario.mappers;
 
-import br.com.rts.eventmanager.data.UsuarioDTO;
+import br.com.rts.eventmanager.seguranca.UsuarioDTO;
 import br.com.rts.eventmanager.seguranca.perfil.mappers.PerfilUsuarioMapper;
 import br.com.rts.eventmanager.seguranca.usuario.controllers.requests.UsuarioRequest;
 import br.com.rts.eventmanager.seguranca.usuario.controllers.responses.UsuarioResponse;

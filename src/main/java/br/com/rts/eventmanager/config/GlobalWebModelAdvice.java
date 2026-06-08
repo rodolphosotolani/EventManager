@@ -1,9 +1,9 @@
 package br.com.rts.eventmanager.config;
 
-import br.com.rts.eventmanager.data.EventoDTO;
-import br.com.rts.eventmanager.data.InstituicaoDTO;
-import br.com.rts.eventmanager.data.PerfilUsuarioDTO;
-import br.com.rts.eventmanager.data.UsuarioDTO;
+import br.com.rts.eventmanager.gestao.EventoDTO;
+import br.com.rts.eventmanager.gestao.InstituicaoDTO;
+import br.com.rts.eventmanager.seguranca.PerfilUsuarioDTO;
+import br.com.rts.eventmanager.seguranca.UsuarioDTO;
 import br.com.rts.eventmanager.gestao.GestaoFacade;
 import br.com.rts.eventmanager.seguranca.SegurancaFacade;
 import jakarta.servlet.http.HttpSession;

@@ -1,6 +1,6 @@
 package br.com.rts.eventmanager.gestao.evento.mappers;
 
-import br.com.rts.eventmanager.data.EventoDTO;
+import br.com.rts.eventmanager.gestao.EventoDTO;
 import br.com.rts.eventmanager.gestao.evento.controllers.requests.EventoRequest;
 import br.com.rts.eventmanager.gestao.evento.controllers.responses.EventoResponse;
 import br.com.rts.eventmanager.gestao.evento.entities.Evento;

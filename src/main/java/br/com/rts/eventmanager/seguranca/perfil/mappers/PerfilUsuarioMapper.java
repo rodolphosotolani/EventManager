@@ -1,6 +1,6 @@
 package br.com.rts.eventmanager.seguranca.perfil.mappers;
 
-import br.com.rts.eventmanager.data.PerfilUsuarioDTO;
+import br.com.rts.eventmanager.seguranca.PerfilUsuarioDTO;
 import br.com.rts.eventmanager.seguranca.perfil.entities.PerfilUsuario;
 import br.com.rts.eventmanager.seguranca.permissao.mappers.PermissaoMapper;
 import org.mapstruct.Mapper;

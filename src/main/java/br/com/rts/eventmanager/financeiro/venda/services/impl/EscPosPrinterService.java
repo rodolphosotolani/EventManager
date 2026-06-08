@@ -1,6 +1,6 @@
 package br.com.rts.eventmanager.financeiro.venda.services.impl;
 
-import br.com.rts.eventmanager.data.ProdutoDTO;
+import br.com.rts.eventmanager.catalogo.ProdutoDTO;
 import br.com.rts.eventmanager.catalogo.ProdutoFacade;
 import br.com.rts.eventmanager.financeiro.itemvenda.entities.ItemVenda;
 import br.com.rts.eventmanager.financeiro.venda.entities.Venda;

@@ -3,7 +3,7 @@ package br.com.rts.eventmanager.financeiro.venda.mappers;
 import br.com.rts.eventmanager.financeiro.itemvenda.mappers.ItemVendaMapper;
 import br.com.rts.eventmanager.financeiro.venda.controllers.requests.VendaRequest;
 import br.com.rts.eventmanager.financeiro.venda.controllers.responses.VendaResponse;
-import br.com.rts.eventmanager.data.VendaDTO;
+import br.com.rts.eventmanager.financeiro.VendaDTO;
 import br.com.rts.eventmanager.financeiro.venda.entities.Venda;
 import jakarta.validation.Valid;
 import org.mapstruct.Mapper;

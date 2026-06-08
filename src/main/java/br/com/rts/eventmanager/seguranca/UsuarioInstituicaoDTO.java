@@ -1,4 +1,4 @@
-package br.com.rts.eventmanager.data;
+package br.com.rts.eventmanager.seguranca;
 
 public record UsuarioInstituicaoDTO(Long id,
                                     Long usuarioId,

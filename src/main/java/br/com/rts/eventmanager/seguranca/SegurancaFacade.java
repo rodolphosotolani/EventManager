@@ -1,6 +1,5 @@
 package br.com.rts.eventmanager.seguranca;
 
-import br.com.rts.eventmanager.data.UsuarioDTO;
 import br.com.rts.eventmanager.seguranca.usuario.mappers.UsuarioMapper;
 import br.com.rts.eventmanager.seguranca.usuario.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
