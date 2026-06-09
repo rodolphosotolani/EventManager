@@ -1,16 +1,15 @@
 package br.com.rts.eventmanager.config;
 
 import br.com.rts.eventmanager.gestao.EventoDTO;
-import br.com.rts.eventmanager.gestao.InstituicaoDTO;
-import br.com.rts.eventmanager.seguranca.PerfilUsuarioDTO;
-import br.com.rts.eventmanager.seguranca.UsuarioDTO;
 import br.com.rts.eventmanager.gestao.GestaoFacade;
+import br.com.rts.eventmanager.gestao.InstituicaoDTO;
 import br.com.rts.eventmanager.seguranca.SegurancaFacade;
+import br.com.rts.eventmanager.seguranca.UsuarioDTO;
+import br.com.rts.eventmanager.seguranca.UsuarioInstituicaoDTO;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -37,50 +36,57 @@ public class GlobalWebModelAdvice {
 
         // 1. Resolve logged-in Google user and their access scope
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        OidcUser oidcUser = null;
-        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof OidcUser) {
-            oidcUser = (OidcUser) authentication.getPrincipal();
+        String email = null;
+        String nome = null;
+        String urlFoto = null;
+
+        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal().toString())) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof org.springframework.security.oauth2.core.user.OAuth2User oauth) {
+                email = oauth.getAttribute("email");
+                nome = oauth.getAttribute("name");
+                if (nome == null) {
+                    nome = oauth.getAttribute("given_name");
+                }
+                if (nome == null && email != null) {
+                    nome = email.split("@")[0];
+                }
+                urlFoto = oauth.getAttribute("picture");
+            }
         }
 
-        if (oidcUser != null) {
-            //TODO Substitua por DTO do usuario logado, buscando na base
-            String email = oidcUser.getEmail();
-            String nome = oidcUser.getFullName() != null ? oidcUser.getFullName() : (oidcUser.getGivenName() != null ? oidcUser.getGivenName() : email.split("@")[0]);
-            model.addAttribute("usuarioLogado", new UsuarioLogadoInfo(nome, email, oidcUser.getPicture()));
+        if (email != null) {
+            model.addAttribute("usuarioLogado", new UsuarioLogadoInfo(nome, email, urlFoto));
 
-            // Check if user is MASTER
-            boolean isMaster = authentication.getAuthorities().stream()
-                    .anyMatch(a -> "ROLE_MASTER".equals(a.getAuthority()));
-
+            // Fetch allowed institutions based strictly on UsuarioInstituicao links
             List<InstituicaoDTO> allowedInstituicoes;
-            if (isMaster) {
-                allowedInstituicoes = gestaoFacade.findAllInstituicao();
+            Optional<UsuarioDTO> usuarioOpt = segurancaFacade.findUsuarioByEmail(email);
+            if (usuarioOpt.isPresent() && usuarioOpt.get().usuarioInstituicaos() != null) {
+                allowedInstituicoes = usuarioOpt.get().usuarioInstituicaos().stream()
+                        .map(UsuarioInstituicaoDTO::instituicao)
+                        .filter(Objects::nonNull)
+                        .distinct()
+                        .map(gestaoFacade::getInstituicaoById)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
             } else {
-                // Fetch allowed institutions from user's profiles
-                Optional<UsuarioDTO> usuarioOpt = segurancaFacade.findUsuarioByEmail(email);
-                if (usuarioOpt.isPresent()) {
-                    allowedInstituicoes = usuarioOpt.get().perfilUsuarios().stream()
-                            .map(PerfilUsuarioDTO::instituicao)
-                            .filter(java.util.Objects::nonNull)
-                            .distinct()
-                            .map(instId -> gestaoFacade.findInstituicaoById(instId)
-                                    .orElse(null))
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.toList());
-                } else {
-                    allowedInstituicoes = java.util.Collections.emptyList();
-                }
+                allowedInstituicoes = java.util.Collections.emptyList();
             }
 
             model.addAttribute("instituicoes", allowedInstituicoes);
 
             // 2. Resolve active institution based on allowed scope
             if (instituicaoId != null) {
-                // Verify requested institution is within allowed list
-                boolean isAllowed = allowedInstituicoes.stream().anyMatch(i -> i.id().equals(instituicaoId));
-                if (isAllowed) {
-                    session.setAttribute("activeInstituicaoId", instituicaoId);
+                if (instituicaoId == -1L) {
+                    session.removeAttribute("activeInstituicaoId");
                     session.removeAttribute("activeEventoId");
+                } else {
+                    // Verify requested institution is within allowed list
+                    boolean isAllowed = allowedInstituicoes.stream().anyMatch(i -> i.id().equals(instituicaoId));
+                    if (isAllowed) {
+                        session.setAttribute("activeInstituicaoId", instituicaoId);
+                        session.removeAttribute("activeEventoId");
+                    }
                 }
             }
 
@@ -93,20 +99,14 @@ public class GlobalWebModelAdvice {
                         .orElse(null);
             }
 
-            if (tenant == null && !allowedInstituicoes.isEmpty()) {
-                tenant = allowedInstituicoes.get(0);
-                session.setAttribute("activeInstituicaoId", tenant.id());
-            }
-
             model.addAttribute("tenant", tenant);
             populateTenantColors(tenant, model);
 
             // 3. Resolve active event for the selected institution
             if (tenant != null) {
                 if (eventoId != null) {
-                    if (gestaoFacade.existsEventoByInstituicaoAndId(tenant.id(), eventoId)) {
-                        session.setAttribute("activeEventoId", eventoId);
-                    }
+                    gestaoFacade.validateIfInstituicaoAndEventoIsValid(tenant.id(), eventoId);
+                    session.setAttribute("activeEventoId", eventoId);
                 }
 
                 Long activeEvId = (Long) session.getAttribute("activeEventoId");
@@ -128,6 +128,7 @@ public class GlobalWebModelAdvice {
 
                 model.addAttribute("activeEvent", activeEvent);
             } else {
+                model.addAttribute("eventos", java.util.Collections.emptyList());
                 model.addAttribute("activeEvent", null);
             }
 

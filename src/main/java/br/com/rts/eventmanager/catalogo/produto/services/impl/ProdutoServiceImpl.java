@@ -41,9 +41,9 @@ public class ProdutoServiceImpl implements ProdutoService {
     }
 
     @Override
-    public Produto create(Produto produtoNew, Long instituicaoId) {
+    public Produto create(Produto produtoNew, Long eventoId, Long instituicaoId) {
 
-        gestaoFacade.validateIfInstituicaoAndEventoIsValid(instituicaoId, produtoNew.getEvento());
+        gestaoFacade.validateIfInstituicaoAndEventoIsValid(instituicaoId, eventoId);
 
         produtoNew.setCategoria(
                 categoriaService.findByIdAndInstituicao(produtoNew.getCategoria().getId(), instituicaoId));
@@ -57,6 +57,7 @@ public class ProdutoServiceImpl implements ProdutoService {
         }
 
         produtoNew.setInstituicao(instituicaoId);
+        produtoNew.setEvento(eventoId);
 
         return repository.save(produtoNew);
     }
@@ -96,5 +97,14 @@ public class ProdutoServiceImpl implements ProdutoService {
 
     }
 
+    @Override
+    public List<Produto> findAllByInstituicaoAndEventoAndCategoriaId(Long instituicaoId, Long eventoId, Long categoriaId) {
+        return repository.findAllByInstituicaoAndEventoAndCategoriaId(instituicaoId, eventoId, categoriaId);
+    }
+
+    @Override
+    public List<Produto> findAllByInstituicaoAndEventoAndCategoriaIdAndSubCategoriaId(Long instituicaoId, Long eventoId, Long categoriaId, Long subCategoriaId) {
+        return repository.findAllByInstituicaoAndEventoAndCategoriaIdAndSubCategoriaId(instituicaoId, eventoId, categoriaId, subCategoriaId);
+    }
 
 }

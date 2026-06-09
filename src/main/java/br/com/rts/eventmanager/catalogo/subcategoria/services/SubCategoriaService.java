@@ -5,11 +5,16 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface SubCategoriaService {
 
     Page<SubCategoria> findAllByInstituicaoAndCategoria(@NotNull final Long instituicaoId,
                                                         @NotNull final Long categoriaId,
                                                         Pageable pageable);
+
+    List<SubCategoria> findAllByInstituicaoAndCategoria(@NotNull final Long instituicaoId,
+                                                        @NotNull final Long categoriaId);
 
     Page<SubCategoria> findAllByInstituicao(@NotNull final Long instituicaoId,
                                             Pageable pageable);

@@ -88,7 +88,10 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .instituicao(instituicaoId)
                 .build();
 
-        return usuarioInstituicaoRepository.save(link);
+        UsuarioInstituicao saved = usuarioInstituicaoRepository.save(link);
+        usuario.getUsuarioInstituicaos().add(saved);
+        repository.save(usuario);
+        return saved;
     }
 
     @Override

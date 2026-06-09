@@ -15,6 +15,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
            "LEFT JOIN FETCH u.perfilUsuarios pu " +
            "LEFT JOIN FETCH pu.perfil p " +
            "LEFT JOIN FETCH p.permissoes " +
+           "LEFT JOIN FETCH u.usuarioInstituicaos " +
            "WHERE u.email = :email")
     Optional<Usuario> findByEmail(@Param("email") String email);
 }

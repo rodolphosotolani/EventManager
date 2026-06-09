@@ -19,4 +19,11 @@ public class SegurancaFacade {
         return usuarioService.findByEmail(email)
                 .map(usuarioMapper::entityToDTO);
     }
+
+    @org.springframework.transaction.annotation.Transactional
+    public void vincularUsuarioAInstituicao(String email, Long instituicaoId) {
+        usuarioService.findByEmail(email).ifPresent(usuario -> 
+            usuarioService.linkToInstituicao(usuario.getId(), instituicaoId)
+        );
+    }
 }

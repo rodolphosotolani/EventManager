@@ -92,7 +92,7 @@ public class CategoriaController {
         }
 
         model.addAttribute("categoria", categoria);
-        model.addAttribute("subCategorias", subCategoriaService.findAllByInstituicaoAndCategoria(tenantId, id, Pageable.ofSize(100)).getContent());
+        model.addAttribute("subCategorias", subCategoriaService.findAllByInstituicaoAndCategoria(tenantId, id));
         model.addAttribute("pageTitle", "Editar Categoria");
         return "categoria/edit";
     }
@@ -113,7 +113,7 @@ public class CategoriaController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("pageTitle", "Editar Categoria");
-            model.addAttribute("subCategorias", subCategoriaService.findAllByInstituicaoAndCategoria(tenantId, id, Pageable.ofSize(100)).getContent());
+            model.addAttribute("subCategorias", subCategoriaService.findAllByInstituicaoAndCategoria(tenantId, id));
             redirectAttributes.addFlashAttribute(WebUtils.MSG_ERROR, "Não é possível editar a categoria pois o formulário esta com erro.");
             log.error("Não é possível editar a categoria pois o formulário esta com erro. ERRO: {}", bindingResult.getAllErrors());
             return "categoria/edit";

@@ -145,6 +145,17 @@ public class VendaController {
 
         model.addAttribute("produtos", produtoFacade.findAllByInstituicaoAndEvento(tenantId, activeEvId));
         model.addAttribute("cart", vendaDTO);
+
+        // Obter estatisticas para a bento grid do PDV
+        FiltroVendas filtroFaturamento = new FiltroVendas(null, true, null, null, null, null, null);
+        VendaSumarioDTO sumarioFaturamento = service.obterSumarioVendas(filtroFaturamento);
+        model.addAttribute("totalValorVendas", sumarioFaturamento.totalValor());
+        model.addAttribute("totalItensVendas", sumarioFaturamento.totalItens());
+
+        FiltroVendas filtroPendentes = new FiltroVendas(null, false, null, null, null, null, null);
+        VendaSumarioDTO sumarioPendentes = service.obterSumarioVendas(filtroPendentes);
+        model.addAttribute("totalPendentes", sumarioPendentes.totalVendas());
+
         model.addAttribute("pageTitle", "Terminal PDV");
         return "venda/pdv";
     }
@@ -159,7 +170,6 @@ public class VendaController {
         Long tenantId = (Long) session.getAttribute("activeInstituicaoId");
         Long activeEvId = (Long) session.getAttribute("activeEventoId");
 
-
         ItemVendaDTO existingItem = vendaDTO.getItens().stream()
                 .filter(item -> item.getProdutoId().equals(produtoId))
                 .findFirst()
@@ -167,8 +177,12 @@ public class VendaController {
 
         if (activeEvId != null && tenantId != null) {
             if (existingItem != null) {
-                existingItem.setQuantidade(quantidade);
-            } else {
+                if (quantidade <= 0) {
+                    vendaDTO.getItens().remove(existingItem);
+                } else {
+                    existingItem.setQuantidade(quantidade);
+                }
+            } else if (quantidade > 0) {
                 ItemVendaDTO newItem = new ItemVendaDTO();
                 newItem.setInstituicao(tenantId);
                 newItem.setEvento(activeEvId);
@@ -181,6 +195,13 @@ public class VendaController {
         recalculateTotal(vendaDTO);
         model.addAttribute("cart", vendaDTO);
 
+        Map<Long, Integer> itemQuantities = vendaDTO.getItens()
+                .stream()
+                .collect(Collectors.toMap(ItemVendaDTO::getProdutoId, ItemVendaDTO::getQuantidade));
+        model.addAttribute("itemQuantities", itemQuantities);
+        model.addAttribute("lastUpdatedProdutoId", produtoId);
+        model.addAttribute("isHtmx", true);
+
         return "venda/pdv :: cart-panel";
     }
 
@@ -190,10 +211,20 @@ public class VendaController {
     public String clearCart(HttpSession session,
                             @ModelAttribute("venda") final VendaDTO vendaDTO,
                             Model model) {
+        Long tenantId = (Long) session.getAttribute("activeInstituicaoId");
+        Long activeEvId = (Long) session.getAttribute("activeEventoId");
 
         vendaDTO.getItens().clear();
         vendaDTO.setValorTotal(BigDecimal.ZERO);
         vendaDTO.setQuantidadeItens(0);
+
+        model.addAttribute("cart", vendaDTO);
+        model.addAttribute("cartCleared", true);
+        model.addAttribute("produtos", produtoFacade.findAllByInstituicaoAndEvento(tenantId, activeEvId));
+
+        Map<Long, Integer> itemQuantities = java.util.Collections.emptyMap();
+        model.addAttribute("itemQuantities", itemQuantities);
+        model.addAttribute("isHtmx", true);
 
         return "venda/pdv :: cart-panel";
     }

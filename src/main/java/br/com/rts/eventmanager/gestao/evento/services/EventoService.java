@@ -30,4 +30,6 @@ public interface EventoService {
                                      @NotNull final Long eventoId);
 
     List<Evento> findAllByInstituicao(Long instituicaoId);
+
+    void validateIfEventoIsValid(Long instituicaoId, Long eventoId);
 }

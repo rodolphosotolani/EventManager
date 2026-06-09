@@ -17,4 +17,8 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     Optional<Produto> findByIdAndInstituicaoAndEvento(Long produtoId, Long instituicaoId, Long eventoId);
 
     List<Produto> findAllByInstituicaoAndEvento(Long instituicaoId, Long eventoId);
+
+    List<Produto> findAllByInstituicaoAndEventoAndCategoriaId(Long instituicaoId, Long eventoId, Long categoriaId);
+
+    List<Produto> findAllByInstituicaoAndEventoAndCategoriaIdAndSubCategoriaId(Long instituicaoId, Long eventoId, Long categoriaId, Long subCategoriaId);
 }

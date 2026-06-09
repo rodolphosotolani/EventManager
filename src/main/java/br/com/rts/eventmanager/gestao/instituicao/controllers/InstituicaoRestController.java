@@ -29,8 +29,8 @@ public class InstituicaoRestController {
     private final InstituicaoMapper mapper;
 
     @GetMapping()
-    @Operation(summary = "Listar todas as instituições", 
-               description = "Retorna uma página contendo todas as instituições cadastradas no sistema.")
+    @Operation(summary = "Listar todas as instituições",
+            description = "Retorna uma página contendo todas as instituições cadastradas no sistema.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Instituições retornadas com sucesso"),
             @ApiResponse(responseCode = "204", description = "Nenhuma instituição cadastrada")
@@ -48,8 +48,8 @@ public class InstituicaoRestController {
     }
 
     @GetMapping("/{instituicaoId}")
-    @Operation(summary = "Obter detalhes de uma instituição específica", 
-               description = "Retorna os detalhes de uma única instituição cadastrada pelo seu ID.")
+    @Operation(summary = "Obter detalhes de uma instituição específica",
+            description = "Retorna os detalhes de uma única instituição cadastrada pelo seu ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Instituição localizada com sucesso"),
             @ApiResponse(responseCode = "404", description = "Instituição não encontrada")
@@ -58,16 +58,14 @@ public class InstituicaoRestController {
             @Parameter(description = "ID da instituição", required = true)
             @PathVariable Long instituicaoId) {
 
-        Optional<Instituicao> instituicaoOptional = service.findById(instituicaoId);
+        Instituicao instituicao = service.findById(instituicaoId);
 
-        return instituicaoOptional
-                .map(instituicao -> ResponseEntity.ok(mapper.entityToResponse(instituicao)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(mapper.entityToResponse(instituicao));
     }
 
     @PostMapping()
-    @Operation(summary = "Cadastrar uma nova instituição", 
-               description = "Cadastra uma nova instituição no sistema a partir dos dados fornecidos no corpo da requisição.")
+    @Operation(summary = "Cadastrar uma nova instituição",
+            description = "Cadastra uma nova instituição no sistema a partir dos dados fornecidos no corpo da requisição.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Instituição criada com sucesso"),
             @ApiResponse(responseCode = "400", description = "Dados da requisição inválidos")
@@ -89,8 +87,8 @@ public class InstituicaoRestController {
     }
 
     @PutMapping("/{instituicaoId}")
-    @Operation(summary = "Atualizar uma instituição existente", 
-               description = "Atualiza os dados de uma instituição a partir do seu ID e dos novos dados enviados no corpo da requisição.")
+    @Operation(summary = "Atualizar uma instituição existente",
+            description = "Atualiza os dados de uma instituição a partir do seu ID e dos novos dados enviados no corpo da requisição.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Instituição atualizada com sucesso"),
             @ApiResponse(responseCode = "404", description = "Instituição não encontrada"),
@@ -102,23 +100,16 @@ public class InstituicaoRestController {
             @Parameter(description = "Novos dados para atualização", required = true)
             @RequestBody InstituicaoRequest request) {
 
-        Optional<Instituicao> optionalInstituicao = service.findById(instituicaoId);
-        if (optionalInstituicao.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
         Instituicao instituicaoUpdate = mapper.requestToEntity(request);
-        service.update(instituicaoId, instituicaoUpdate);
 
-        Optional<Instituicao> instituicaoAtualizada = service.findById(instituicaoId);
-        return instituicaoAtualizada
-                .map(instituicao -> ResponseEntity.ok(mapper.entityToResponse(instituicao)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        Instituicao instituicaoAtualizada = service.update(instituicaoId, instituicaoUpdate);
+
+        return ResponseEntity.ok(mapper.entityToResponse(instituicaoAtualizada));
     }
 
     @DeleteMapping("/{instituicaoId}")
-    @Operation(summary = "Excluir uma instituição existente", 
-               description = "Remove definitivamente uma instituição pelo seu ID.")
+    @Operation(summary = "Excluir uma instituição existente",
+            description = "Remove definitivamente uma instituição pelo seu ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Instituição deletada com sucesso"),
             @ApiResponse(responseCode = "404", description = "Instituição não encontrada")
@@ -127,12 +118,8 @@ public class InstituicaoRestController {
             @Parameter(description = "ID da instituição a ser deletada", required = true)
             @PathVariable Long instituicaoId) {
 
-        Optional<Instituicao> optionalInstituicao = service.findById(instituicaoId);
-        if (optionalInstituicao.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
         service.delete(instituicaoId);
+
         return ResponseEntity.noContent().build();
     }
 }

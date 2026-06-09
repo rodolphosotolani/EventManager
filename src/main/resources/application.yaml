@@ -65,3 +65,8 @@ springdoc:
     tags-sorter: alpha
     display-request-duration: true
 
+# Custom App Properties
+app:
+  security:
+    master-email: ${MASTER_EMAIL:rt.sotolani@gmail.com}
+

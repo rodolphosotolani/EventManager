@@ -22,11 +22,14 @@ public class EventoController {
     private final EventoService service;
 
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'EVENTOS_ACESSO', 'EVENTOS_LISTAR')")
     public String list(HttpSession session, Model model) {
         Long tenantId = (Long) session.getAttribute("activeInstituicaoId");
         if (tenantId == null) {
-            return "redirect:/dashboard";
+            model.addAttribute("eventosList", java.util.Collections.emptyList());
+            model.addAttribute("pageTitle", "Eventos");
+            model.addAttribute("noTenantSelected", true);
+            return "evento/list";
         }
         model.addAttribute("eventosList", service.findAllByInstituicao(tenantId, Pageable.ofSize(100)).getContent());
         model.addAttribute("pageTitle", "Eventos");
@@ -34,7 +37,7 @@ public class EventoController {
     }
 
     @GetMapping("/add")
-    @PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'EVENTOS_CADASTRAR')")
     public String add(Model model) {
         model.addAttribute("evento", new Evento());
         model.addAttribute("pageTitle", "Novo Evento");
@@ -42,7 +45,7 @@ public class EventoController {
     }
 
     @PostMapping("/add")
-    @PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'EVENTOS_CADASTRAR')")
     public String add(HttpSession session,
                       @ModelAttribute("evento") @Valid final Evento evento,
                       final BindingResult bindingResult,
@@ -68,7 +71,7 @@ public class EventoController {
     }
 
     @GetMapping("/edit/{id}")
-    @PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'EVENTOS_EDITAR')")
     public String edit(@PathVariable Long id, HttpSession session, Model model) {
         Long tenantId = (Long) session.getAttribute("activeInstituicaoId");
         if (tenantId == null) {
@@ -84,7 +87,7 @@ public class EventoController {
     }
 
     @PostMapping("/edit/{id}")
-    @PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'EVENTOS_EDITAR')")
     public String edit(@PathVariable Long id,
                        HttpSession session,
                       @ModelAttribute("evento") @Valid final Evento evento,
@@ -114,7 +117,7 @@ public class EventoController {
     }
 
     @PostMapping("/delete/{id}")
-    @PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'EVENTOS_DELETAR')")
     public String delete(@PathVariable Long id, HttpSession session, final RedirectAttributes redirectAttributes) {
         Long tenantId = (Long) session.getAttribute("activeInstituicaoId");
         if (tenantId != null) {

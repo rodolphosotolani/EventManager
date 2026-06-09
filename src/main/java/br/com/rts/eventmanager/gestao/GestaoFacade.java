@@ -23,43 +23,20 @@ public class GestaoFacade {
     private final EventoService eventoService;
     private final EventoMapper eventoMapper;
 
+    /* ####################################################
+                            INSTITUICAO
+     ##################################################### */
     public void validateIfInstituicaoIsValid(Long instituicaoId) {
-
-        Boolean instituicaoExists = instituicaoService.existsById(instituicaoId);
-
-        if (!instituicaoExists)
-            throw new NotFoundException("Instituição não encontrada!");
-    }
-
-    public void validateIfInstituicaoAndEventoIsValid(Long instituicaoId, Long eventoId) {
-
-        this.validateIfInstituicaoIsValid(instituicaoId);
-
-        Boolean eventoExists = eventoService.existsByInstituicaoAndId(instituicaoId, eventoId);
-
-        if (!eventoExists)
-            throw new NotFoundException("Evento não encontrado!");
+        instituicaoService.validateIfIsValid(instituicaoId);
     }
 
     public InstituicaoDTO getInstituicaoById(Long instituicao) {
-        return instituicaoService.findById(instituicao)
-                .map(instituicaoMapper::entityToDTO)
-                .orElseThrow(() -> new NotFoundException("Instituição não encontrada!"));
-    }
-
-    public EventoDTO getEventoById(Long instituicao, Long eventoId) {
-        return eventoService.findByIdAndInstituicao(instituicao, eventoId)
-                .map(eventoMapper::entityToDTO)
-                .orElseThrow(() -> new NotFoundException("Instituição não encontrada!"));
+        return instituicaoMapper.entityToDTO(
+                instituicaoService.findById(instituicao));
     }
 
     public Page<InstituicaoDTO> findAllInstituicao(Pageable pageable) {
         return instituicaoService.findAll(pageable)
-                .map(instituicaoMapper::entityToDTO);
-    }
-
-    public Optional<InstituicaoDTO> findInstituicaoById(Long instituicaoId) {
-        return instituicaoService.findById(instituicaoId)
                 .map(instituicaoMapper::entityToDTO);
     }
 
@@ -70,8 +47,20 @@ public class GestaoFacade {
                 .toList();
     }
 
-    public boolean existsEventoByInstituicaoAndId(Long instituicaoId, Long eventoId) {
-        return eventoService.existsByInstituicaoAndId(instituicaoId, eventoId);
+    /* ####################################################
+                            EVENTO
+     ##################################################### */
+    public void validateIfInstituicaoAndEventoIsValid(Long instituicaoId, Long eventoId) {
+
+        this.validateIfInstituicaoIsValid(instituicaoId);
+
+        eventoService.validateIfEventoIsValid(instituicaoId, eventoId);
+    }
+
+    public EventoDTO getEventoById(Long instituicao, Long eventoId) {
+        return eventoService.findByIdAndInstituicao(instituicao, eventoId)
+                .map(eventoMapper::entityToDTO)
+                .orElseThrow(() -> new NotFoundException("Instituição não encontrada!"));
     }
 
     public List<EventoDTO> findAllEventoByInstituicaoId(Long instituicaoId) {

@@ -82,8 +82,9 @@ public class UsuarioController {
         org.springframework.security.core.Authentication authentication = 
                 org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
         
-        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof org.springframework.security.oauth2.core.oidc.user.OidcUser oidcUser) {
-            String email = oidcUser.getEmail();
+        if (authentication != null && authentication.isAuthenticated() && 
+                authentication.getPrincipal() instanceof org.springframework.security.oauth2.core.user.OAuth2User oauth2User) {
+            String email = oauth2User.getAttribute("email");
             Usuario usuario = usuarioRepository.findByEmail(email)
                     .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado!"));
             model.addAttribute("usuario", usuario);

@@ -25,7 +25,7 @@ public class InstituicaoController {
     @PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
     @Transactional(readOnly = true)
     public String list(Model model) {
-        model.addAttribute("instituicoesList", service.findAll(Pageable.ofSize(100)).getContent());
+        model.addAttribute("instituicoesList", service.findAll());
         model.addAttribute("pageTitle", "Instituições");
         return "instituicao/list";
     }
@@ -64,8 +64,7 @@ public class InstituicaoController {
     @GetMapping("/edit/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
     public String edit(@PathVariable Long id, Model model) {
-        Instituicao instituicao = service.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Instituição não encontrada!"));
+        Instituicao instituicao = service.findById(id);
 
         model.addAttribute("instituicao", instituicao);
         model.addAttribute("pageTitle", "Editar Instituição");
@@ -87,8 +86,7 @@ public class InstituicaoController {
             return "instituicao/edit";
         }
 
-        Instituicao existing = service.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Instituição não encontrada!"));
+        Instituicao existing = service.findById(id);
 
         existing.setNome(instituicao.getNome());
         existing.setAtivo(instituicao.getAtivo() != null ? instituicao.getAtivo() : true);
@@ -102,8 +100,7 @@ public class InstituicaoController {
     @PostMapping("/toggle/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_MASTER')")
     public String toggle(@PathVariable Long id, final RedirectAttributes redirectAttributes) {
-        Instituicao instituicao = service.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Instituição não encontrada!"));
+        Instituicao instituicao = service.findById(id);
 
         instituicao.setAtivo(!instituicao.getAtivo());
         instituicao.setLastUpdated(java.time.LocalDateTime.now());

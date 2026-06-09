@@ -5,11 +5,13 @@ import br.com.rts.eventmanager.gestao.evento.repositories.EventoRepository;
 import br.com.rts.eventmanager.gestao.evento.services.EventoService;
 import br.com.rts.eventmanager.gestao.instituicao.entities.Instituicao;
 import br.com.rts.eventmanager.gestao.instituicao.repositories.InstituicaoRepository;
+import br.com.rts.eventmanager.gestao.instituicao.services.InstituicaoService;
 import br.com.rts.eventmanager.utils.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +21,7 @@ import java.util.Optional;
 public class EventoServiceImpl implements EventoService {
 
     private final EventoRepository repository;
-    private final InstituicaoRepository instituicaoRepository;
+    private final InstituicaoService instituicaoService;
 
     @Override
     public Page<Evento> findAllByInstituicao(Long instituicaoId, Pageable pageable) {
@@ -32,10 +34,21 @@ public class EventoServiceImpl implements EventoService {
     }
 
     @Override
+    @Transactional
     public Evento create(Long instituicaoId, Evento request) {
-        Instituicao instituicao = instituicaoRepository.findById(instituicaoId)
-                .orElseThrow(() -> new NotFoundException("Instituição não encontrada!"));
+        Instituicao instituicao = instituicaoService.findById(instituicaoId);
+
+        // Desativar todos os outros eventos da mesma instituição
+        List<Evento> outrosEventos = repository.findAllByInstituicaoId(instituicaoId);
+        if (outrosEventos != null) {
+            for (Evento e : outrosEventos) {
+                e.setAtivo(false);
+            }
+            repository.saveAll(outrosEventos);
+        }
+
         request.setInstituicao(instituicao);
+        request.setAtivo(true);
         return repository.save(request);
     }
 
@@ -64,5 +77,13 @@ public class EventoServiceImpl implements EventoService {
     @Override
     public List<Evento> findAllByInstituicao(Long instituicaoId) {
         return repository.findAllByInstituicaoId(instituicaoId);
+    }
+
+    @Override
+    public void validateIfEventoIsValid(Long instituicaoId, Long eventoId) {
+
+        if (!this.existsByInstituicaoAndId(instituicaoId, eventoId))
+            throw new NotFoundException("Evento não encontrado!");
+
     }
 }

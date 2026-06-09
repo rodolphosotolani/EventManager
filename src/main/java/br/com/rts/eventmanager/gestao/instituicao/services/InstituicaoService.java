@@ -14,16 +14,17 @@ public interface InstituicaoService {
 
     Page<Instituicao> findAll(Pageable pageable);
 
-    Optional<Instituicao> findById(Long instituicaoId);
+    Instituicao findById(Long instituicaoId);
 
     @Nullable
     Instituicao create(Instituicao instituicao);
 
-    void update(Long id, Instituicao instituicaoNew);
+    Instituicao update(Long id, Instituicao instituicaoNew);
 
     void delete(Long id);
 
     Boolean existsById(Long instituicaoId);
 
+    void validateIfIsValid(Long instituicaoId);
 
 }

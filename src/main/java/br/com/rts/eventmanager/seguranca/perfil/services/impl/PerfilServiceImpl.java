@@ -11,6 +11,9 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,7 +26,8 @@ public class PerfilServiceImpl implements PerfilService {
     private final PerfilRepository repository;
     private final PermissaoService permissaoService;
 
-    private static final String MASTER_EMAIL = "rt.sotolani@gmail.com";
+    @Value("${app.security.master-email:}")
+    private String masterEmail;
 
     private static final String ROLE_MASTER = "MASTER";
     private static final String ROLE_BASICO = "BASICO";
@@ -33,7 +37,7 @@ public class PerfilServiceImpl implements PerfilService {
 
         // Atribuir perfis iniciais
         Set<Perfil> perfis = new HashSet<>();
-        if (MASTER_EMAIL.equalsIgnoreCase(email)) {
+        if (StringUtils.hasText(masterEmail) && masterEmail.equalsIgnoreCase(email)) {
             log.info("Assigning MASTER role to: {}", email);
             Perfil perfilMaster = repository.findByNome(ROLE_MASTER).orElseGet(() -> this.createPerfil(ROLE_MASTER));
             perfis.add(perfilMaster);

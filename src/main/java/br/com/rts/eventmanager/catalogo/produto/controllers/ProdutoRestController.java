@@ -72,7 +72,7 @@ public class ProdutoRestController {
                 .ok(mapper.entityToResponse(produto));
     }
 
-    @PostMapping()
+    @PostMapping("/eventos/{eventoId}")
     @Operation(summary = "Cadastrar um novo produto (Evento informado no payload)",
             description = "Cadastra um novo produto. O cabeçalho deve conter o ID da instituição e os dados do produto (incluindo o ID do evento obrigatoriamente) no corpo.")
     @ApiResponses(value = {
@@ -82,12 +82,14 @@ public class ProdutoRestController {
     public ResponseEntity<ProdutoResponse> createProduto(
             @Parameter(description = "ID da instituição dona do catálogo", required = true)
             @RequestHeader("instituicao_id") Long instituicaoId,
+            @Parameter(description = "ID do evento", required = true)
+            @PathVariable Long eventoId,
             @Parameter(description = "Dados do produto com evento no payload", required = true)
             @RequestBody ProdutoRequest request) {
 
         Produto produto = mapper.requestToEntity(request);
 
-        Produto produtoCriado = service.create(produto, instituicaoId);
+        Produto produtoCriado = service.create(produto, eventoId, instituicaoId);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

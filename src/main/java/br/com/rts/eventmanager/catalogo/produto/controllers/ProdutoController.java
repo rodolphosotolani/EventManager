@@ -1,23 +1,26 @@
 package br.com.rts.eventmanager.catalogo.produto.controllers;
 
+import br.com.rts.eventmanager.catalogo.ProdutoDTO;
 import br.com.rts.eventmanager.catalogo.categoria.services.CategoriaService;
 import br.com.rts.eventmanager.catalogo.produto.entities.Produto;
 import br.com.rts.eventmanager.catalogo.produto.mappers.ProdutoMapper;
 import br.com.rts.eventmanager.catalogo.produto.services.ProdutoService;
 import br.com.rts.eventmanager.catalogo.subcategoria.services.SubCategoriaService;
-import br.com.rts.eventmanager.catalogo.ProdutoDTO;
 import br.com.rts.eventmanager.utils.WebUtils;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
+import java.util.Map;
 
 @Log4j2
 @Controller
@@ -30,11 +33,6 @@ public class ProdutoController {
 
     private final CategoriaService categoriaService;
     private final SubCategoriaService subCategoriaService;
-
-    //    @ModelAttribute
-//    public void prepareContext(final Model model) {
-//        model.addAttribute("categoriaIdValues", categoriaMapper.entityToDTO(categoriaService.findAll()));
-//    }
 
     @GetMapping
     @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTOS_LISTAR')")
@@ -52,7 +50,8 @@ public class ProdutoController {
             model.addAttribute("produtos",
                     service.findAllByInstituicaoAndEvento(tenantId, activeEvId)
                             .stream()
-                            .map(mapper::entityToDTO));
+                            .map(mapper::entityToDTO)
+                            .toList());
         } else {
             model.addAttribute("produtos", java.util.Collections.emptyList());
         }
@@ -75,12 +74,10 @@ public class ProdutoController {
             return "redirect:/produtos";
         }
 
-        Produto produto = new Produto();
-        model.addAttribute("produto", produto);
+        model.addAttribute("produto", new ProdutoDTO());
         model.addAttribute("categorias", categoriaService.findAllByInstituicao(tenantId));
-        //TODO subcategoria somente deve ser carregado, quando selecionado uma categoria
-//        model.addAttribute("subCategorias", subCategoriaService.findAllByInstituicao(tenantId, Pageable.ofSize(100)).getContent());
         model.addAttribute("pageTitle", "Novo Produto");
+
         return "produto/add";
     }
 
@@ -101,23 +98,26 @@ public class ProdutoController {
         }
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("categorias", categoriaService.findAllByInstituicao(tenantId, Pageable.ofSize(100)).getContent());
-            //TODO subcategoria somente deve ser carregado, quando selecionado uma categoria
-            model.addAttribute("subCategorias", subCategoriaService.findAllByInstituicao(tenantId, Pageable.ofSize(100)).getContent());
+            //TODO Caso de erro na tela, a categoria selecionada deve ser informado novamente
+            model.addAttribute("categorias", categoriaService.findAllByInstituicao(tenantId));
+            model.addAttribute("subCategorias", subCategoriaService.findAllByInstituicaoAndCategoria(tenantId, produtoNovo.getCategoria().getId()));
             model.addAttribute("pageTitle", "Novo Produto");
             return "produto/add";
         }
 
         Produto produto = mapper.dtoToEntity(produtoNovo);
+        service.create(produto, activeEvId, tenantId);
 
-        service.create(produto, tenantId);
         redirectAttributes.addFlashAttribute(WebUtils.MSG_SUCCESS, "Produto cadastrado com sucesso!");
         return "redirect:/produtos";
     }
 
-    @GetMapping("/edit/{id}")
+    @GetMapping("/edit/{produtoId}")
     @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTOS_EDITAR')")
-    public String edit(@PathVariable Long id, HttpSession session, Model model) {
+    public String edit(@PathVariable Long produtoId,
+                       HttpSession session,
+                       Model model) {
+
         Long tenantId = (Long) session.getAttribute("activeInstituicaoId");
         Long activeEvId = (Long) session.getAttribute("activeEventoId");
 
@@ -125,15 +125,13 @@ public class ProdutoController {
             return "redirect:/produtos";
         }
 
-        Produto produto = service.findByIdAndInstituicaoAndEvento(id, tenantId, activeEvId);
-        if (produto == null) {
-            throw new IllegalArgumentException("Produto não encontrado!");
-        }
+        Produto produto = service.findByIdAndInstituicaoAndEvento(produtoId, tenantId, activeEvId);
 
-        model.addAttribute("produto", produto);
-        model.addAttribute("categorias", categoriaService.findAllByInstituicao(tenantId, Pageable.ofSize(100)).getContent());
-        model.addAttribute("subCategorias", subCategoriaService.findAllByInstituicao(tenantId, Pageable.ofSize(100)).getContent());
+        model.addAttribute("produto", mapper.entityToDTO(produto));
+        model.addAttribute("categorias", categoriaService.findAllByInstituicao(tenantId));
+        model.addAttribute("subCategorias", subCategoriaService.findAllByInstituicaoAndCategoria(tenantId, produto.getCategoria().getId()));
         model.addAttribute("pageTitle", "Editar Produto");
+
         return "produto/edit";
     }
 
@@ -141,7 +139,7 @@ public class ProdutoController {
     @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTOS_EDITAR')")
     public String edit(@PathVariable Long id,
                        HttpSession session,
-                       @ModelAttribute("produto") @Valid final Produto produto,
+                       @ModelAttribute("produto") @Valid final ProdutoDTO produto,
                        final BindingResult bindingResult,
                        final RedirectAttributes redirectAttributes,
                        Model model) {
@@ -153,26 +151,15 @@ public class ProdutoController {
         }
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("categorias", categoriaService.findAllByInstituicao(tenantId, Pageable.ofSize(100)).getContent());
-            model.addAttribute("subCategorias", subCategoriaService.findAllByInstituicao(tenantId, Pageable.ofSize(100)).getContent());
+            model.addAttribute("categorias", categoriaService.findAllByInstituicao(tenantId));
+            model.addAttribute("subCategorias", subCategoriaService.findAllByInstituicaoAndCategoria(tenantId, produto.getCategoria().getId()));
             model.addAttribute("pageTitle", "Editar Produto");
             return "produto/edit";
         }
 
-        Produto existing = service.findByIdAndInstituicaoAndEvento(id, tenantId, activeEvId);
-        if (existing == null) {
-            throw new IllegalArgumentException("Produto não encontrado!");
-        }
+        Produto produtoNew = mapper.dtoToEntity(produto);
 
-        existing.setNome(produto.getNome());
-        existing.setEspecificacao(produto.getEspecificacao());
-        existing.setValorVendaUnitario(produto.getValorVendaUnitario());
-        existing.setQuantidadeMinima(produto.getQuantidadeMinima());
-        existing.setCategoria(produto.getCategoria());
-        existing.setSubCategoria(produto.getSubCategoria());
-        existing.setLastUpdated(java.time.LocalDateTime.now());
-
-        service.update(id, existing, tenantId);
+        service.update(id, produtoNew, tenantId);
         redirectAttributes.addFlashAttribute(WebUtils.MSG_SUCCESS, "Produto atualizado com sucesso!");
         return "redirect:/produtos";
     }
@@ -194,23 +181,56 @@ public class ProdutoController {
         return "redirect:/produtos";
     }
 
-//    @GetMapping("/subcategorias-fragment")
-//    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTO_LISTAGEM', 'PRODUTO_CADASTRAR', 'PRODUTO_EDITAR')")
-//    public String getSubCategoriasFragment(@RequestParam(name = "categoriaId", required = false) final Long categoriaId,
-//                                           final Model model) {
-//
-//        ProdutoDTO produto = new ProdutoDTO();
-//        produto.setCategoriaId(categoriaId);
-//
-//        model.addAttribute("produto", produto);
-//
-//        if (categoriaId != null) {
-//            model.addAttribute("subCategoriaIdValues", subCategoriaMapper.entityToDTO(subCategoriaService.findAllByCategoria(categoriaId)));
-//        } else {
-//            model.addAttribute("subCategoriaIdValues", emptyMap());
-//        }
-//
-//        return "produto/fragments/subCategoriaOptions :: select";
-//    }
-// }
+    /**
+     * Endpoint AJAX: retorna as subcategorias de uma categoria específica da instituição ativa.
+     * Usado para popular o combo de subcategoria dinamicamente ao selecionar uma categoria.
+     */
+    @GetMapping("/subcategorias")
+    @ResponseBody
+    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTOS_CADASTRAR', 'PRODUTOS_EDITAR')")
+    public ResponseEntity<List<Map<String, Object>>> getSubCategoriasPorCategoria(
+            @RequestParam Long categoriaId,
+            HttpSession session) {
+
+        Long tenantId = (Long) session.getAttribute("activeInstituicaoId");
+        if (tenantId == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        List<Map<String, Object>> lista = subCategoriaService
+                .findAllByInstituicaoAndCategoria(tenantId, categoriaId)
+                .stream()
+                .map(s -> Map.<String, Object>of("id", s.getId(), "nome", s.getNome()))
+                .toList();
+        return ResponseEntity.ok(lista);
+    }
+
+    /**
+     * Endpoint AJAX: retorna os produtos de uma categoria e opcionalmente subcategoria específica da instituição ativa no evento ativo.
+     */
+    @GetMapping("/filtrar")
+    @ResponseBody
+    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'PRODUTOS_CADASTRAR', 'PRODUTOS_EDITAR')")
+    public ResponseEntity<List<Map<String, Object>>> filtrarProdutos(
+            @RequestParam Long categoriaId,
+            @RequestParam(required = false) Long subCategoriaId,
+            HttpSession session) {
+
+        Long tenantId = (Long) session.getAttribute("activeInstituicaoId");
+        Long activeEvId = (Long) session.getAttribute("activeEventoId");
+        if (tenantId == null || activeEvId == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        List<Produto> produtos;
+        if (subCategoriaId != null) {
+            produtos = service.findAllByInstituicaoAndEventoAndCategoriaIdAndSubCategoriaId(tenantId, activeEvId, categoriaId, subCategoriaId);
+        } else {
+            produtos = service.findAllByInstituicaoAndEventoAndCategoriaId(tenantId, activeEvId, categoriaId);
+        }
+
+        List<Map<String, Object>> lista = produtos.stream()
+                .map(p -> Map.<String, Object>of("id", p.getId(), "nome", p.getNome()))
+                .toList();
+        return ResponseEntity.ok(lista);
+    }
 }

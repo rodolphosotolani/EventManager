@@ -39,8 +39,7 @@ public class Instituicao {
     private LocalDateTime lastUpdated;
 
     @Builder.Default
-    @OneToMany(mappedBy = "instituicao", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "instituicao", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Evento> eventos = new ArrayList<>();
-
 
 }

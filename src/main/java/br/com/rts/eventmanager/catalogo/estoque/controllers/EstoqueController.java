@@ -83,6 +83,7 @@ public class EstoqueController {
 
         Estoque estoque = new Estoque();
         model.addAttribute("estoque", estoque);
+        model.addAttribute("categorias", categoriaService.findAllByInstituicao(tenantId));
         model.addAttribute("produtos", produtoService.findAllByInstituicaoAndEvento(tenantId, activeEvId, Pageable.ofSize(100)).getContent());
         model.addAttribute("pageTitle", "Registrar Entrada");
         return "estoque/add";
@@ -105,6 +106,7 @@ public class EstoqueController {
         }
 
         if (bindingResult.hasErrors()) {
+            model.addAttribute("categorias", categoriaService.findAllByInstituicao(tenantId));
             model.addAttribute("produtos", produtoService.findAllByInstituicaoAndEvento(tenantId, activeEvId, Pageable.ofSize(100)).getContent());
             model.addAttribute("pageTitle", "Registrar Entrada");
             redirectAttributes.addFlashAttribute(WebUtils.MSG_ERROR, "Não é possível cadastrar o estoque pois o formulário esta com erro.");

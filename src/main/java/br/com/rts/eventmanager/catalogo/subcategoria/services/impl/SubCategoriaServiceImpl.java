@@ -12,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,11 @@ public class SubCategoriaServiceImpl implements SubCategoriaService {
     @Override
     public Page<SubCategoria> findAllByInstituicaoAndCategoria(Long instituicaoId, Long categoriaId, Pageable pageable) {
         return repository.findAllByInstituicaoAndCategoriaId(instituicaoId, categoriaId, pageable);
+    }
+
+    @Override
+    public List<SubCategoria> findAllByInstituicaoAndCategoria(Long instituicaoId, Long categoriaId) {
+        return repository.findAllByInstituicaoAndCategoriaId(instituicaoId, categoriaId);
     }
 
     @Override
