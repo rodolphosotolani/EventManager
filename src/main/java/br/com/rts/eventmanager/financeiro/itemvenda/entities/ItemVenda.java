@@ -33,8 +33,11 @@ public class ItemVenda {
     @Column(name = "evento_id", nullable = false, updatable = false)
     private Long evento;
 
-    @Column(name = "produto_id", nullable = false)
+    @Column(name = "produto_id")
     private Long produto;
+
+    @Column(name = "servico_id")
+    private Long servico;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "venda_id")

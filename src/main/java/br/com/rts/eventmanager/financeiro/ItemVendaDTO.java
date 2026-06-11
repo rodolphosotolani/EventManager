@@ -1,10 +1,10 @@
 package br.com.rts.eventmanager.financeiro;
 
+import br.com.rts.eventmanager.catalogo.ProdutoDTO;
+import br.com.rts.eventmanager.catalogo.ServicoDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -12,9 +12,8 @@ import java.math.BigDecimal;
 public class ItemVendaDTO {
 
     private Long id;
-    private Long produtoId;
-    private String produtoNome;
-    private BigDecimal produtoValorUnitario;
+    private ProdutoDTO produto;
+    private ServicoDTO servico;
     private String categoriaNome;
     private String subCategoriaNome;
     private Integer quantidade;

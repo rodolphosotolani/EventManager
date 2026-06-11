@@ -62,7 +62,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     public Usuario getUsuarioById(Long id) {
-        return repository.findById(id)
+        return repository.findByIdWithAssociations(id)
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado!"));
     }
 
@@ -73,19 +73,33 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     @Transactional
-    public UsuarioInstituicao linkToInstituicao(Long usuarioId, Long instituicaoId) {
+    public UsuarioInstituicao linkToInstituicao(Long usuarioId, Long instituicaoId, boolean ativo) {
         Usuario usuario = this.getUsuarioById(usuarioId);
 
-        if (usuarioInstituicaoRepository.existsByUsuarioIdAndInstituicao(usuarioId, instituicaoId)) {
-            return usuarioInstituicaoRepository.findAllByUsuarioId(usuarioId).stream()
-                    .filter(ui -> ui.getInstituicao().equals(instituicaoId))
-                    .findFirst()
-                    .orElse(null);
+        Optional<UsuarioInstituicao> existingOpt = usuarioInstituicaoRepository.findByUsuarioIdAndInstituicao(usuarioId, instituicaoId);
+        if (existingOpt.isPresent()) {
+            UsuarioInstituicao ui = existingOpt.get();
+            ui.setAtivo(ativo);
+            ui.setLastUpdated(LocalDateTime.now());
+            if (ativo) {
+                usuario.getUsuarioInstituicaos().add(ui);
+            } else {
+                usuario.getUsuarioInstituicaos().remove(ui);
+            }
+            repository.save(usuario);
+            return usuarioInstituicaoRepository.save(ui);
+        }
+
+        if (!ativo) {
+            return null;
         }
 
         UsuarioInstituicao link = UsuarioInstituicao.builder()
                 .usuario(usuario)
                 .instituicao(instituicaoId)
+                .ativo(true)
+                .dateCreated(LocalDateTime.now())
+                .lastUpdated(LocalDateTime.now())
                 .build();
 
         UsuarioInstituicao saved = usuarioInstituicaoRepository.save(link);

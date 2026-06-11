@@ -31,4 +31,7 @@ public interface VendaMapper {
     @Mapping(target = "dateCreated", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "lastUpdated", expression = "java(java.time.LocalDateTime.now())")
     Venda dtoToEntity(@Valid VendaDTO vendaDTO);
+
+    @Mapping(target = "quantidadeItens", expression = "java(venda.getItens() != null ? venda.getItens().size() : 0)")
+    VendaDTO entityToDTO(Venda venda);
 }

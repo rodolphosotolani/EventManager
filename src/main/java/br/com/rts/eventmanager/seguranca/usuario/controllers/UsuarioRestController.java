@@ -91,7 +91,7 @@ public class UsuarioRestController {
             @Parameter(description = "ID da instituição", required = true)
             @PathVariable Long instituicaoId) {
         try {
-            service.linkToInstituicao(usuarioId, instituicaoId);
+            service.linkToInstituicao(usuarioId, instituicaoId, true);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();

@@ -2,10 +2,13 @@ package br.com.rts.eventmanager.financeiro.venda.controllers;
 
 import br.com.rts.eventmanager.catalogo.ProdutoDTO;
 import br.com.rts.eventmanager.catalogo.ProdutoFacade;
+import br.com.rts.eventmanager.catalogo.ServicoDTO;
+import br.com.rts.eventmanager.catalogo.ServicoFacade;
 import br.com.rts.eventmanager.financeiro.cliente.services.ClienteService;
 import br.com.rts.eventmanager.financeiro.ItemVendaDTO;
 import br.com.rts.eventmanager.financeiro.VendaDTO;
 import br.com.rts.eventmanager.financeiro.VendaSumarioDTO;
+import br.com.rts.eventmanager.financeiro.itemvenda.entities.ItemVenda;
 import br.com.rts.eventmanager.financeiro.venda.entities.Venda;
 import br.com.rts.eventmanager.financeiro.venda.enumerators.FormaPagamentoEnum;
 import br.com.rts.eventmanager.financeiro.venda.mappers.VendaMapper;
@@ -50,6 +53,7 @@ public class VendaController {
 
     private final ClienteService clienteService;
     private final ProdutoFacade produtoFacade;
+    private final ServicoFacade servicoFacade;
 
     @Value("${feijoada-manager.vendas.itens-por-pagina:30}")
     private int pageSize;
@@ -138,12 +142,28 @@ public class VendaController {
             return "redirect:/vendas";
         }
 
+        Venda venda = mapper.dtoToEntity(vendaDTO);
+        service.recalculateTotal(venda);
+        VendaDTO updated = mapper.entityToDTO(venda);
+        populateCartDetails(updated, tenantId, activeEvId);
+        vendaDTO.setItens(updated.getItens());
+        vendaDTO.setValorTotal(updated.getValorTotal());
+        vendaDTO.setQuantidadeItens(updated.getQuantidadeItens());
+
         Map<Long, Integer> itemQuantities = vendaDTO.getItens()
                 .stream()
-                .collect(Collectors.toMap(ItemVendaDTO::getProdutoId, ItemVendaDTO::getQuantidade));
+                .filter(item -> item.getProduto() != null)
+                .collect(Collectors.toMap(item -> item.getProduto().getId(), ItemVendaDTO::getQuantidade));
         model.addAttribute("itemQuantities", itemQuantities);
 
+        Map<Long, Integer> itemServicoQuantities = vendaDTO.getItens()
+                .stream()
+                .filter(item -> item.getServico() != null)
+                .collect(Collectors.toMap(item -> item.getServico().getId(), ItemVendaDTO::getQuantidade));
+        model.addAttribute("itemServicoQuantities", itemServicoQuantities);
+
         model.addAttribute("produtos", produtoFacade.findAllByInstituicaoAndEvento(tenantId, activeEvId));
+        model.addAttribute("servicos", servicoFacade.findAllByInstituicaoAndEvento(tenantId, activeEvId));
         model.addAttribute("cart", vendaDTO);
 
         // Obter estatisticas para a bento grid do PDV
@@ -164,42 +184,42 @@ public class VendaController {
     @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'VENDAS_CADASTRAR')")
     public String addItem(HttpSession session,
                           @ModelAttribute("venda") final VendaDTO vendaDTO,
-                          @RequestParam("produtoId") Long produtoId,
+                          @RequestParam(value = "produtoId", required = false) Long produtoId,
+                          @RequestParam(value = "servicoId", required = false) Long servicoId,
                           @RequestParam(value = "quantidade", defaultValue = "1") int quantidade,
                           Model model) {
         Long tenantId = (Long) session.getAttribute("activeInstituicaoId");
         Long activeEvId = (Long) session.getAttribute("activeEventoId");
 
-        ItemVendaDTO existingItem = vendaDTO.getItens().stream()
-                .filter(item -> item.getProdutoId().equals(produtoId))
-                .findFirst()
-                .orElse(null);
-
         if (activeEvId != null && tenantId != null) {
-            if (existingItem != null) {
-                if (quantidade <= 0) {
-                    vendaDTO.getItens().remove(existingItem);
-                } else {
-                    existingItem.setQuantidade(quantidade);
-                }
-            } else if (quantidade > 0) {
-                ItemVendaDTO newItem = new ItemVendaDTO();
-                newItem.setInstituicao(tenantId);
-                newItem.setEvento(activeEvId);
-                newItem.setProdutoId(produtoId);
-                newItem.setQuantidade(quantidade);
-                vendaDTO.getItens().add(newItem);
-            }
+            Venda venda = mapper.dtoToEntity(vendaDTO);
+            venda = service.addItem(venda, produtoId, servicoId, quantidade, tenantId, activeEvId);
+            VendaDTO updated = mapper.entityToDTO(venda);
+            populateCartDetails(updated, tenantId, activeEvId);
+            vendaDTO.setItens(updated.getItens());
+            vendaDTO.setValorTotal(updated.getValorTotal());
+            vendaDTO.setQuantidadeItens(updated.getQuantidadeItens());
         }
 
-        recalculateTotal(vendaDTO);
         model.addAttribute("cart", vendaDTO);
 
         Map<Long, Integer> itemQuantities = vendaDTO.getItens()
                 .stream()
-                .collect(Collectors.toMap(ItemVendaDTO::getProdutoId, ItemVendaDTO::getQuantidade));
+                .filter(item -> item.getProduto() != null)
+                .collect(Collectors.toMap(item -> item.getProduto().getId(), ItemVendaDTO::getQuantidade));
         model.addAttribute("itemQuantities", itemQuantities);
-        model.addAttribute("lastUpdatedProdutoId", produtoId);
+
+        Map<Long, Integer> itemServicoQuantities = vendaDTO.getItens()
+                .stream()
+                .filter(item -> item.getServico() != null)
+                .collect(Collectors.toMap(item -> item.getServico().getId(), ItemVendaDTO::getQuantidade));
+        model.addAttribute("itemServicoQuantities", itemServicoQuantities);
+
+        if (produtoId != null) {
+            model.addAttribute("lastUpdatedProdutoId", produtoId);
+        } else if (servicoId != null) {
+            model.addAttribute("lastUpdatedServicoId", servicoId);
+        }
         model.addAttribute("isHtmx", true);
 
         return "venda/pdv :: cart-panel";
@@ -214,16 +234,22 @@ public class VendaController {
         Long tenantId = (Long) session.getAttribute("activeInstituicaoId");
         Long activeEvId = (Long) session.getAttribute("activeEventoId");
 
-        vendaDTO.getItens().clear();
-        vendaDTO.setValorTotal(BigDecimal.ZERO);
-        vendaDTO.setQuantidadeItens(0);
+        Venda venda = mapper.dtoToEntity(vendaDTO);
+        venda = service.clearCart(venda);
+        VendaDTO updated = mapper.entityToDTO(venda);
+        vendaDTO.setItens(updated.getItens());
+        vendaDTO.setValorTotal(updated.getValorTotal());
+        vendaDTO.setQuantidadeItens(updated.getQuantidadeItens());
 
         model.addAttribute("cart", vendaDTO);
         model.addAttribute("cartCleared", true);
         model.addAttribute("produtos", produtoFacade.findAllByInstituicaoAndEvento(tenantId, activeEvId));
+        model.addAttribute("servicos", servicoFacade.findAllByInstituicaoAndEvento(tenantId, activeEvId));
 
         Map<Long, Integer> itemQuantities = java.util.Collections.emptyMap();
         model.addAttribute("itemQuantities", itemQuantities);
+        Map<Long, Integer> itemServicoQuantities = java.util.Collections.emptyMap();
+        model.addAttribute("itemServicoQuantities", itemServicoQuantities);
         model.addAttribute("isHtmx", true);
 
         return "venda/pdv :: cart-panel";
@@ -246,11 +272,18 @@ public class VendaController {
         if (bindingResult.hasErrors()) {
             log.error("Não é possível realizar o checkout pois o formulário esta com erro. ERRO: {}", bindingResult.getAllErrors());
             model.addAttribute("produtos", produtoFacade.findAllByInstituicaoAndEvento(tenantId, activeEvId));
+            model.addAttribute("servicos", servicoFacade.findAllByInstituicaoAndEvento(tenantId, activeEvId));
             redirectAttributes.addFlashAttribute(WebUtils.MSG_ERROR, "O carrinho está vazio!");
             return "redirect:/vendas/pdv";
         }
 
-        recalculateTotal(vendaDTO);
+        Venda venda = mapper.dtoToEntity(vendaDTO);
+        service.recalculateTotal(venda);
+        VendaDTO updated = mapper.entityToDTO(venda);
+        populateCartDetails(updated, tenantId, activeEvId);
+        vendaDTO.setItens(updated.getItens());
+        vendaDTO.setValorTotal(updated.getValorTotal());
+        vendaDTO.setQuantidadeItens(updated.getQuantidadeItens());
         vendaDTO.setVendido(true);
 
         model.addAttribute("cart", vendaDTO);
@@ -265,17 +298,26 @@ public class VendaController {
     @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'VENDAS_CADASTRAR')")
     public String removeItemCheckout(HttpSession session,
                                      @ModelAttribute("venda") final VendaDTO vendaDTO,
-                                     @RequestParam("produtoId") final Long produtoId,
+                                     @RequestParam(value = "produtoId", required = false) final Long produtoId,
+                                     @RequestParam(value = "servicoId", required = false) final Long servicoId,
                                      final Model model,
                                      final RedirectAttributes redirectAttributes) {
 
-        vendaDTO.getItens()
-                .removeIf(item -> item.getProdutoId().equals(produtoId));
+        Long tenantId = (Long) session.getAttribute("activeInstituicaoId");
+        Long activeEvId = (Long) session.getAttribute("activeEventoId");
+
+        Venda venda = mapper.dtoToEntity(vendaDTO);
+        venda = service.removeItem(venda, produtoId, servicoId);
+        VendaDTO updated = mapper.entityToDTO(venda);
+        populateCartDetails(updated, tenantId, activeEvId);
+        vendaDTO.setItens(updated.getItens());
+        vendaDTO.setValorTotal(updated.getValorTotal());
+        vendaDTO.setQuantidadeItens(updated.getQuantidadeItens());
 
         if (vendaDTO.getItens().isEmpty()) {
             vendaDTO.setValorTotal(BigDecimal.ZERO);
             vendaDTO.setQuantidadeItens(0);
-            return "redirect:/vendas/add";
+            return "redirect:/vendas/pdv";
         }
         return checkout(session, vendaDTO, new BeanPropertyBindingResult(vendaDTO, "venda"), redirectAttributes, model);
     }
@@ -308,10 +350,9 @@ public class VendaController {
             return "redirect:/vendas/checkout";
         }
 
-        recalculateTotal(vendaDTO);
-
         // Build Sale
         Venda venda = mapper.dtoToEntity(vendaDTO);
+        service.recalculateTotal(venda);
 
         // Save
         Venda vendaFinalizada = service.create(venda);
@@ -321,7 +362,7 @@ public class VendaController {
 
 
         // Gerar os bytes ESC/POS e codificar em Base64 para envio ao navegador
-        byte[] printBytes = printerService.generateEscPosBytes(venda);
+        byte[] printBytes = printerService.generateEscPosBytes(vendaFinalizada);
         if (printBytes != null && printBytes.length > 0) {
             String printPayload = Base64.getEncoder().encodeToString(printBytes);
             redirectAttributes.addFlashAttribute("printPayload", printPayload);
@@ -329,25 +370,6 @@ public class VendaController {
 
         redirectAttributes.addFlashAttribute(WebUtils.MSG_SUCCESS, "Venda realizada com sucesso!");
         return "redirect:/vendas/pdv";
-    }
-
-    private void recalculateTotal(VendaDTO vendaDTO) {
-        BigDecimal total = BigDecimal.ZERO;
-        int count = 0;
-
-        for (ItemVendaDTO item : vendaDTO.getItens()) {
-            ProdutoDTO produto = produtoFacade.findByIdAndInstituicaoAndEvento(item.getProdutoId(), item.getInstituicao(), item.getEvento());
-
-            if (produto != null) {
-                total = total.add(produto.getValorVendaUnitario().multiply(new BigDecimal(item.getQuantidade())));
-                count += item.getQuantidade();
-            }
-
-        }
-
-        vendaDTO.setValorTotal(total);
-
-        vendaDTO.setQuantidadeItens(count);
     }
 
 
@@ -377,6 +399,22 @@ public class VendaController {
         try (java.io.OutputStream out = response.getOutputStream()) {
             out.write(excelBytes);
             out.flush();
+        }
+    }
+
+    private void populateCartDetails(VendaDTO cart, Long tenantId, Long activeEvId) {
+        for (ItemVendaDTO item : cart.getItens()) {
+            if (item.getProduto() != null && item.getProduto().getId() != null) {
+                ProdutoDTO prod = produtoFacade.findByIdAndInstituicaoAndEvento(item.getProduto().getId(), tenantId, activeEvId);
+                if (prod != null) {
+                    item.setProduto(prod);
+                }
+            } else if (item.getServico() != null && item.getServico().getId() != null) {
+                ServicoDTO srv = servicoFacade.findByIdAndInstituicaoAndEvento(item.getServico().getId(), tenantId, activeEvId);
+                if (srv != null) {
+                    item.setServico(srv);
+                }
+            }
         }
     }
 }

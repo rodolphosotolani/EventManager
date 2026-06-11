@@ -13,17 +13,24 @@ import org.mapstruct.ReportingPolicy;
 public abstract class ItemVendaMapper {
 
     @Mapping(target = "produtoId", source = "produto")
+    @Mapping(target = "servicoId", source = "servico")
     @Mapping(target = "vendaId", source = "venda.id")
     abstract public @Nullable ItemVendaResponse entityToResponse(ItemVenda itemVenda);
 
     @Mapping(target = "produto", source = "produtoId")
+    @Mapping(target = "servico", source = "servicoId")
     @Mapping(target = "dateCreated", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "lastUpdated", expression = "java(java.time.LocalDateTime.now())")
     public abstract ItemVenda requestToEntity(ItemVendaRequest request);
 
-    @Mapping(target = "produto", source = "produtoId")
+    @Mapping(target = "produto", source = "produto.id")
+    @Mapping(target = "servico", source = "servico.id")
     @Mapping(target = "dateCreated", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "lastUpdated", expression = "java(java.time.LocalDateTime.now())")
     public abstract ItemVenda dtoToEntity(ItemVendaDTO itemVendaDTO);
+
+    @Mapping(target = "produto.id", source = "produto")
+    @Mapping(target = "servico.id", source = "servico")
+    public abstract ItemVendaDTO entityToDTO(ItemVenda itemVenda);
 
 }

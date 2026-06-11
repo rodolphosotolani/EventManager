@@ -3,10 +3,11 @@ package br.com.rts.eventmanager.gestao.instituicao.services.impl;
 import br.com.rts.eventmanager.gestao.instituicao.entities.Instituicao;
 import br.com.rts.eventmanager.gestao.instituicao.repositories.InstituicaoRepository;
 import br.com.rts.eventmanager.gestao.instituicao.services.InstituicaoService;
-import br.com.rts.eventmanager.seguranca.SegurancaFacade;
+import br.com.rts.eventmanager.gestao.InstituicaoCriadaEvent;
 import br.com.rts.eventmanager.utils.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.Nullable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -23,7 +24,7 @@ import java.util.List;
 public class InstituicaoServiceImpl implements InstituicaoService {
 
     private final InstituicaoRepository repository;
-    private final SegurancaFacade segurancaFacade;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public List<Instituicao> findAll() {
@@ -60,7 +61,7 @@ public class InstituicaoServiceImpl implements InstituicaoService {
         }
 
         Instituicao saved = repository.save(instituicao);
-        segurancaFacade.vincularUsuarioAInstituicao(email, saved.getId());
+        eventPublisher.publishEvent(new InstituicaoCriadaEvent(email, saved.getId()));
         return saved;
     }
 

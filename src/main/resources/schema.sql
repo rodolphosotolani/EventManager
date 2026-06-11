@@ -148,7 +148,8 @@ CREATE TABLE IF NOT EXISTS financeiro.item_venda (
     instituicao_id bigint NOT NULL CONSTRAINT fk_item_venda_instituicao REFERENCES gestao.instituicao(id),
     evento_id bigint NOT NULL CONSTRAINT fk_item_venda_evento REFERENCES gestao.evento(id),
     quantidade integer NOT NULL,
-    produto_id bigint NOT NULL CONSTRAINT fk_item_venda_produto REFERENCES catalogo.produto(id),
+    produto_id bigint CONSTRAINT fk_item_venda_produto REFERENCES catalogo.produto(id),
+    servico_id bigint CONSTRAINT fk_item_venda_servico REFERENCES catalogo.servico(id),
     venda_id bigint CONSTRAINT fk_item_venda_venda REFERENCES financeiro.venda(id),
     date_created timestamp with time zone NOT NULL,
     last_updated timestamp with time zone NOT NULL
@@ -156,6 +157,8 @@ CREATE TABLE IF NOT EXISTS financeiro.item_venda (
 
 ALTER TABLE financeiro.item_venda ADD COLUMN IF NOT EXISTS instituicao_id bigint;
 ALTER TABLE financeiro.item_venda ADD COLUMN IF NOT EXISTS evento_id bigint;
+ALTER TABLE financeiro.item_venda ADD COLUMN IF NOT EXISTS servico_id bigint CONSTRAINT fk_item_venda_servico REFERENCES catalogo.servico(id);
+ALTER TABLE financeiro.item_venda ALTER COLUMN produto_id DROP NOT NULL;
 
 -- 11. Cliente Table (Schema: financeiro)
 CREATE TABLE IF NOT EXISTS financeiro.cliente (
@@ -244,6 +247,7 @@ CREATE TABLE IF NOT EXISTS seguranca.usuario_instituicao (
     id bigint NOT NULL PRIMARY KEY DEFAULT nextval('seguranca.usuario_instituicao_seq'),
     usuario_id bigint NOT NULL CONSTRAINT fk_usuario_instituicao_usuario REFERENCES seguranca.usuario(id),
     instituicao_id bigint NOT NULL CONSTRAINT fk_usuario_instituicao_instituicao REFERENCES gestao.instituicao(id),
+    ativo boolean NOT NULL DEFAULT true,
     date_created timestamp with time zone NOT NULL,
     last_updated timestamp with time zone NOT NULL
 );

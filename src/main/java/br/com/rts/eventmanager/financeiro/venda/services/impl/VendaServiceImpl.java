@@ -22,6 +22,10 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
+import br.com.rts.eventmanager.catalogo.ProdutoFacade;
+import br.com.rts.eventmanager.catalogo.ServicoFacade;
+import br.com.rts.eventmanager.catalogo.ProdutoDTO;
+import br.com.rts.eventmanager.catalogo.ServicoDTO;
 import java.util.Optional;
 
 @Service
@@ -33,6 +37,8 @@ public class VendaServiceImpl implements VendaService {
 
     private final GestaoFacade gestaoFacade;
     private final EstoqueFacade estoqueFacade;
+    private final ProdutoFacade produtoFacade;
+    private final ServicoFacade servicoFacade;
 
 
     @Override
@@ -157,5 +163,83 @@ public class VendaServiceImpl implements VendaService {
     public byte[] exportToExcel(FiltroVendas filtroVendas) throws IOException {
 
         return VendaExcelExporter.exportToExcel(this.findVendasFiltradas(filtroVendas));
+    }
+
+    @Override
+    public Venda addItem(Venda venda, Long produtoId, Long servicoId, int quantidade, Long tenantId, Long activeEvId) {
+        ItemVenda existingItem = null;
+        if (produtoId != null) {
+            existingItem = venda.getItens().stream()
+                    .filter(item -> item.getProduto() != null && produtoId.equals(item.getProduto()))
+                    .findFirst()
+                    .orElse(null);
+        } else if (servicoId != null) {
+            existingItem = venda.getItens().stream()
+                    .filter(item -> item.getServico() != null && servicoId.equals(item.getServico()))
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        if (activeEvId != null && tenantId != null) {
+            if (existingItem != null) {
+                if (quantidade <= 0) {
+                    venda.getItens().remove(existingItem);
+                } else {
+                    existingItem.setQuantidade(quantidade);
+                }
+            } else if (quantidade > 0) {
+                ItemVenda newItem = new ItemVenda();
+                newItem.setInstituicao(tenantId);
+                newItem.setEvento(activeEvId);
+                newItem.setQuantidade(quantidade);
+                newItem.setVenda(venda);
+                if (produtoId != null) {
+                    newItem.setProduto(produtoId);
+                } else if (servicoId != null) {
+                    newItem.setServico(servicoId);
+                }
+                venda.getItens().add(newItem);
+            }
+        }
+
+        recalculateTotal(venda);
+        return venda;
+    }
+
+    @Override
+    public Venda clearCart(Venda venda) {
+        venda.getItens().clear();
+        venda.setValorTotal(BigDecimal.ZERO);
+        return venda;
+    }
+
+    @Override
+    public Venda removeItem(Venda venda, Long produtoId, Long servicoId) {
+        if (produtoId != null) {
+            venda.getItens().removeIf(item -> item.getProduto() != null && produtoId.equals(item.getProduto()));
+        } else if (servicoId != null) {
+            venda.getItens().removeIf(item -> item.getServico() != null && servicoId.equals(item.getServico()));
+        }
+        recalculateTotal(venda);
+        return venda;
+    }
+
+    @Override
+    public void recalculateTotal(Venda venda) {
+        BigDecimal total = BigDecimal.ZERO;
+        for (ItemVenda item : venda.getItens()) {
+            if (item.getProduto() != null) {
+                ProdutoDTO produto = produtoFacade.findByIdAndInstituicaoAndEvento(item.getProduto(), item.getInstituicao(), item.getEvento());
+                if (produto != null) {
+                    total = total.add(produto.getValorVendaUnitario().multiply(new BigDecimal(item.getQuantidade())));
+                }
+            } else if (item.getServico() != null) {
+                ServicoDTO servico = servicoFacade.findByIdAndInstituicaoAndEvento(item.getServico(), item.getInstituicao(), item.getEvento());
+                if (servico != null) {
+                    total = total.add(servico.getValorVenda().multiply(new BigDecimal(item.getQuantidade())));
+                }
+            }
+        }
+        venda.setValorTotal(total);
     }
 }

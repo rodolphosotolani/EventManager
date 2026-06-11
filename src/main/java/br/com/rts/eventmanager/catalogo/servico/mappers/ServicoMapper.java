@@ -4,6 +4,7 @@ import br.com.rts.eventmanager.catalogo.categoria.mappers.CategoriaMapper;
 import br.com.rts.eventmanager.catalogo.servico.controllers.requests.ServicoRequest;
 import br.com.rts.eventmanager.catalogo.servico.controllers.responses.ServicoResponse;
 import br.com.rts.eventmanager.catalogo.servico.entities.Servico;
+import br.com.rts.eventmanager.catalogo.ServicoDTO;
 import br.com.rts.eventmanager.catalogo.subcategoria.mappers.SubCategoriaMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -21,5 +22,13 @@ public abstract class ServicoMapper {
     @Mapping(target = "dateCreated", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "lastUpdated", expression = "java(java.time.LocalDateTime.now())")
     public abstract Servico requestToEntity(ServicoRequest request);
+
+    public abstract ServicoDTO entityToDTO(Servico servico);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "uuid", ignore = true)
+    @Mapping(target = "instituicao", ignore = true)
+    @Mapping(target = "evento", ignore = true)
+    public abstract Servico dtoToEntity(ServicoDTO servicoDTO);
 
 }

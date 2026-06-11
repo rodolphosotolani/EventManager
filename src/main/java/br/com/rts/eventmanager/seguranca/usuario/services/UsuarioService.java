@@ -18,7 +18,7 @@ public interface UsuarioService {
 
     List<Usuario> list();
 
-    UsuarioInstituicao linkToInstituicao(Long usuarioId, Long instituicaoId);
+    UsuarioInstituicao linkToInstituicao(Long usuarioId, Long instituicaoId, boolean ativo);
 
     PerfilUsuario assignPerfilToInstituicao(Long usuarioId, Long perfilId, Long instituicaoId);
 

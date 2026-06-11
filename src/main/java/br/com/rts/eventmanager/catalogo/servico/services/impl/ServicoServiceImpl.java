@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ServicoServiceImpl implements ServicoService {
@@ -54,6 +56,11 @@ public class ServicoServiceImpl implements ServicoService {
         final Servico servico = this.findByInstituicaoAndEvento(servicoId, instituicaoId, eventoId);
 
         repository.delete(servico);
+    }
+
+    @Override
+    public List<Servico> findAllByInstituicaoAndEvento(Long instituicaoId, Long eventoId) {
+        return repository.findAllByInstituicaoAndEvento(instituicaoId, eventoId);
     }
 
 }

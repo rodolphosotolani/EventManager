@@ -18,4 +18,12 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
            "LEFT JOIN FETCH u.usuarioInstituicaos " +
            "WHERE u.email = :email")
     Optional<Usuario> findByEmail(@Param("email") String email);
+
+    @Query("SELECT DISTINCT u FROM Usuario u " +
+           "LEFT JOIN FETCH u.perfilUsuarios pu " +
+           "LEFT JOIN FETCH pu.perfil p " +
+           "LEFT JOIN FETCH p.permissoes " +
+           "LEFT JOIN FETCH u.usuarioInstituicaos " +
+           "WHERE u.id = :id")
+    Optional<Usuario> findByIdWithAssociations(@Param("id") Long id);
 }

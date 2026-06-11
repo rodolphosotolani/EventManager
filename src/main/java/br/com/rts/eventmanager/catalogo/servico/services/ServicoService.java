@@ -11,6 +11,9 @@ public interface ServicoService {
                                                 @NotNull final Long eventoId,
                                                 Pageable pageable);
 
+    java.util.List<Servico> findAllByInstituicaoAndEvento(@NotNull final Long instituicaoId,
+                                                          @NotNull final Long eventoId);
+
     Servico findByInstituicaoAndEvento(@NotNull final Long servicoId,
                                        @NotNull final Long instituicaoId,
                                        @NotNull final Long eventoId);

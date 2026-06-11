@@ -29,6 +29,10 @@ public class UsuarioInstituicao {
     @Column(name = "instituicao_id", nullable = false, updatable = false)
     private Long instituicao;
 
+    @Builder.Default
+    @Column(name = "ativo", nullable = false)
+    private boolean ativo = true;
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime dateCreated;

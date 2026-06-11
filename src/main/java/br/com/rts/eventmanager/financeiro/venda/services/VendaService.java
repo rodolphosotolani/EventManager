@@ -31,4 +31,12 @@ public interface VendaService {
 
     byte[] exportToExcel(FiltroVendas filtroVendas) throws IOException;
 
+    Venda addItem(Venda venda, Long produtoId, Long servicoId, int quantidade, Long tenantId, Long activeEvId);
+
+    Venda clearCart(Venda venda);
+
+    Venda removeItem(Venda venda, Long produtoId, Long servicoId);
+
+    void recalculateTotal(Venda venda);
+
 }
