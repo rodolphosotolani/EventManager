@@ -14,4 +14,5 @@ public interface PerfilService {
     Perfil get(Long id);
 
     List<Perfil> listByInstituicao(Long instituicaoId);
+
 }

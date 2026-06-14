@@ -1,7 +1,5 @@
 package br.com.rts.eventmanager.seguranca.usuario.controllers;
 
-import br.com.rts.eventmanager.seguranca.perfil.controllers.responses.PerfilResponse;
-import br.com.rts.eventmanager.seguranca.perfil.mappers.PerfilMapper;
 import br.com.rts.eventmanager.seguranca.usuario.controllers.requests.UsuarioRequest;
 import br.com.rts.eventmanager.seguranca.usuario.controllers.responses.UsuarioResponse;
 import br.com.rts.eventmanager.seguranca.usuario.entities.Usuario;
@@ -28,7 +26,6 @@ public class UsuarioRestController {
 
     private final UsuarioService service;
     private final UsuarioMapper mapper;
-    private final PerfilMapper perfilMapper;
 
     @PostMapping
     @Operation(summary = "Cadastrar um novo usuário independente de instituição",
@@ -75,68 +72,5 @@ public class UsuarioRestController {
     })
     public ResponseEntity<List<UsuarioResponse>> list() {
         return ResponseEntity.ok(mapper.entityToResponse(service.list()));
-    }
-
-    @PostMapping("/{usuarioId}/instituicoes/{instituicaoId}")
-    @Operation(summary = "Vincular usuário a uma instituição",
-            description = "Associa um usuário existente a uma instituição específica do sistema.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuário vinculado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Usuário ou instituição não encontrados"),
-            @ApiResponse(responseCode = "400", description = "Operação inválida")
-    })
-    public ResponseEntity<Void> linkToInstituicao(
-            @Parameter(description = "ID do usuário", required = true)
-            @PathVariable Long usuarioId,
-            @Parameter(description = "ID da instituição", required = true)
-            @PathVariable Long instituicaoId) {
-        try {
-            service.linkToInstituicao(usuarioId, instituicaoId, true);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @PostMapping("/{usuarioId}/instituicoes/{instituicaoId}/perfis/{perfilId}")
-    @Operation(summary = "Atribuir perfil de acesso ao usuário para uma instituição específica",
-            description = "Associa um perfil de acesso ao usuário no contexto da instituição informada.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Perfil atribuído com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Usuário, perfil ou instituição não encontrados"),
-            @ApiResponse(responseCode = "400", description = "Perfil ou instituição inválido")
-    })
-    public ResponseEntity<Void> assignPerfil(
-            @Parameter(description = "ID do usuário", required = true)
-            @PathVariable Long usuarioId,
-            @Parameter(description = "ID da instituição", required = true)
-            @PathVariable Long instituicaoId,
-            @Parameter(description = "ID do perfil de acesso", required = true)
-            @PathVariable Long perfilId) {
-        try {
-            service.assignPerfilToInstituicao(usuarioId, perfilId, instituicaoId);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @GetMapping("/{usuarioId}/instituicoes/{instituicaoId}/perfis")
-    @Operation(summary = "Listar perfis atribuídos a um usuário em uma instituição específica",
-            description = "Retorna todos os perfis de acesso vinculados ao usuário para as ações e escopo da instituição informada.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Perfis retornados com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Usuário ou instituição não encontrados")
-    })
-    public ResponseEntity<List<PerfilResponse>> listPerfisByInstituicao(
-            @Parameter(description = "ID do usuário", required = true)
-            @PathVariable Long usuarioId,
-            @Parameter(description = "ID da instituição", required = true)
-            @PathVariable Long instituicaoId) {
-        try {
-            return ResponseEntity.ok(perfilMapper.entityToResponse(service.listPerfisByInstituicao(usuarioId, instituicaoId)));
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
     }
 }

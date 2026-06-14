@@ -60,7 +60,7 @@ public class GlobalWebModelAdvice {
 
             // Fetch allowed institutions based strictly on UsuarioInstituicao links
             List<InstituicaoDTO> allowedInstituicoes;
-            Optional<UsuarioDTO> usuarioOpt = segurancaFacade.findUsuarioByEmail(email);
+            Optional<UsuarioDTO> usuarioOpt = segurancaFacade.findFetchUsuarioByEmail(email);
             if (usuarioOpt.isPresent() && usuarioOpt.get().usuarioInstituicaos() != null) {
                 allowedInstituicoes = usuarioOpt.get().usuarioInstituicaos().stream()
                         .map(UsuarioInstituicaoDTO::instituicao)
@@ -122,7 +122,7 @@ public class GlobalWebModelAdvice {
                 }
 
                 if (activeEvent == null && !eventos.isEmpty()) {
-                    activeEvent = eventos.get(0);
+                    activeEvent = eventos.getFirst();
                     session.setAttribute("activeEventoId", activeEvent.id());
                 }
 

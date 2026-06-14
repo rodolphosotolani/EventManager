@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{cliente.add.novo_cliente}">Novo Cliente</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-2xl mx-auto py-8 px-4">
+            <div class="mb-8">
+                <a th:href="@{/clientes}" class="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span th:text="#{label.back_to_clients}">Voltar para Clientes</span>
+                </a>
+                <h1  class="text-3xl font-black text-on-surface mt-4" style="letter-spacing: -0.02em;" th:text="#{cliente.add.novo_cliente}">Novo Cliente</h1>
+                <p  class="text-xs text-on-surface-variant mt-1" th:text="#{cliente.add.insira_as_informacoes_cadastrais}">Insira as informações cadastrais do novo cliente.</p>
+            </div>
+
+            <div class="st-card">
+                <form th:action="@{/clientes/add}" th:object="${cliente}" method="post" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label  for="nome" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{cliente.add.nome_completo}">Nome Completo</label>
+                            <input type="text" id="nome" th:field="*{nome}" class="st-input" th:placeholder="#{cliente.add.ex_joao_da_silva}" required />
+                            <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></p>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label  for="apelido" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{cliente.add.apelido_como_prefere_ser}">Apelido / Como prefere ser chamado</label>
+                            <input type="text" id="apelido" th:field="*{apelido}" class="st-input" th:placeholder="#{cliente.add.ex_jao}" />
+                            <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('apelido')}" th:errors="*{apelido}"></p>
+                        </div>
+
+                        <div>
+                            <label  for="celular" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{cliente.add.celular}">Celular</label>
+                            <input type="text" id="celular" th:field="*{celular}" class="st-input" th:placeholder="#{cliente.add.ex_11_999999999}" />
+                            <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('celular')}" th:errors="*{celular}"></p>
+                        </div>
+
+                        <div>
+                            <label  for="telefone" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{label.phone}">Telefone</label>
+                            <input type="text" id="telefone" th:field="*{telefone}" class="st-input" th:placeholder="#{cliente.add.ex_11_55555555}" />
+                            <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('telefone')}" th:errors="*{telefone}"></p>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label  for="email" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{label.email}">E-mail</label>
+                            <input type="email" id="email" th:field="*{email}" class="st-input" th:placeholder="#{cliente.add.ex_joaoemailcom}" />
+                            <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-100 flex items-center justify-end gap-4">
+                        <a  th:href="@{/clientes}" class="text-xs font-bold text-on-surface-variant hover:text-on-surface transition-colors" th:text="#{label.cancel}">Cancelar</a>
+                        <button  type="submit" class="st-button-primary" th:text="#{cliente.add.salvar_cliente}">Salvar Cliente</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <th:block layout:fragment="custom-scripts">
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                aplicarMascaraTelefone(document.getElementById('celular'));
+                aplicarMascaraTelefone(document.getElementById('telefone'));
+            });
+        </script>
+    </th:block>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{servico.add.novo_servico}">Novo Serviço</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-2xl mx-auto py-8 px-4">
+            <div class="mb-8">
+                <a th:href="@{/servicos}" class="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span>Voltar para Serviços</span>
+                </a>
+                <h1 class="text-3xl font-black text-on-surface mt-4" style="letter-spacing: -0.02em;" th:text="#{servico.add.novo_servico}">Novo Serviço</h1>
+                <p class="text-xs text-on-surface-variant mt-1" th:text="#{servico.add.cadastrar_novo_servico}">Cadastre um novo serviço para o evento ativo.</p>
+            </div>
+
+            <div class="st-card">
+                <form th:action="@{/servicos/add}" th:object="${servico}" method="post" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label for="nome" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{servico.label.nome}">Nome do Serviço</label>
+                            <input type="text" id="nome" th:field="*{nome}" class="st-input" placeholder="Ex: Limpeza de Ar Condicionado" required />
+                            <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></p>
+                        </div>
+
+                        <div>
+                            <label for="valorVendaFormatado" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{servico.label.valor_venda}">Valor de Venda (R$)</label>
+                            <input type="hidden" id="valorVenda" th:field="*{valorVenda}" />
+                            <input type="text" id="valorVendaFormatado" class="st-input" placeholder="0,00" required />
+                            <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('valorVenda')}" th:errors="*{valorVenda}"></p>
+                        </div>
+
+                        <div>
+                            <label for="categoria" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{servico.label.categoria}">Categoria</label>
+                            <select id="categoria" name="categoria.id" class="st-input" required>
+                                <option value="" th:text="#{produto.add.selecione_uma_categoria}">Selecione uma Categoria</option>
+                                <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nome}"></option>
+                            </select>
+                            <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('categoria')}" th:errors="*{categoria}"></p>
+                        </div>
+
+                        <div>
+                            <label for="subCategoria" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{servico.label.subcategoria}">Subcategoria (Opcional)</label>
+                            <select id="subCategoria" name="subCategoria.id" class="st-input" disabled
+                                    th:attr="data-placeholder-nenhuma=#{produto.add.nenhuma_subcategoria}">
+                                <option value="" th:text="#{produto.add.nenhuma_subcategoria}">Nenhuma Subcategoria</option>
+                            </select>
+                            <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('subCategoria')}" th:errors="*{subCategoria}"></p>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-100 flex items-center justify-end gap-4">
+                        <a th:href="@{/servicos}" class="text-xs font-bold text-on-surface-variant hover:text-on-surface transition-colors" th:text="#{label.cancel}">Cancelar</a>
+                        <button type="submit" class="st-button-primary" th:text="#{servico.add.confirmar}">Confirmar Cadastro</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <th:block layout:fragment="custom-scripts">
+        <script th:inline="javascript">
+            document.addEventListener('DOMContentLoaded', () => {
+                aplicarMascaraMonetaria(
+                    document.getElementById('valorVendaFormatado'),
+                    document.getElementById('valorVenda')
+                );
+
+                const selectCategoria    = document.getElementById('categoria');
+                const selectSubCategoria = document.getElementById('subCategoria');
+                const placeholderNenhuma = selectSubCategoria.dataset.placeholderNenhuma || 'Nenhuma Subcategoria';
+
+                async function carregarSubCategorias(categoriaId) {
+                    selectSubCategoria.innerHTML = '';
+                    selectSubCategoria.disabled = true;
+
+                    const optNenhuma = document.createElement('option');
+                    optNenhuma.value = '';
+                    optNenhuma.textContent = placeholderNenhuma;
+                    selectSubCategoria.appendChild(optNenhuma);
+
+                    if (!categoriaId) return;
+
+                    try {
+                        const resp = await fetch(`/produtos/subcategorias?categoriaId=${categoriaId}`);
+                        if (!resp.ok) return;
+                        const lista = await resp.json();
+
+                        lista.forEach(sub => {
+                            const opt = document.createElement('option');
+                            opt.value = sub.id;
+                            opt.textContent = sub.nome;
+                            selectSubCategoria.appendChild(opt);
+                        });
+
+                        if (lista.length > 0) {
+                            selectSubCategoria.disabled = false;
+                        }
+                    } catch (e) {
+                        console.error('Erro ao carregar subcategorias:', e);
+                    }
+                }
+
+                selectCategoria.addEventListener('change', (e) => {
+                    carregarSubCategorias(e.target.value);
+                });
+            });
+        </script>
+    </th:block>
+</body>
+</html>

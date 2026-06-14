@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      class="h-full">
+<head th:replace="~{fragments/head :: head(~{::title})}">
+    <title th:text="#{layout.base_layout}">Base Layout</title>
+</head>
+<body class="h-full bg-surface text-on-surface font-sans antialiased overflow-x-hidden">
+
+    <!-- Sidebar Fragment -->
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <!-- Header Fragment -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <!-- Main Page Content Wrapper (with padding-top to clear the header) -->
+    <div id="main-content-wrapper" class="pt-16 min-h-screen transition-all duration-300 ease-in-out" style="margin-left: 16rem;">
+        <!-- The inner main section where HTMX swaps fragment contents -->
+        <main id="main-content-area" class="p-8" layout:fragment="content">
+            <!-- Default placeholder content for page layout -->
+        </main>
+    </div>
+
+    <!-- Scripts Fragment -->
+    <th:block th:replace="~{fragments/scripts :: scripts}"></th:block>
+    
+    <!-- Area for custom scripts injected from individual templates -->
+    <th:block layout:fragment="custom-scripts"></th:block>
+
+</body>
+</html>

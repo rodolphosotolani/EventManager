@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{perfil.list.perfis_de_acesso}">Perfis de Acesso</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-6xl mx-auto py-8 px-4">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+                <div>
+                    <span  class="st-chip-sales mb-2" th:text="#{label.security}">Segurança</span>
+                    <h1  class="text-4xl font-black text-on-surface" style="letter-spacing: -0.02em;" th:text="#{perfil.list.perfis_de_acesso}">Perfis de Acesso</h1>
+                    <p  class="text-xs text-on-surface-variant font-medium mt-1" th:text="#{perfil.list.gerencie_os_perfis_e}">Gerencie os perfis e seus respectivos níveis de permissão.</p>
+                </div>
+                <div>
+                    <a  th:href="@{/perfis/add}" class="st-button-primary" th:text="#{perfil.list.novo_perfil}">Novo Perfil</a>
+                </div>
+            </div>
+
+            <!-- Messages feedback -->
+            <div th:if="${msgSuccess}" class="mb-6 p-4 rounded-xl bg-green-50 text-green-700 text-xs font-semibold border border-green-100" th:text="${msgSuccess}"></div>
+            <div th:if="${msgInfo}" class="mb-6 p-4 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100" th:text="${msgInfo}"></div>
+            <div th:if="${msgError}" class="mb-6 p-4 rounded-xl bg-red-50 text-red-700 text-xs font-semibold border border-red-100" th:text="${msgError}"></div>
+
+            <!-- List Grid -->
+            <div class="st-card p-0 overflow-hidden">
+                <table class="min-w-full divide-y divide-slate-100">
+                    <thead class="bg-surface-container-low">
+                        <tr>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{perfil.list.nome_do_perfil}">Nome do Perfil</th>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{perfil.list.permissoes_associadas}">Permissões Associadas</th>
+                            <th  class="px-6 py-4 text-right text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{perfil.list.total}">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-50">
+                        <tr th:each="perf : ${perfis}">
+                            <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-on-surface" th:text="${perf.nome}">Administrador</td>
+                            <td class="px-6 py-4 text-xs text-on-surface-variant">
+                                <div class="flex flex-wrap gap-1.5 max-w-xl">
+                                    <span th:each="perm : ${perf.permissoes}" 
+                                          class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[9px] font-semibold"
+                                          th:text="${perm.getAuthority()}">PRODUTOS_LISTAR</span>
+                                    <span  th:if="${#lists.isEmpty(perf.permissoes)}" class="text-slate-400 italic" th:text="#{perfil.list.nenhuma_permissao_associada}">Nenhuma permissão associada</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-black text-primary" th:text="${#lists.size(perf.permissoes)}">0</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(perfis)}">
+                            <td  colspan="3" class="px-6 py-12 text-center text-xs text-on-surface-variant" th:text="#{perfil.list.nenhum_perfil_de_acesso}">Nenhum perfil de acesso cadastrado.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

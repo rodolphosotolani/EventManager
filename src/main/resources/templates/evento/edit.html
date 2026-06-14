@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{evento.edit.editar_evento}">Editar Evento</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-2xl mx-auto py-8 px-4">
+            <div class="mb-8">
+                <a th:href="@{/eventos}" class="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span th:text="#{label.back_to_events}">Voltar para Eventos</span>
+                </a>
+                <h1  class="text-3xl font-black text-on-surface mt-4" style="letter-spacing: -0.02em;" th:text="#{evento.edit.editar_evento}">Editar Evento</h1>
+                <p  class="text-xs text-on-surface-variant mt-1" th:text="#{evento.edit.altere_as_informacoes_do}">Altere as informações do evento selecionado.</p>
+            </div>
+
+            <div class="st-card">
+                <form th:action="@{/eventos/edit/{id}(id=${evento.id})}" th:object="${evento}" method="post" class="space-y-6">
+                    <div>
+                        <label  for="nome" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{evento.edit.nome_do_evento}">Nome do Evento</label>
+                        <input type="text" id="nome" th:field="*{nome}" class="st-input" th:placeholder="#{evento.edit.ex_2_feijoada_paroquial}" required />
+                        <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></p>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" id="ativo" th:field="*{ativo}" class="rounded border-slate-300 text-primary focus:ring-primary w-4 h-4" />
+                        <label  for="ativo" class="text-xs font-bold text-on-surface-variant uppercase tracking-wider cursor-pointer select-none" th:text="#{evento.edit.evento_ativo}">Evento Ativo</label>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-4">
+                        <a  th:href="@{/eventos}" class="text-xs font-bold text-on-surface-variant hover:text-on-surface transition-colors" th:text="#{label.cancel}">Cancelar</a>
+                        <button  type="submit" class="st-button-primary" th:text="#{label.save_changes}">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

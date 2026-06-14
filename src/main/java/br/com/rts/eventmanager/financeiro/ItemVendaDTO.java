@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,5 +29,18 @@ public class ItemVendaDTO {
 
     public void subtrairQuantidade(Integer quantidade) {
         this.quantidade -= quantidade;
+    }
+
+    public BigDecimal getSubTotal() {
+        if (quantidade == null) {
+            return BigDecimal.ZERO;
+        }
+        if (produto != null && produto.getValorVendaUnitario() != null) {
+            return produto.getValorVendaUnitario().multiply(BigDecimal.valueOf(quantidade));
+        }
+        if (servico != null && servico.getValorVenda() != null) {
+            return servico.getValorVenda().multiply(BigDecimal.valueOf(quantidade));
+        }
+        return BigDecimal.ZERO;
     }
 }

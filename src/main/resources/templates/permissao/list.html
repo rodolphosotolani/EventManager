@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{permissao.list.permissoes_de_acesso}">Permissões de Acesso</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-6xl mx-auto py-8 px-4">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+                <div>
+                    <span  class="st-chip-sales mb-2" th:text="#{label.security}">Segurança</span>
+                    <h1  class="text-4xl font-black text-on-surface" style="letter-spacing: -0.02em;" th:text="#{permissao.list.permissoes_de_acesso}">Permissões de Acesso</h1>
+                    <p  class="text-xs text-on-surface-variant font-medium mt-1" th:text="#{permissao.list.lista_completa_de_permissoes}">Lista completa de permissões e chaves de autoridade do sistema.</p>
+                </div>
+                <div>
+                    <a  th:href="@{/permissoes/add}" class="st-button-primary" th:text="#{permissao.list.nova_permissao}">Nova Permissão</a>
+                </div>
+            </div>
+
+            <!-- Messages feedback -->
+            <div th:if="${msgSuccess}" class="mb-6 p-4 rounded-xl bg-green-50 text-green-700 text-xs font-semibold border border-green-100" th:text="${msgSuccess}"></div>
+            <div th:if="${msgInfo}" class="mb-6 p-4 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100" th:text="${msgInfo}"></div>
+            <div th:if="${msgError}" class="mb-6 p-4 rounded-xl bg-red-50 text-red-700 text-xs font-semibold border border-red-100" th:text="${msgError}"></div>
+
+            <!-- List Grid -->
+            <div class="st-card p-0 overflow-hidden">
+                <table class="min-w-full divide-y divide-slate-100">
+                    <thead class="bg-surface-container-low">
+                        <tr>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.id}">ID</th>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{permissao.list.tela_modulo}">Tela / Módulo</th>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{permissao.list.acao}">Ação</th>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{permissao.list.chave_de_autoridade_authority}">Chave de Autoridade (Authority)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-50">
+                        <tr th:each="perm : ${permissoes}">
+                            <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-on-surface-variant" th:text="${perm.id}">1</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-on-surface" th:text="${perm.tela}">PRODUTOS</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs text-on-surface-variant">
+                                <span class="px-2 py-0.5 inline-flex text-[9px] leading-5 font-semibold rounded-full bg-slate-100 text-slate-700" 
+                                      th:text="${perm.acao.descricao}">LISTAR</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs font-semibold text-primary" th:text="${perm.getAuthority()}">PRODUTOS_LISTAR</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(permissoes)}">
+                            <td  colspan="4" class="px-6 py-12 text-center text-xs text-on-surface-variant" th:text="#{permissao.list.nenhuma_permissao_cadastrada_no}">Nenhuma permissão cadastrada no sistema.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

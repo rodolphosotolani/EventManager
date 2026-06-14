@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{instituicao.edit.editar_instituicao}">Editar Instituição</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-2xl mx-auto py-8 px-4">
+            <div class="mb-8">
+                <a th:href="@{/instituicoes}" class="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span th:text="#{label.back_to_institutions}">Voltar para Instituições</span>
+                </a>
+                <h1  class="text-3xl font-black text-on-surface mt-4" style="letter-spacing: -0.02em;" th:text="#{instituicao.edit.editar_instituicao}">Editar Instituição</h1>
+                <p  class="text-xs text-on-surface-variant mt-1" th:text="#{instituicao.edit.atualize_as_informacoes_da}">Atualize as informações da instituição cadastrada.</p>
+            </div>
+
+            <div class="st-card">
+                <form th:action="@{/instituicoes/edit/{id}(id=${instituicao.id})}" th:object="${instituicao}" method="post" class="space-y-6">
+                    <input type="hidden" th:field="*{id}" />
+
+                    <div>
+                        <label  for="nome" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{instituicao.edit.nome_da_instituicao}">Nome da Instituição</label>
+                        <input type="text" id="nome" th:field="*{nome}" class="st-input" th:placeholder="#{instituicao.edit.ex_paroquia_santo_antonio}" required />
+                        <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></p>
+                    </div>
+
+                    <div>
+                        <label  for="ativo" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{label.status}">Status</label>
+                        <select id="ativo" th:field="*{ativo}" class="st-input">
+                            <option  th:value="true" th:text="#{label.active_fem}">Ativa</option>
+                            <option  th:value="false" th:text="#{label.inactive_fem}">Inativa</option>
+                        </select>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-4">
+                        <a  th:href="@{/instituicoes}" class="text-xs font-bold text-on-surface-variant hover:text-on-surface transition-colors" th:text="#{label.cancel}">Cancelar</a>
+                        <button  type="submit" class="st-button-primary" th:text="#{label.save_changes}">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<head th:fragment="head(title)" xmlns:th="http://www.thymeleaf.org">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="EventManager SaaS - Gestão Avançada de Vendas Multitenancy"/>
+    <title th:text="${title != null ? title + ' - EventManager' : 'EventManager'}">EventManager</title>
+
+    <meta th:if="${_csrf != null}" name="_csrf" th:content="${_csrf.token}"/>
+    <meta th:if="${_csrf != null}" name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+
+    <!-- Tailwind compiled output -->
+    <link rel="stylesheet" th:href="@{/css/output.css}"/>
+
+    <!-- HTMX for AJAX interactions -->
+    <script th:src="@{/webjars/htmx.org/dist/htmx.min.js}" defer></script>
+    <!-- Fallback CDN for HTMX if webjars aren't populated -->
+    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuDtJkwOI9CNm76LtL3uXB296bPOcT05wEEWXVOG3dBR6558SUE56S3" crossorigin="anonymous"></script>
+
+    <!-- Dynamic Theme Variables for Multitenancy -->
+    <style>
+        :root {
+            --tenant-primary: [(${tenantColorPrimary != null ? tenantColorPrimary : '#a43700'})];
+            --tenant-secondary: [(${tenantColorSecondary != null ? tenantColorSecondary : '#b22c01'})];
+            --tenant-primary-container: [(${tenantColorPrimaryContainer != null ? tenantColorPrimaryContainer : '#cd4700'})];
+        }
+    </style>
+</head>

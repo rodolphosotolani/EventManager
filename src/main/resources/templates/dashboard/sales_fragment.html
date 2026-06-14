@@ -1,0 +1,91 @@
+<!-- Sales Fragment for Asynchronous DOM Swapping via HTMX -->
+<div th:fragment="sales-panel" class="space-y-8 animate-fade-in" xmlns:th="http://www.thymeleaf.org">
+    <!-- Dynamic Theme Variables to update UI colors on-the-fly -->
+    <style th:inline="css">
+        :root {
+            --tenant-primary: [[${tenantColorPrimary != null ? tenantColorPrimary : '#a43700'}]];
+            --tenant-secondary: [[${tenantColorSecondary != null ? tenantColorSecondary : '#b22c01'}]];
+            --tenant-primary-container: [[${tenantColorPrimaryContainer != null ? tenantColorPrimaryContainer : '#cd4700'}]];
+        }
+    </style>
+    
+    <!-- Dynamic Tenant Branding Banner -->
+    <div class="p-6 rounded-2xl bg-gradient-to-r from-primary/10 via-primary-container/5 to-transparent flex items-center justify-between border-l-4 border-primary">
+        <div>
+            <h2 class="text-xl font-bold text-on-surface" th:text="${tenant != null ? 'Painel: ' + tenant.nome : 'Painel Geral'}">Painel Geral</h2>
+            <p  class="text-xs text-on-surface-variant mt-1" th:text="#{dashboard.sales_fragment.dados_de_vendas_consolidados}">Dados de vendas consolidados para o evento atual.</p>
+        </div>
+        <div class="text-right">
+            <span  class="text-xs text-on-surface-variant font-medium" th:text="#{dashboard.sales_fragment.status_do_caixa}">Status do Caixa</span>
+            <div class="flex items-center gap-1.5 mt-0.5 justify-end">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span  class="text-xs font-bold text-emerald-600" th:text="#{dashboard.sales_fragment.aberto}">Aberto</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Metrics Grid implementing Tonal Layering -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Metric 1: Total Sales -->
+        <div class="st-card">
+            <span  class="text-xs font-bold text-on-surface-variant/80 uppercase tracking-wider block mb-2" th:text="#{dashboard.sales_fragment.total_arrecadado}">Total Arrecadado</span>
+            <div class="flex items-baseline gap-2">
+                <span class="text-3xl font-black text-on-surface" style="letter-spacing: -0.02em;" 
+                      th:text="${totalSalesFormatted != null ? totalSalesFormatted : 'R$ 12.450,00'}">R$ 12.450,00</span>
+            </div>
+            <span  class="text-[10px] text-emerald-600 font-semibold block mt-4" th:text="#{dashboard.sales_fragment.15_em_relacao_a}">+15% em relação a ontem</span>
+        </div>
+
+        <!-- Metric 2: Quantity -->
+        <div class="st-card">
+            <span  class="text-xs font-bold text-on-surface-variant/80 uppercase tracking-wider block mb-2" th:text="#{dashboard.sales_fragment.pedidos_realizados}">Pedidos Realizados</span>
+            <div class="flex items-baseline gap-2">
+                <span class="text-3xl font-black text-on-surface" style="letter-spacing: -0.02em;"
+                      th:text="${totalOrders != null ? totalOrders : '348'}">348</span>
+            </div>
+            <span  class="text-[10px] text-on-surface-variant/60 block mt-4" th:text="#{dashboard.sales_fragment.media_de_43_pedidos}">Média de 43 pedidos por hora</span>
+        </div>
+
+        <!-- Metric 3: Ticket Mediano -->
+        <div class="st-card">
+            <span  class="text-xs font-bold text-on-surface-variant/80 uppercase tracking-wider block mb-2" th:text="#{dashboard.sales_fragment.ticket_medio}">Ticket Médio</span>
+            <div class="flex items-baseline gap-2">
+                <span class="text-3xl font-black text-on-surface" style="letter-spacing: -0.02em;"
+                      th:text="${averageTicketFormatted != null ? averageTicketFormatted : 'R$ 35,77'}">R$ 35,77</span>
+            </div>
+            <span  class="text-[10px] text-on-surface-variant/60 block mt-4" th:text="#{dashboard.sales_fragment.venda_sugerida_ativa}">Venda sugerida ativa</span>
+        </div>
+    </div>
+
+    <!-- Recent Sales Table adhering strictly to the "No-Line" Rule -->
+    <div class="st-card">
+        <div class="flex justify-between items-center mb-6">
+            <h3  class="text-sm font-bold text-on-surface uppercase tracking-wider" th:text="#{dashboard.sales_fragment.transacoes_recentes}">Transações Recentes</h3>
+            <button  class="st-button-primary !py-1.5 !px-4 !text-[10px]" th:text="#{dashboard.sales_fragment.ver_relatorio_completo}">Ver Relatório Completo</button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="text-on-surface-variant font-bold uppercase tracking-wider bg-surface-container-low">
+                        <th  class="p-3 rounded-l-lg" th:text="#{dashboard.sales_fragment.id_venda}">ID Venda</th>
+                        <th  class="p-3" th:text="#{dashboard.sales_fragment.forma_pagto}">Forma Pagto</th>
+                        <th  class="p-3" th:text="#{dashboard.sales_fragment.hora}">Hora</th>
+                        <th  class="p-3 rounded-r-lg text-right" th:text="#{dashboard.sales_fragment.valor_total}">Valor Total</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y-0">
+                    <!-- Alternating row backgrounds instead of border lines -->
+                    <tr class="hover:bg-surface-container-low transition-colors" th:each="venda, stat : ${vendasRecentes != null ? vendasRecentes : #arrays.asList(1,2,3)}">
+                        <td class="p-3 font-semibold text-on-surface">#1024<span th:text="${stat.count}">1</span></td>
+                        <td class="p-3">
+                            <span class="st-chip-sales" th:text="${stat.count == 2 ? 'Cartão' : 'Pix'}">Pix</span>
+                        </td>
+                        <td class="p-3 text-on-surface-variant">14:35</td>
+                        <td class="p-3 text-right font-bold text-on-surface" th:text="${stat.count == 2 ? 'R$ 85,00' : 'R$ 45,00'}">R$ 45,00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

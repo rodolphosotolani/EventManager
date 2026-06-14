@@ -1,10 +1,11 @@
 package br.com.rts.eventmanager.seguranca.usuario.mappers;
 
 import br.com.rts.eventmanager.seguranca.UsuarioDTO;
-import br.com.rts.eventmanager.seguranca.perfil.mappers.PerfilUsuarioMapper;
+import br.com.rts.eventmanager.seguranca.perfilusuario.mappers.PerfilUsuarioMapper;
 import br.com.rts.eventmanager.seguranca.usuario.controllers.requests.UsuarioRequest;
 import br.com.rts.eventmanager.seguranca.usuario.controllers.responses.UsuarioResponse;
 import br.com.rts.eventmanager.seguranca.usuario.entities.Usuario;
+import br.com.rts.eventmanager.seguranca.usuarioinstituicao.mappers.UsuarioInstituicaoMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

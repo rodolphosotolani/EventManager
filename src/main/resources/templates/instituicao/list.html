@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{label.institutions}">Instituições</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-6xl mx-auto py-8 px-4">
+            <!-- Header section with asymmetry -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+                <div>
+                    <span  class="st-chip-sales mb-2" th:text="#{instituicao.list.administracao}">Administração</span>
+                    <h1  class="text-4xl font-black text-on-surface" style="letter-spacing: -0.02em;" th:text="#{label.institutions}">Instituições</h1>
+                    <p  class="text-xs text-on-surface-variant font-medium mt-1" th:text="#{instituicao.list.gerencie_as_instituicoes_e}">Gerencie as instituições e seus respectivos eventos vinculados.</p>
+                </div>
+                <div>
+                    <a  th:href="@{/instituicoes/add}" class="st-button-primary" th:text="#{instituicao.list.nova_instituicao}">Nova Instituição</a>
+                </div>
+            </div>
+
+            <!-- Messages feedback -->
+            <div th:if="${msgSuccess}" class="mb-6 p-4 rounded-xl bg-green-50 text-green-700 text-xs font-semibold border border-green-100" th:text="${msgSuccess}"></div>
+            <div th:if="${msgInfo}" class="mb-6 p-4 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100" th:text="${msgInfo}"></div>
+            <div th:if="${msgError}" class="mb-6 p-4 rounded-xl bg-red-50 text-red-700 text-xs font-semibold border border-red-100" th:text="${msgError}"></div>
+
+            <!-- List Card with No-Line rule -->
+            <div class="st-card p-0 overflow-hidden">
+                <table class="min-w-full divide-y divide-slate-100">
+                    <thead class="bg-surface-container-low">
+                        <tr>
+                            <th class="w-10 px-6 py-4"></th>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.id}">ID</th>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.name}">Nome</th>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.status}">Status</th>
+                            <th  class="px-6 py-4 text-right text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.actions}">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-50">
+                        <!-- Iteration -->
+                        <th:block th:each="inst : ${instituicoesList}">
+                            <!-- Main row -->
+                            <tr class="cursor-pointer hover:bg-surface-container-low transition-colors duration-200" 
+                                th:onclick="'toggleEvents(this, ' + ${inst.id} + ')'">
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <svg class="toggle-chevron w-4 h-4 text-on-surface-variant transition-transform duration-200" 
+                                         th:id="'chevron-' + ${inst.id}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-on-surface-variant" th:text="${inst.id}">1</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-on-surface" th:text="${inst.nome}">Instituição Exemplo</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-semibold rounded-full"
+                                          th:classappend="${inst.ativo} ? 'bg-green-50 text-green-800' : 'bg-slate-100 text-slate-500'"
+                                          th:text="${inst.ativo} ? #{label.active_fem} : #{label.inactive_fem}">Ativa</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium actions-container" onclick="event.stopPropagation();">
+                                    <div class="inline-flex items-center gap-3">
+                                        <a  th:href="@{/instituicoes/edit/{id}(id=${inst.id})}" class="text-primary hover:text-primary-container font-semibold transition-colors" th:text="#{label.edit}">Editar</a>
+                                        
+                                        <form th:action="@{/instituicoes/toggle/{id}(id=${inst.id})}" method="post" class="inline-block">
+                                            <button type="submit" 
+                                                    class="font-semibold transition-colors bg-transparent border-none p-0 cursor-pointer text-xs"
+                                                    th:classappend="${inst.ativo} ? 'text-red-600 hover:text-red-800' : 'text-green-600 hover:text-green-800'"
+                                                    th:text="${inst.ativo} ? #{label.deactivate} : #{label.activate}">
+                                                Desativar
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- Expanded row (containing events list) -->
+                            <tr class="events-row hidden bg-slate-50/50" th:id="'events-row-' + ${inst.id}">
+                                <td colspan="5" class="px-8 py-6">
+                                    <div class="p-5 bg-white rounded-2xl outline outline-1 outline-slate-100 shadow-sm animate-fade-in">
+                                        <div class="flex items-center justify-between mb-4">
+                                            <div>
+                                                <h3  class="text-xs font-bold text-on-surface uppercase tracking-wider" th:text="#{instituicao.list.eventos_vinculados}">Eventos Vinculados</h3>
+                                                <p  class="text-[10px] text-on-surface-variant font-medium mt-0.5" th:text="#{instituicao.list.lista_de_eventos_cadastrados}">Lista de eventos cadastrados para esta instituição.</p>
+                                            </div>
+                                            <span class="st-chip-sales text-[10px] font-semibold py-1 px-3" th:text="${#lists.size(inst.eventos) + ' Evento(s)'}">0 Eventos</span>
+                                        </div>
+                                        <div class="overflow-x-auto">
+                                            <table class="min-w-full divide-y divide-slate-100 bg-white">
+                                                <thead>
+                                                    <tr>
+                                                        <th  class="px-4 py-3 text-left text-[9px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.id}">ID</th>
+                                                        <th  class="px-4 py-3 text-left text-[9px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{instituicao.list.nome_do_evento}">Nome do Evento</th>
+                                                        <th  class="px-4 py-3 text-left text-[9px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.status}">Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="divide-y divide-slate-50">
+                                                    <tr th:each="ev : ${inst.eventos}">
+                                                        <td class="px-4 py-3 text-xs text-on-surface-variant font-medium" th:text="${ev.id}">101</td>
+                                                        <td class="px-4 py-3 text-xs text-on-surface font-bold" th:text="${ev.nome}">Festa Junina 2026</td>
+                                                        <td class="px-4 py-3 text-xs">
+                                                            <span class="px-2 py-0.5 inline-flex text-[9px] leading-5 font-semibold rounded-full"
+                                                                  th:classappend="${ev.ativo} ? 'bg-green-50 text-green-800' : 'bg-slate-100 text-slate-500'"
+                                                                  th:text="${ev.ativo} ? #{label.active} : #{label.inactive}">Ativo</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr th:if="${#lists.isEmpty(inst.eventos)}">
+                                                        <td  colspan="3" class="px-4 py-6 text-center text-xs text-on-surface-variant font-medium bg-slate-50/20" th:text="#{instituicao.list.nenhum_evento_cadastrado_para}">Nenhum evento cadastrado para esta instituição.</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </th:block>
+                        <tr th:if="${#lists.isEmpty(instituicoesList)}">
+                            <td  colspan="5" class="px-6 py-12 text-center text-xs text-on-surface-variant font-medium" th:text="#{instituicao.list.nenhuma_instituicao_cadastrada_no}">Nenhuma instituição cadastrada no sistema.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Custom Scripts to handle expansion -->
+    <th:block layout:fragment="custom-scripts">
+        <script>
+            function toggleEvents(row, instId) {
+                const targetRow = document.getElementById('events-row-' + instId);
+                const chevron = document.getElementById('chevron-' + instId);
+                if (targetRow && chevron) {
+                    const isCurrentlyHidden = targetRow.classList.contains('hidden');
+                    
+                    // Close all other event rows
+                    document.querySelectorAll('.events-row').forEach(r => {
+                        if (r.id !== 'events-row-' + instId) {
+                            r.classList.add('hidden');
+                        }
+                    });
+                    document.querySelectorAll('.toggle-chevron').forEach(c => {
+                        if (c.id !== 'chevron-' + instId) {
+                            c.classList.remove('rotate-90');
+                        }
+                    });
+
+                    // Toggle current row
+                    if (isCurrentlyHidden) {
+                        targetRow.classList.remove('hidden');
+                        chevron.classList.add('rotate-90');
+                    } else {
+                        targetRow.classList.add('hidden');
+                        chevron.classList.remove('rotate-90');
+                    }
+                }
+            }
+        </script>
+    </th:block>
+</body>
+</html>

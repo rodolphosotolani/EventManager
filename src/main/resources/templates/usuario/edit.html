@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{usuario.edit.associar_perfil_ao_usuario}">Associar Usuário a Instituições</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-4xl mx-auto py-8 px-4">
+            <!-- Breadcrumbs -->
+            <div class="mb-8">
+                <a th:href="@{/usuarios}" class="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span th:text="#{label.back_to_users}">Voltar para Usuários</span>
+                </a>
+                <h1 class="text-3xl font-black text-on-surface mt-4" style="letter-spacing: -0.02em;">Associar Usuário</h1>
+                <p class="text-xs text-on-surface-variant mt-1" th:text="'Gerencie as instituições e os perfis vinculados ao usuário ' + ${usuario.nome} + '.'">Gerencie as instituições e os perfis do usuário.</p>
+            </div>
+
+            <!-- Messages feedback -->
+            <div th:if="${msgSuccess}" class="mb-6 p-4 rounded-xl bg-green-50 text-green-700 text-xs font-semibold border border-green-100" th:text="${msgSuccess}"></div>
+            <div th:if="${msgError}" class="mb-6 p-4 rounded-xl bg-red-50 text-red-700 text-xs font-semibold border border-red-100" th:text="${msgError}"></div>
+
+            <!-- User Info Card -->
+            <div class="st-card mb-8">
+                <div class="flex items-center gap-4">
+                    <div th:if="${usuario.urlFoto == null || #strings.isEmpty(usuario.urlFoto)}" 
+                         class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-lg uppercase"
+                         th:text="${#strings.substring(usuario.nome, 0, 1)}">U</div>
+                    <img th:if="${usuario.urlFoto != null && !#strings.isEmpty(usuario.urlFoto)}" 
+                         th:src="${usuario.urlFoto}" 
+                         class="w-12 h-12 rounded-full object-cover" 
+                         alt="Foto" />
+                    <div>
+                        <h2 class="text-base font-bold text-on-surface" th:text="${usuario.nome}">Nome do Usuário</h2>
+                        <p class="text-xs text-on-surface-variant" th:text="${usuario.email}">email@domain.com</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Associations Table -->
+            <div class="st-card mb-8 p-0 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-100 bg-surface-container-low flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-on-surface">Instituições Vinculadas</h3>
+                    <span class="st-chip-sales" th:text="${#lists.size(usuario.usuarioInstituicaos)} + ' Vinculada(s)'">0 Vinculadas</span>
+                </div>
+                
+                <table class="min-w-full divide-y divide-slate-100">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider">Instituição</th>
+                            <th class="px-6 py-3 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider">Perfis de Acesso</th>
+                            <th class="px-6 py-3 text-right text-[10px] font-black text-on-surface-variant uppercase tracking-wider">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-50">
+                        <tr th:each="ui : ${usuario.usuarioInstituicaos}">
+                            <td class="px-6 py-4 whitespace-nowrap text-xs text-on-surface font-semibold" 
+                                th:text="${instituicaoNomes[ui.instituicao]}">Nome da Instituição</td>
+                            <td class="px-6 py-4 text-xs text-on-surface-variant">
+                                <div class="flex flex-wrap gap-1.5">
+                                    <th:block th:each="pu : ${usuario.perfilUsuarios}">
+                                        <span th:if="${pu.instituicao == ui.instituicao}" 
+                                              class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-bold" 
+                                              th:text="${pu.perfil.nome}">Perfil</span>
+                                    </th:block>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
+                                <form th:action="@{/usuarios-instituicao/edit/{id}/desvincular/{instId}(id=${usuario.id}, instId=${ui.instituicao})}" method="post" class="inline">
+                                    <button type="submit" class="text-red-600 hover:text-red-800 font-bold transition-colors">Desativar Associação</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(usuario.usuarioInstituicaos)}">
+                            <td colspan="3" class="px-6 py-8 text-center text-xs text-on-surface-variant">Este usuário não está vinculado a nenhuma instituição.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Link to a new institution -->
+            <div class="st-card">
+                <div class="mb-6 border-b border-slate-100 pb-4">
+                    <h3 class="text-sm font-bold text-on-surface">Vincular a uma nova instituição</h3>
+                    <p class="text-xs text-on-surface-variant mt-1">Selecione uma instituição e escolha um ou mais perfis de acesso.</p>
+                </div>
+
+                <form th:action="@{/usuarios-instituicao/edit/{id}/vincular(id=${usuario.id})}" method="post" class="space-y-6">
+                    <div>
+                        <label for="newInstituicaoId" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Instituição</label>
+                        <select id="newInstituicaoId" name="instituicaoId" class="st-input" required>
+                            <option value="">Selecione uma instituição</option>
+                            <option th:each="inst : ${instituicoesDisponiveis}" 
+                                    th:value="${inst.id}" 
+                                    th:text="${inst.nome}"></option>
+                        </select>
+                    </div>
+
+                    <!-- Profiles container (loaded dynamically) -->
+                    <div id="perfis-selection" class="hidden">
+                        <label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Selecione os Perfis</label>
+                        <div id="perfis-container" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <!-- Checkboxes will be rendered here by JS -->
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-100 flex items-center justify-end gap-4">
+                        <a th:href="@{/usuarios}" class="text-xs font-bold text-on-surface-variant hover:text-on-surface transition-colors">Cancelar</a>
+                        <button type="submit" class="st-button-primary">Confirmar Vínculo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Inline AJAX script to load profiles dynamically -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const selectInst = document.getElementById('newInstituicaoId');
+                if (selectInst) {
+                    selectInst.addEventListener('change', function() {
+                        const instId = this.value;
+                        const profilesDiv = document.getElementById('perfis-selection');
+                        const profilesContainer = document.getElementById('perfis-container');
+                        
+                        if (!instId) {
+                            profilesDiv.classList.add('hidden');
+                            profilesContainer.innerHTML = '';
+                            return;
+                        }
+                        
+                        profilesContainer.innerHTML = '<p class="text-xs text-on-surface-variant col-span-2">Carregando perfis...</p>';
+                        profilesDiv.classList.remove('hidden');
+                        
+                        fetch(`/perfis/edit/perfis?instituicaoId=${instId}`)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error("Erro na rede ao carregar perfis");
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                profilesContainer.innerHTML = '';
+                                if (data.length === 0) {
+                                    profilesContainer.innerHTML = '<p class="text-xs text-on-surface-variant col-span-2">Nenhum perfil cadastrado para esta instituição.</p>';
+                                } else {
+                                    data.forEach(perfil => {
+                                        const label = document.createElement('label');
+                                        label.className = 'flex items-center gap-3 text-xs text-on-surface cursor-pointer p-3 rounded-xl hover:bg-slate-50 transition-colors border border-slate-100 select-none';
+                                        label.innerHTML = `
+                                            <input type="checkbox" name="perfilIds" value="${perfil.id}" class="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4" />
+                                            <div>
+                                                <span class="font-bold text-on-surface">${perfil.nome}</span>
+                                            </div>
+                                        `;
+                                        profilesContainer.appendChild(label);
+                                    });
+                                }
+                            })
+                            .catch(err => {
+                                console.error('Erro ao buscar perfis:', err);
+                                profilesContainer.innerHTML = '<p class="text-xs text-red-500 col-span-2">Erro ao carregar perfis. Tente novamente.</p>';
+                            });
+                    });
+                }
+            });
+        </script>
+    </main>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{label.clients}">Clientes</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-6xl mx-auto py-8 px-4">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+                <div>
+                    <span  class="st-chip-sales mb-2" th:text="#{cliente.list.financeiro}">Financeiro</span>
+                    <h1  class="text-4xl font-black text-on-surface" style="letter-spacing: -0.02em;" th:text="#{label.clients}">Clientes</h1>
+                    <p  class="text-xs text-on-surface-variant font-medium mt-1" th:text="#{cliente.list.gerencie_os_clientes_cadastrados}">Gerencie os clientes cadastrados no sistema.</p>
+                </div>
+                <div>
+                    <a  th:href="@{/clientes/add}" class="st-button-primary" th:text="#{cliente.list.novo_cliente}">Novo Cliente</a>
+                </div>
+            </div>
+
+            <!-- Messages feedback -->
+            <div th:if="${msgSuccess}" class="mb-6 p-4 rounded-xl bg-green-50 text-green-700 text-xs font-semibold border border-green-100" th:text="${msgSuccess}"></div>
+            <div th:if="${msgInfo}" class="mb-6 p-4 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100" th:text="${msgInfo}"></div>
+            <div th:if="${msgError}" class="mb-6 p-4 rounded-xl bg-red-50 text-red-700 text-xs font-semibold border border-red-100" th:text="${msgError}"></div>
+
+            <!-- List Grid -->
+            <div class="st-card p-0 overflow-hidden">
+                <table class="min-w-full divide-y divide-slate-100">
+                    <thead class="bg-surface-container-low">
+                        <tr>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{cliente.list.nome_apelido}">Nome / Apelido</th>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{cliente.list.celular}">Celular</th>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.phone}">Telefone</th>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{cliente.list.email}">Email</th>
+                            <th  class="px-6 py-4 text-right text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.actions}">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-50">
+                        <tr th:each="cli : ${clientes}">
+                            <td class="px-6 py-4 whitespace-nowrap text-xs text-on-surface">
+                                <span class="font-bold block" th:text="${cli.nome}">João da Silva</span>
+                                <span class="text-[10px] text-on-surface-variant" th:if="${cli.apelido != null && !#strings.isEmpty(cli.apelido)}" th:text="${'(' + cli.apelido + ')'}">(Jão)</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs text-on-surface-variant" th:text="${cli.celular != null && !#strings.isEmpty(cli.celular) ? cli.celular : '-'}">(11) 99999-9999</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs text-on-surface-variant" th:text="${cli.telefone != null && !#strings.isEmpty(cli.telefone) ? cli.telefone : '-'}">(11) 5555-5555</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs text-on-surface-variant" th:text="${cli.email != null && !#strings.isEmpty(cli.email) ? cli.email : '-'}">joao@email.com</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium space-x-3">
+                                <a  th:href="@{/clientes/edit/{id}(id=${cli.id})}" class="text-primary hover:text-primary-container font-semibold transition-colors" th:text="#{label.edit}">Editar</a>
+                                <form th:action="@{/clientes/delete/{id}(id=${cli.id})}" method="post" class="inline-block" th:onsubmit="|return confirm('#{cliente.list.deseja_realmente_excluir_este}')|">
+                                    <button  type="submit" class="text-red-600 hover:text-red-800 font-semibold transition-colors bg-transparent border-none p-0 cursor-pointer" th:text="#{label.delete}">Excluir</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(clientes)}">
+                            <td  colspan="5" class="px-6 py-12 text-center text-xs text-on-surface-variant" th:text="#{cliente.list.nenhum_cliente_cadastrado}">Nenhum cliente cadastrado.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

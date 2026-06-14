@@ -1,14 +1,16 @@
-package br.com.rts.eventmanager.seguranca.usuario.services.impl;
+package br.com.rts.eventmanager.seguranca.perfilusuario.services.impl;
 
 import br.com.rts.eventmanager.seguranca.perfil.entities.Perfil;
-import br.com.rts.eventmanager.seguranca.perfil.entities.PerfilUsuario;
-import br.com.rts.eventmanager.seguranca.perfil.repositories.PerfilUsuarioRepository;
 import br.com.rts.eventmanager.seguranca.perfil.services.PerfilService;
+import br.com.rts.eventmanager.seguranca.perfilusuario.entities.PerfilUsuario;
+import br.com.rts.eventmanager.seguranca.perfilusuario.repositories.PerfilUsuarioRepository;
+import br.com.rts.eventmanager.seguranca.perfilusuario.services.PerfilUsuarioService;
 import br.com.rts.eventmanager.seguranca.usuario.entities.Usuario;
-import br.com.rts.eventmanager.seguranca.usuario.services.PerfilUsuarioService;
+import br.com.rts.eventmanager.seguranca.usuario.services.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +24,7 @@ public class PerfilUsuarioServiceImpl implements PerfilUsuarioService {
 
     private final PerfilUsuarioRepository repository;
     private final PerfilService perfilService;
+    private final UsuarioService usuarioService;
 
     @Override
     public Set<PerfilUsuario> getOrCreateInitialPerfil(Usuario usuario) {
@@ -42,8 +45,8 @@ public class PerfilUsuarioServiceImpl implements PerfilUsuarioService {
     }
 
     @Override
-    public List<PerfilUsuario> findAllByUsuarioIdAndInstituicao(Long id, Long instituicaoId) {
-        return repository.findAllByUsuarioIdAndInstituicao(id, instituicaoId);
+    public List<PerfilUsuario> findAllByUsuarioIdAndInstituicao(Long usuarioId, Long instituicaoId) {
+        return repository.findAllByUsuarioIdAndInstituicao(usuarioId, instituicaoId);
     }
 
     @Override
@@ -55,4 +58,35 @@ public class PerfilUsuarioServiceImpl implements PerfilUsuarioService {
                 .dateCreated(LocalDateTime.now())
                 .build());
     }
+
+    @Override
+    @Transactional
+    public void assignPerfilToInstituicao(Long usuarioId, Long instituicaoId, Long perfilId) {
+
+        Usuario usuario = usuarioService.getUsuarioById(usuarioId);
+
+        Perfil perfil = perfilService.get(perfilId);
+
+        // Verificar duplicados
+        if (!this.existsByUsuarioIdAndPerfilIdAndInstituicao(usuarioId, perfilId, instituicaoId))
+            this.create(perfil, usuario, instituicaoId);
+
+    }
+
+    @Override
+    @Transactional
+    public void assignPerfilToInstituicao(Long usuarioId, Long instituicaoId, List<Long> perfilIds) {
+
+        Usuario usuario = usuarioService.getUsuarioById(usuarioId);
+
+        perfilIds
+                .stream()
+                .map(perfilService::get)
+                .forEach(perfil -> {
+                    // Verificar duplicados
+                    if (!this.existsByUsuarioIdAndPerfilIdAndInstituicao(usuarioId, perfil.getId(), instituicaoId))
+                        this.create(perfil, usuario, instituicaoId);
+                });
+    }
+
 }

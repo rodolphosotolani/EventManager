@@ -4,11 +4,10 @@ import br.com.rts.eventmanager.catalogo.ProdutoDTO;
 import br.com.rts.eventmanager.catalogo.ProdutoFacade;
 import br.com.rts.eventmanager.catalogo.ServicoDTO;
 import br.com.rts.eventmanager.catalogo.ServicoFacade;
-import br.com.rts.eventmanager.financeiro.cliente.services.ClienteService;
 import br.com.rts.eventmanager.financeiro.ItemVendaDTO;
 import br.com.rts.eventmanager.financeiro.VendaDTO;
 import br.com.rts.eventmanager.financeiro.VendaSumarioDTO;
-import br.com.rts.eventmanager.financeiro.itemvenda.entities.ItemVenda;
+import br.com.rts.eventmanager.financeiro.cliente.services.ClienteService;
 import br.com.rts.eventmanager.financeiro.venda.entities.Venda;
 import br.com.rts.eventmanager.financeiro.venda.enumerators.FormaPagamentoEnum;
 import br.com.rts.eventmanager.financeiro.venda.mappers.VendaMapper;
@@ -32,6 +31,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
@@ -44,6 +44,7 @@ import java.util.stream.Collectors;
 @Log4j2
 @Controller
 @RequestMapping("/vendas")
+@SessionAttributes("venda")
 @RequiredArgsConstructor
 public class VendaController {
 
@@ -330,7 +331,8 @@ public class VendaController {
                                   @RequestParam(value = "clienteId", required = false) Long clienteId,
                                   final BindingResult bindingResult,
                                   final Model model,
-                                  final RedirectAttributes redirectAttributes) {
+                                  final RedirectAttributes redirectAttributes,
+                                  final SessionStatus sessionStatus) {
 
         Long tenantId = (Long) session.getAttribute("activeInstituicaoId");
         Long activeEvId = (Long) session.getAttribute("activeEventoId");
@@ -355,7 +357,7 @@ public class VendaController {
         service.recalculateTotal(venda);
 
         // Save
-        Venda vendaFinalizada = service.create(venda);
+        Venda vendaFinalizada = service.create(venda, tenantId, activeEvId);
         if (vendaFinalizada.getFormaPagamento() == FormaPagamentoEnum.ANOTAR_CONTA) {
             //TODO implementar logica para salvar o registro de Fluxo de caixa
         }
@@ -368,6 +370,7 @@ public class VendaController {
             redirectAttributes.addFlashAttribute("printPayload", printPayload);
         }
 
+        sessionStatus.setComplete();
         redirectAttributes.addFlashAttribute(WebUtils.MSG_SUCCESS, "Venda realizada com sucesso!");
         return "redirect:/vendas/pdv";
     }

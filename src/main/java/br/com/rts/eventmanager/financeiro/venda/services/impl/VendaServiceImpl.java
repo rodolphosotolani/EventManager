@@ -1,6 +1,6 @@
 package br.com.rts.eventmanager.financeiro.venda.services.impl;
 
-import br.com.rts.eventmanager.catalogo.EstoqueFacade;
+import br.com.rts.eventmanager.catalogo.*;
 import br.com.rts.eventmanager.financeiro.VendaSumarioDTO;
 import br.com.rts.eventmanager.financeiro.itemvenda.entities.ItemVenda;
 import br.com.rts.eventmanager.financeiro.venda.entities.Venda;
@@ -21,11 +21,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
-import br.com.rts.eventmanager.catalogo.ProdutoFacade;
-import br.com.rts.eventmanager.catalogo.ServicoFacade;
-import br.com.rts.eventmanager.catalogo.ProdutoDTO;
-import br.com.rts.eventmanager.catalogo.ServicoDTO;
 import java.util.Optional;
 
 @Service
@@ -74,9 +71,9 @@ public class VendaServiceImpl implements VendaService {
     }
 
     @Override
-    public Venda create(Venda request) {
+    public Venda create(Venda request, Long instituicaoId, Long eventoId) {
 
-        gestaoFacade.validateIfInstituicaoAndEventoIsValid(request.getInstituicao(), request.getEvento());
+        gestaoFacade.validateIfInstituicaoAndEventoIsValid(instituicaoId, eventoId);
 
         request.getItens()
                 .forEach(itemVenda -> {
@@ -84,11 +81,19 @@ public class VendaServiceImpl implements VendaService {
                     //TODO substituir por disparo de evento para outro modulo
                     estoqueFacade.subtrairEstoqueProduto(
                             itemVenda.getProduto(),
-                            request.getInstituicao(),
-                            request.getInstituicao(),
+                            instituicaoId,
+                            eventoId,
                             itemVenda.getQuantidade());
                 });
 
+        request.setInstituicao(instituicaoId);
+        request.setEvento(eventoId);
+        request.setVendido(true);
+        request.setDataVenda(LocalDateTime.now());
+
+        //TODO Deve registrar uma Movimentacao de estoque
+        //TODO Deve registrar um FLuxo de Caixa
+        //TODO Deve registrar a Conta do Cliente, caso a forma de Pagamento seja "Anotar na Conta"
         return repository.save(request);
     }
 

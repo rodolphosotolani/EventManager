@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{venda.checkout.finalizar_venda}">Finalizar Venda</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-4xl mx-auto py-8 px-4">
+            <div class="mb-8">
+                <a th:href="@{/vendas/pdv}" class="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span th:text="#{label.back_to_pdv}">Voltar para o PDV</span>
+                </a>
+                <h1 class="text-3xl font-black text-on-surface mt-4" style="letter-spacing: -0.02em;" th:text="#{venda.checkout.finalizar_venda}">Finalizar Venda</h1>
+                <p class="text-xs text-on-surface-variant mt-1" th:text="#{venda.checkout.selecione_o_cliente_a}">Selecione o cliente, a forma de pagamento e confirme a transação.</p>
+            </div>
+
+            <form th:action="@{/vendas/checkout/confirm}" method="post" id="checkout-form" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Left side: Form Settings (2/3 width) -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Resumo dos Itens card -->
+                    <div class="st-card">
+                        <h2 class="text-base font-bold text-on-surface mb-6" th:text="#{venda.checkout.resumo_dos_itens}">Resumo dos Itens</h2>
+                        <div class="space-y-6">
+                            <div th:each="item : ${cart.itens}" class="flex items-center justify-between border-b border-surface-container/30 pb-4 last:border-b-0 last:pb-0">
+                                <div>
+                                    <h4 class="font-bold text-on-surface text-sm lg:text-base" th:text="${(item.produto != null && item.produto.id != null) ? item.produto.nome : (item.servico != null && item.servico.id != null ? item.servico.nome : '')}">Combo Feijoada Completa</h4>
+                                    <p class="text-on-surface-variant text-xs mt-1" 
+                                       th:text="${(item.produto != null && item.produto.id != null) ? item.produto.especificacao : (item.servico != null && item.servico.id != null ? 'Serviço' : '')}">Especificação</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-on-surface font-bold text-sm lg:text-base" th:text="${'R$ ' + #numbers.formatDecimal(item.subTotal, 1, 2)}">R$ 45,00</p>
+                                    <p class="text-on-surface-variant text-xs" th:text="${'Qtd: ' + #numbers.formatInteger(item.quantidade, 2)}">Qtd: 01</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right side: Cart Summary & confirmation (1/3 width) -->
+                <div class="lg:col-span-1 space-y-6">
+                    <!-- Forma de pagamento card -->
+                    <div class="st-card">
+                        <h2 class="text-base font-bold text-on-surface mb-4" th:text="#{venda.checkout.forma_de_pagamento}">Forma de Pagamento</h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <label th:each="forma : ${formasPagamento}" 
+                                   th:for="${'forma_' + forma.name()}"
+                                   class="relative p-4 rounded-xl bg-surface-container-low hover:bg-surface-container-high cursor-pointer flex flex-col justify-between h-20 transition-all border border-transparent has-[:checked]:border-primary has-[:checked]:bg-surface-container-high">
+                                <input type="radio" 
+                                       th:id="${'forma_' + forma.name()}" 
+                                       name="formaPagamento" 
+                                       th:value="${forma.name()}"
+                                       class="absolute top-3 right-3 text-primary focus:ring-primary w-4 h-4"
+                                       th:checked="${cart.formaPagamento != null && forma.name() == cart.formaPagamento.name()}" />
+                                
+                                <div class="flex items-center gap-3 mt-auto">
+                                    <!-- Dinheiro Icon -->
+                                    <svg th:if="${forma.name() == 'DINHEIRO'}" class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                    <!-- PIX Icon -->
+                                    <svg th:if="${forma.name() == 'PIX'}" class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m0 11v3m8-7h-1m-11 0H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707-.707M12 5a7 7 0 100 14 7 7 0 000-14z" />
+                                    </svg>
+                                    <!-- Cartao Debito Icon -->
+                                    <svg th:if="${forma.name() == 'CARTAO_DEBITO'}" class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                    </svg>
+                                    <!-- Cartao Credito Icon -->
+                                    <svg th:if="${forma.name() == 'CARTAO_CREDITO'}" class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                    </svg>
+                                    <!-- Anotar na Conta Icon -->
+                                    <svg th:if="${forma.name() == 'ANOTAR_CONTA'}" class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                    </svg>
+                                    <span class="text-xs font-bold text-on-surface" th:text="${forma.descricao}">Dinheiro</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Cliente card selector -->
+                    <div id="cliente-card" class="st-card hidden">
+                        <h2 class="text-base font-bold text-on-surface mb-4" th:text="#{venda.checkout.identificacao_do_cliente}">Identificação do Cliente</h2>
+                        <div>
+                            <label for="clienteId" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{venda.checkout.cliente_opcional}">Cliente (Opcional)</label>
+                            <select id="clienteId" name="clienteId" class="st-input">
+                                <option value="" th:text="#{venda.checkout.consumidor_geral_nao_identificado}">Consumidor Geral (Não Identificado)</option>
+                                <option th:each="cli : ${clientes}" th:value="${cli.id}" th:text="${cli.nome + (cli.apelido != null && !#strings.isEmpty(cli.apelido) ? ' (' + cli.apelido + ')' : '')}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Campos de Troco para Dinheiro (em outro card separado) -->
+                    <div id="cash-payment-card" class="st-card hidden">
+                        <h2 class="text-base font-bold text-on-surface mb-4" th:text="#{venda.checkout.valores_recebidos}">Valores Recebidos</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="valorRecebido" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{venda.checkout.valor_recebido_do_cliente}">Valor Recebido do Cliente (R$)</label>
+                                <input type="text" id="valorRecebido" class="st-input" placeholder="R$ 0,00" />
+                            </div>
+                            <div class="p-4 bg-slate-50 rounded-xl flex items-center justify-between">
+                                <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" th:text="#{venda.checkout.troco_a_devolver}">Troco a Devolver</span>
+                                <span id="troco-display" class="text-lg font-black text-green-600" th:text="#{venda.checkout.r_000}">R$ 0,00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resumo do Pedido card -->
+                    <div class="st-card p-6 flex flex-col justify-between h-fit">
+                        <div>
+                            <h2 class="text-base font-bold text-on-surface border-b border-slate-100 pb-4 mb-4" th:text="#{venda.checkout.resumo_do_pedido}">Resumo do Pedido</h2>
+                            <div class="space-y-3 mb-6 max-h-[200px] overflow-y-auto pr-1">
+                                <div th:each="item : ${cart.itens}" class="flex justify-between items-center text-xs">
+                                    <span class="text-on-surface-variant truncate pr-2 flex-1" th:text="${item.quantidade + 'x ' + ((item.produto != null && item.produto.id != null) ? item.produto.nome : (item.servico != null && item.servico.id != null ? item.servico.nome : ''))}">1x Coca</span>
+                                    <span class="font-bold text-on-surface" th:text="${'R$ ' + #numbers.formatDecimal(item.subTotal, 1, 2)}">R$ 5,00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-slate-100 pt-4">
+                            <div class="flex items-center justify-between mb-6">
+                                <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider" th:text="#{venda.checkout.total_a_pagar}">Total a Pagar</span>
+                                <span id="total-pagar" th:data-total="${cart.valorTotal}" class="text-xl font-black text-primary" th:text="${'R$ ' + #numbers.formatDecimal(cart.valorTotal, 1, 2)}">R$ 0,00</span>
+                            </div>
+                            <button type="submit" class="st-button-primary w-full py-3 text-xs" th:text="#{venda.checkout.confirmar_venda}">Confirmar Venda</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Custom Scripts injected into the layout -->
+    <th:block layout:fragment="custom-scripts">
+        <script th:inline="javascript">
+            document.addEventListener('DOMContentLoaded', () => {
+                const radios = document.querySelectorAll('input[name="formaPagamento"]');
+                const cashCard = document.getElementById('cash-payment-card');
+                const valorRecebidoInput = document.getElementById('valorRecebido');
+                const trocoDisplay = document.getElementById('troco-display');
+                const totalPagarSpan = document.getElementById('total-pagar');
+                const totalPagar = parseFloat(totalPagarSpan.getAttribute('data-total'));
+                const checkoutForm = document.getElementById('checkout-form');
+                const clienteSelect = document.getElementById('clienteId');
+                const clienteCard = document.getElementById('cliente-card');
+
+                // Helper to format raw input to BRL currency mask (e.g. 5000 -> R$ 50,00)
+                const formatCurrency = (value) => {
+                    let cleanValue = value.replace(/\D/g, '');
+                    if (cleanValue === '') return '';
+                    let numberValue = parseFloat(cleanValue) / 100;
+                    return numberValue.toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                    });
+                };
+
+                // Helper to parse BRL formatted string back to float for calculations
+                const parseCurrencyToFloat = (formattedValue) => {
+                    if (!formattedValue) return 0;
+                    let clean = formattedValue.replace(/[^\d]/g, '');
+                    return parseFloat(clean) / 100 || 0;
+                };
+
+                // Function to toggle payment fields visibility
+                const togglePaymentFields = () => {
+                    const selectedRadio = document.querySelector('input[name="formaPagamento"]:checked');
+                    
+                    // Cash card toggle
+                    if (selectedRadio && selectedRadio.value === 'DINHEIRO') {
+                        cashCard.classList.remove('hidden');
+                        valorRecebidoInput.setAttribute('required', 'required');
+                    } else {
+                        cashCard.classList.add('hidden');
+                        valorRecebidoInput.removeAttribute('required');
+                        valorRecebidoInput.value = '';
+                        trocoDisplay.textContent = 'R$ 0,00';
+                        trocoDisplay.className = "text-lg font-black text-green-600";
+                    }
+
+                    // Cliente card toggle
+                    if (selectedRadio && selectedRadio.value === 'ANOTAR_CONTA') {
+                        clienteCard.classList.remove('hidden');
+                        clienteSelect.setAttribute('required', 'required');
+                    } else {
+                        clienteCard.classList.add('hidden');
+                        clienteSelect.removeAttribute('required');
+                        clienteSelect.value = '';
+                    }
+                };
+
+                // Add change listener to radio payment options
+                radios.forEach(radio => {
+                    radio.addEventListener('change', togglePaymentFields);
+                });
+
+                // Initialize visibility on load
+                togglePaymentFields();
+
+                // Live calculation of change
+                valorRecebidoInput.addEventListener('input', (e) => {
+                    // Apply BRL currency mask
+                    let formatted = formatCurrency(e.target.value);
+                    e.target.value = formatted;
+
+                    // Calculate change
+                    const valorRecebido = parseCurrencyToFloat(formatted);
+                    const troco = valorRecebido - totalPagar;
+
+                    if (troco < 0) {
+                        trocoDisplay.textContent = 'Valor insuficiente';
+                        trocoDisplay.className = "text-sm font-bold text-red-600";
+                    } else {
+                        trocoDisplay.textContent = 'R$ ' + troco.toFixed(2).replace('.', ',');
+                        trocoDisplay.className = "text-lg font-black text-green-600";
+                    }
+                });
+
+                // Validation on submit
+                checkoutForm.addEventListener('submit', (e) => {
+                    const selectedRadio = document.querySelector('input[name="formaPagamento"]:checked');
+                    
+                    // 0. Verify a payment method is selected
+                    if (!selectedRadio) {
+                        e.preventDefault();
+                        alert('Selecione uma forma de pagamento.');
+                        return;
+                    }
+
+                    // 1. Verify "Anotar na conta" requires a cliente
+                    if (selectedRadio.value === 'ANOTAR_CONTA') {
+                        if (!clienteSelect.value) {
+                            e.preventDefault();
+                            alert('Para a opção "Anotar na Conta", é necessário selecionar um cliente.');
+                            return;
+                        }
+                    }
+
+                    // 2. Verify cash amount is sufficient
+                    if (selectedRadio.value === 'DINHEIRO') {
+                        const valorRecebido = parseCurrencyToFloat(valorRecebidoInput.value);
+                        if (valorRecebido < totalPagar) {
+                            e.preventDefault();
+                            alert('O valor recebido em dinheiro é inferior ao total da venda.');
+                            return;
+                        }
+                    }
+                });
+            });
+        </script>
+    </th:block>
+</body>
+</html>

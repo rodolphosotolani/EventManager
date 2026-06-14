@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{estoque.add.entrada_de_estoque}">Entrada de Estoque</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-2xl mx-auto py-8 px-4">
+            <div class="mb-8">
+                <a th:href="@{/estoques}" class="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span th:text="#{label.back_to_stock}">Voltar para Estoque</span>
+                </a>
+                <h1  class="text-3xl font-black text-on-surface mt-4" style="letter-spacing: -0.02em;" th:text="#{estoque.add.entrada_de_estoque}">Entrada de Estoque</h1>
+                <p  class="text-xs text-on-surface-variant mt-1" th:text="#{estoque.add.registre_um_novo_lote}">Registre um novo lote de estoque para um produto do catálogo.</p>
+            </div>
+
+            <div class="st-card">
+                <form th:action="@{/estoques/add}" th:object="${estoque}" method="post" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="categoria" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{produto.add.categoria}">Categoria</label>
+                            <select id="categoria" class="st-input" required>
+                                <option value="" th:text="#{produto.add.selecione_uma_categoria}">Selecione uma Categoria</option>
+                                <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nome}"></option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="subCategoria" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{produto.add.subcategoria_opcional}">Subcategoria (Opcional)</label>
+                            <select id="subCategoria" class="st-input" disabled th:data-placeholder-nenhuma="#{produto.add.nenhuma_subcategoria}">
+                                <option value="" th:text="#{produto.add.nenhuma_subcategoria}">Nenhuma Subcategoria</option>
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label  for="produto" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{estoque.add.produto}">Produto</label>
+                            <select id="produto" th:field="*{produto}" class="st-input" required disabled th:data-placeholder-selecione="#{estoque.add.selecione_um_produto}">
+                                <option  value="" th:text="#{estoque.add.selecione_um_produto}">Selecione um Produto</option>
+                                <option th:each="prod : ${produtos}" th:value="${prod.id}" th:text="${prod.nome}"></option>
+                            </select>
+                            <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('produto')}" th:errors="*{produto}"></p>
+                        </div>
+
+                        <div>
+                            <label  for="quantidadeAtual" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{estoque.add.quantidade_do_lote}">Quantidade do Lote</label>
+                            <input type="number" id="quantidadeAtual" th:field="*{quantidadeAtual}" class="st-input" min="1" th:placeholder="#{estoque.add.ex_100}" required />
+                            <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('quantidadeAtual')}" th:errors="*{quantidadeAtual}"></p>
+                        </div>
+
+                        <div>
+                            <label  for="valorCompraUnitarioFormatado" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{estoque.add.custo_unitario_de_compra}">Custo Unitário de Compra (R$)</label>
+                            <input type="hidden" id="valorCompraUnitario" th:field="*{valorCompraUnitario}" />
+                            <input type="text" id="valorCompraUnitarioFormatado" class="st-input" th:placeholder="#{estoque.add.000}" />
+                            <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('valorCompraUnitario')}" th:errors="*{valorCompraUnitario}"></p>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-100 flex items-center justify-end gap-4">
+                        <a  th:href="@{/estoques}" class="text-xs font-bold text-on-surface-variant hover:text-on-surface transition-colors" th:text="#{label.cancel}">Cancelar</a>
+                        <button  type="submit" class="st-button-primary" th:text="#{estoque.add.salvar_lote}">Salvar Lote</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <th:block layout:fragment="custom-scripts">
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                aplicarMascaraMonetaria(document.getElementById('valorCompraUnitarioFormatado'), document.getElementById('valorCompraUnitario'));
+
+                const selectCategoria = document.getElementById('categoria');
+                const selectSubCategoria = document.getElementById('subCategoria');
+                const selectProduto = document.getElementById('produto');
+
+                const placeholderNenhuma = selectSubCategoria.getAttribute('data-placeholder-nenhuma') || 'Nenhuma Subcategoria';
+                const placeholderSelecione = selectProduto.getAttribute('data-placeholder-selecione') || 'Selecione um Produto';
+
+                async function carregarSubCategorias(categoriaId) {
+                    selectSubCategoria.innerHTML = '';
+                    selectSubCategoria.disabled = true;
+
+                    const optNenhuma = document.createElement('option');
+                    optNenhuma.value = '';
+                    optNenhuma.textContent = placeholderNenhuma;
+                    selectSubCategoria.appendChild(optNenhuma);
+
+                    if (!categoriaId) return;
+
+                    try {
+                        const response = await fetch(`/produtos/subcategorias?categoriaId=${categoriaId}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data && data.length > 0) {
+                                data.forEach(sub => {
+                                    const opt = document.createElement('option');
+                                    opt.value = sub.id;
+                                    opt.textContent = sub.nome;
+                                    selectSubCategoria.appendChild(opt);
+                                });
+                                selectSubCategoria.disabled = false;
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Erro ao carregar subcategorias:', error);
+                    }
+                }
+
+                async function carregarProdutos(categoriaId, subCategoriaId) {
+                    selectProduto.innerHTML = '';
+                    selectProduto.disabled = true;
+
+                    const optSelecione = document.createElement('option');
+                    optSelecione.value = '';
+                    optSelecione.textContent = placeholderSelecione;
+                    selectProduto.appendChild(optSelecione);
+
+                    if (!categoriaId) return;
+
+                    let url = `/produtos/filtrar?categoriaId=${categoriaId}`;
+                    if (subCategoriaId) {
+                        url += `&subCategoriaId=${subCategoriaId}`;
+                    }
+
+                    try {
+                        const response = await fetch(url);
+                        if (response.ok) {
+                            const data = await response.json();
+                            data.forEach(prod => {
+                                const opt = document.createElement('option');
+                                opt.value = prod.id;
+                                opt.textContent = prod.nome;
+                                selectProduto.appendChild(opt);
+                            });
+                            selectProduto.disabled = false;
+                        }
+                    } catch (error) {
+                        console.error('Erro ao carregar produtos:', error);
+                    }
+                }
+
+                selectCategoria.addEventListener('change', async (e) => {
+                    const catId = e.target.value;
+                    await carregarSubCategorias(catId);
+                    await carregarProdutos(catId, null);
+                });
+
+                selectSubCategoria.addEventListener('change', async (e) => {
+                    const catId = selectCategoria.value;
+                    const subId = e.target.value;
+                    await carregarProdutos(catId, subId);
+                });
+            });
+        </script>
+    </th:block>
+</body>
+</html>

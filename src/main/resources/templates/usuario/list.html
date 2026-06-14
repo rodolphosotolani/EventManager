@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{label.users}">Usuários</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-6xl mx-auto py-8 px-4">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+                <div>
+                    <span  class="st-chip-sales mb-2" th:text="#{label.security}">Segurança</span>
+                    <h1  class="text-4xl font-black text-on-surface" style="letter-spacing: -0.02em;" th:text="#{label.users}">Usuários</h1>
+                    <p  class="text-xs text-on-surface-variant font-medium mt-1" th:text="#{usuario.list.gerencie_os_usuarios_do}">Gerencie os usuários do sistema e suas permissões de acesso.</p>
+                </div>
+            </div>
+
+            <!-- Messages feedback -->
+            <div th:if="${msgSuccess}" class="mb-6 p-4 rounded-xl bg-green-50 text-green-700 text-xs font-semibold border border-green-100" th:text="${msgSuccess}"></div>
+            <div th:if="${msgInfo}" class="mb-6 p-4 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100" th:text="${msgInfo}"></div>
+            <div th:if="${msgError}" class="mb-6 p-4 rounded-xl bg-red-50 text-red-700 text-xs font-semibold border border-red-100" th:text="${msgError}"></div>
+
+            <!-- List Grid -->
+            <div class="st-card p-0 overflow-hidden">
+                <table class="min-w-full divide-y divide-slate-100">
+                    <thead class="bg-surface-container-low">
+                        <tr>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{usuario.list.usuario}">Usuário</th>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{usuario.list.email}">Email</th>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.status}">Status</th>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{usuario.list.ultimo_acesso}">Último Acesso</th>
+                            <th  class="px-6 py-4 text-right text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.actions}">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-50">
+                        <tr th:each="user : ${usuarios}">
+                            <td class="px-6 py-4 whitespace-nowrap text-xs text-on-surface">
+                                <div class="flex items-center gap-3">
+                                    <img th:if="${user.urlFoto != null && !#strings.isEmpty(user.urlFoto)}" 
+                                         th:src="${user.urlFoto}" 
+                                         class="w-8 h-8 rounded-full object-cover" 
+                                         alt="Foto do usuário" />
+                                    <div th:if="${user.urlFoto == null || #strings.isEmpty(user.urlFoto)}" 
+                                         class="w-8 h-8 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center font-bold text-xs uppercase"
+                                         th:text="${#strings.substring(user.nome, 0, 1)}">U</div>
+                                    <span class="font-bold" th:text="${user.nome}">Nome</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs text-on-surface-variant" th:text="${user.email}">user@email.com</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-semibold rounded-full"
+                                      th:classappend="${user.ativo} ? 'bg-green-50 text-green-800' : 'bg-slate-100 text-slate-500'"
+                                      th:text="${user.ativo} ? #{label.active} : #{label.inactive}">Ativo</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs text-on-surface-variant" 
+                                th:text="${user.ultimoAcesso != null ? #temporals.format(user.ultimoAcesso, 'dd/MM/yyyy HH:mm') : '-'}">01/01/2026 12:00</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium">
+                                <a  th:href="@{/usuarios-instituicao/edit/{id}(id=${user.id})}" class="text-primary hover:text-primary-container font-semibold transition-colors" th:text="#{usuario.list.associar_perfil}">Associar Usuário</a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(usuarios)}">
+                            <td  colspan="5" class="px-6 py-12 text-center text-xs text-on-surface-variant" th:text="#{usuario.list.nenhum_usuario_cadastrado}">Nenhum usuário cadastrado.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

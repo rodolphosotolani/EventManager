@@ -1,0 +1,140 @@
+<th:block th:fragment="scripts" xmlns:th="http://www.thymeleaf.org">
+    <!-- Main UI Interactivity Script -->
+    <script>
+        // Função utilitária global para aplicar máscara de telefone brasileiro (fixo/celular)
+        function aplicarMascaraTelefone(input) {
+            if (!input) return;
+
+            const formatar = (value) => {
+                value = value.replace(/\D/g, '');
+                if (value.length > 11) value = value.slice(0, 11);
+                if (value.length === 0) return '';
+                if (value.length <= 2) return '(' + value;
+                if (value.length <= 6) return '(' + value.slice(0, 2) + ') ' + value.slice(2);
+                if (value.length <= 10) return '(' + value.slice(0, 2) + ') ' + value.slice(2, 6) + '-' + value.slice(6);
+                return '(' + value.slice(0, 2) + ') ' + value.slice(2, 7) + '-' + value.slice(7);
+            };
+
+            // Formata o valor inicial do campo
+            if (input.value) {
+                input.value = formatar(input.value);
+            }
+
+            // Escuta a digitação do usuário
+            input.addEventListener('input', (e) => {
+                e.target.value = formatar(e.target.value);
+            });
+        }
+
+        // Função utilitária global para aplicar máscara monetária de Reais (R$)
+        function aplicarMascaraMonetaria(inputVisivel, inputOculto) {
+            if (!inputVisivel || !inputOculto) return;
+
+            const formatarParaExibicao = (valorNumerico) => {
+                if (valorNumerico === null || valorNumerico === undefined || valorNumerico === '') return '';
+                return Number(valorNumerico).toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            };
+
+            // Inicialização: se o oculto já vier preenchido do backend, formata no visível
+            if (inputOculto.value) {
+                inputVisivel.value = formatarParaExibicao(inputOculto.value);
+            }
+
+            inputVisivel.addEventListener('input', (e) => {
+                let rawValue = e.target.value.replace(/\D/g, '');
+                if (!rawValue) {
+                    e.target.value = '';
+                    inputOculto.value = '';
+                    return;
+                }
+
+                let valorCentavos = parseFloat(rawValue) / 100;
+                e.target.value = valorCentavos.toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+                inputOculto.value = valorCentavos.toFixed(2);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('app-sidebar');
+            const header = document.getElementById('app-header');
+            const mainContent = document.getElementById('main-content-wrapper');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const toggleIcon = document.getElementById('toggle-icon');
+            const brandText = document.getElementById('brand-text');
+            const menuLabels = document.querySelectorAll('.menu-label');
+            const userMenuBtn = document.getElementById('user-menu-button');
+            const userDropdown = document.getElementById('user-dropdown');
+
+            // 1. Collapsible Sidebar Logic
+            const setSidebarState = (collapsed) => {
+                if (collapsed) {
+                    sidebar.classList.remove('w-64');
+                    sidebar.classList.add('w-20');
+                    header.style.left = '5rem';
+                    mainContent.style.marginLeft = '5rem';
+                    brandText.classList.add('opacity-0');
+                    setTimeout(() => brandText.classList.add('hidden'), 200);
+                    menuLabels.forEach(el => {
+                        el.classList.add('opacity-0');
+                        setTimeout(() => el.classList.add('hidden'), 200);
+                    });
+                    toggleIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7" />`;
+                } else {
+                    sidebar.classList.remove('w-20');
+                    sidebar.classList.add('w-64');
+                    header.style.left = '16rem';
+                    mainContent.style.marginLeft = '16rem';
+                    brandText.classList.remove('hidden');
+                    setTimeout(() => brandText.classList.remove('opacity-0'), 50);
+                    menuLabels.forEach(el => {
+                        el.classList.remove('hidden');
+                        setTimeout(() => el.classList.remove('opacity-0'), 50);
+                    });
+                    toggleIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />`;
+                }
+            };
+
+            // Restore from localStorage
+            let isCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+            setSidebarState(isCollapsed);
+
+            sidebarToggle.addEventListener('click', () => {
+                isCollapsed = !isCollapsed;
+                localStorage.setItem('sidebar-collapsed', isCollapsed);
+                setSidebarState(isCollapsed);
+            });
+
+            // 2. User Profile Dropdown Toggle
+            userMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!document.getElementById('user-profile-menu').contains(e.target)) {
+                    userDropdown.classList.add('hidden');
+                }
+            });
+
+            // 3. HTMX Hook to reinitialize listeners after fragment swaps if needed
+            document.body.addEventListener('htmx:afterSwap', function(evt) {
+                console.log('HTMX content updated successfully.');
+            });
+
+            // 4. HTMX Hook to inject CSRF token header into AJAX requests
+            document.body.addEventListener('htmx:configRequest', function(evt) {
+                const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+                const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+                if (csrfHeader && csrfToken) {
+                    evt.detail.headers[csrfHeader] = csrfToken;
+                }
+            });
+        });
+    </script>
+</th:block>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{venda.pdv.terminal_pdv}">Terminal PDV</title>
+</head>
+<body>
+    <main layout:fragment="content" class="h-full">
+        <div class="max-w-7xl mx-auto py-6 px-4">
+            <!-- Warning/Alert when event is missing -->
+            <div th:if="${activeEvent == null}" class="p-6 rounded-2xl bg-amber-50 text-amber-800 border border-amber-200 shadow-sm flex flex-col gap-3 max-w-xl mx-auto my-12">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <h3 class="font-bold text-sm uppercase tracking-wide" th:text="#{venda.pdv.atencao_nenhum_evento_ativo}">Atenção: Nenhum Evento Ativo</h3>
+                </div>
+                <p class="text-xs" th:utext="#{venda.pdv.no_active_event_warning}">Não existe nenhum evento ativo configurado para esta instituição. Para realizar vendas ou lançar itens no PDV, é necessário que um usuário <strong>Master</strong> ou <strong>Administrador</strong> crie um evento.</p>
+                <div class="mt-4 flex gap-4" sec:authorize="hasAnyAuthority('ROLE_MASTER')">
+                    <a th:href="@{/eventos/add}" class="st-button-primary text-xs py-2 px-6" th:text="#{venda.pdv.criar_evento}">Criar Evento</a>
+                </div>
+            </div>
+
+            <!-- Full View when activeEvent exists -->
+            <div th:if="${activeEvent != null}" class="space-y-10">
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                    <div>
+                        <span class="st-chip-sales mb-2 inline-block" th:text="${activeEvent.nome}">Evento Demo</span>
+                        <h1 class="text-4xl font-black text-on-surface" style="letter-spacing: -0.02em;" th:text="#{venda.pdv.terminal_pdv}">Terminal PDV</h1>
+                        <p class="text-xs text-on-surface-variant font-medium mt-1" th:text="#{venda.pdv.selecione_os_produtos_abaixo}">Selecione os produtos abaixo para montar a venda do cliente.</p>
+                    </div>
+                </div>
+
+
+                <!-- Product Grid Section -->
+                <section class="space-y-8">
+                    <div class="flex justify-between items-end border-b border-outline-variant/10 pb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold tracking-tight text-stone-900" th:text="#{produto.list.produtos_cadastrados_para_venda}">Cardápio do Dia</h3>
+                            <p class="text-xs text-stone-500 italic mt-1" th:text="#{venda.pdv.selecione_os_produtos_abaixo}">Selecione os produtos para adicionar ao pedido atual.</p>
+                        </div>
+                        <span class="text-xs font-bold uppercase tracking-widest text-orange-700 bg-orange-100 px-3 py-1 rounded-full">Menu Aberto</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Product Card -->
+                        <div th:each="prod : ${produtos}" class="bg-surface-container-lowest p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between min-h-[180px] border border-slate-100">
+                            <div>
+                                <div class="flex justify-between items-start gap-4 mb-4">
+                                    <h4 class="text-lg font-bold text-stone-800 leading-snug">
+                                        <span th:text="${prod.nome}">Nome do Produto</span>
+                                        <span class="block text-xs font-medium text-stone-400 mt-1" th:text="${prod.especificacao != null && !#strings.isEmpty(prod.especificacao) ? prod.especificacao : ''}">Especificação</span>
+                                    </h4>
+                                    <div class="text-xl font-black text-primary" th:text="${'R$ ' + #numbers.formatDecimal(prod.valorVendaUnitario, 1, 2)}">R$ 0,00</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between mt-auto pt-4 border-t border-stone-100/50">
+                                <span class="text-xs font-bold uppercase tracking-widest text-stone-500">Quantidade</span>
+                                <div th:id="'product-qty-container-' + ${prod.id}" class="flex items-center bg-surface-container-low rounded-full px-2 py-1">
+                                    <button th:hx-post="@{/vendas/pdv/add-item(produtoId=${prod.id},quantidade=${(itemQuantities.getOrDefault(prod.id, 0)) - 1})}"
+                                            hx-target="#cart-response-container"
+                                            class="w-8 h-8 flex items-center justify-center text-stone-600 hover:text-orange-600 transition-colors border-none bg-transparent cursor-pointer">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                                        </svg>
+                                    </button>
+                                    <span class="w-8 text-center font-bold text-sm" th:text="${itemQuantities.getOrDefault(prod.id, 0)}">0</span>
+                                    <button th:hx-post="@{/vendas/pdv/add-item(produtoId=${prod.id},quantidade=${(itemQuantities.getOrDefault(prod.id, 0)) + 1})}"
+                                            hx-target="#cart-response-container"
+                                            class="w-8 h-8 flex items-center justify-center text-stone-600 hover:text-orange-600 transition-colors border-none bg-transparent cursor-pointer">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(produtos)}" class="col-span-full py-12 text-center text-xs text-on-surface-variant" th:text="#{venda.pdv.nenhum_produto_cadastrado_para}">Nenhum produto cadastrado para este evento.</div>
+                </section>
+
+                <!-- Services Grid Section -->
+                <section class="space-y-8 mt-12">
+                    <div class="flex justify-between items-end border-b border-outline-variant/10 pb-4">
+                        <div>
+                            <h3 class="text-2xl font-bold tracking-tight text-stone-900" th:text="#{servico.list.servicos_cadastrados_para_venda}">Serviços do Dia</h3>
+                            <p class="text-xs text-stone-500 italic mt-1" th:text="#{venda.pdv.selecione_os_servicos_abaixo}">Selecione os serviços para adicionar ao pedido atual.</p>
+                        </div>
+                        <span class="text-xs font-bold uppercase tracking-widest text-blue-700 bg-blue-100 px-3 py-1 rounded-full">Serviços Disponíveis</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Service Card -->
+                        <div th:each="srv : ${servicos}" class="bg-surface-container-lowest p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between min-h-[180px] border border-slate-100">
+                            <div>
+                                <div class="flex justify-between items-start gap-4 mb-4">
+                                    <h4 class="text-lg font-bold text-stone-800 leading-snug">
+                                        <span th:text="${srv.nome}">Nome do Serviço</span>
+                                        <span class="block text-xs font-medium text-stone-400 mt-1" th:text="${srv.subCategoria != null ? srv.subCategoria.nome : ''}">Subcategoria</span>
+                                    </h4>
+                                    <div class="text-xl font-black text-primary" th:text="${'R$ ' + #numbers.formatDecimal(srv.valorVenda, 1, 2)}">R$ 0,00</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between mt-auto pt-4 border-t border-stone-100/50">
+                                <span class="text-xs font-bold uppercase tracking-widest text-stone-500">Quantidade</span>
+                                <div th:id="'servico-qty-container-' + ${srv.id}" class="flex items-center bg-surface-container-low rounded-full px-2 py-1">
+                                    <button th:hx-post="@{/vendas/pdv/add-item(servicoId=${srv.id},quantidade=${(itemServicoQuantities.getOrDefault(srv.id, 0)) - 1})}"
+                                            hx-target="#cart-response-container"
+                                            class="w-8 h-8 flex items-center justify-center text-stone-600 hover:text-orange-600 transition-colors border-none bg-transparent cursor-pointer">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                                        </svg>
+                                    </button>
+                                    <span class="w-8 text-center font-bold text-sm" th:text="${itemServicoQuantities.getOrDefault(srv.id, 0)}">0</span>
+                                    <button th:hx-post="@{/vendas/pdv/add-item(servicoId=${srv.id},quantidade=${(itemServicoQuantities.getOrDefault(srv.id, 0)) + 1})}"
+                                            hx-target="#cart-response-container"
+                                            class="w-8 h-8 flex items-center justify-center text-stone-600 hover:text-orange-600 transition-colors border-none bg-transparent cursor-pointer">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(servicos)}" class="col-span-full py-12 text-center text-xs text-on-surface-variant" th:text="#{venda.pdv.nenhum_servico_cadastrado_para}">Nenhum serviço cadastrado para este evento.</div>
+                    </div>
+                </section>
+
+                <!-- Bottom Floating Summary Card -->
+                <div class="fixed bottom-10 right-10 pointer-events-none flex justify-end z-50">
+                    <div id="cart-summary" class="st-floating-summary p-6 rounded-lg shadow-2xl pointer-events-auto flex items-center gap-12 max-w-2xl">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] uppercase tracking-widest font-bold text-stone-400">Total do Pedido</span>
+                            <span class="text-2xl font-black tracking-tighter text-orange-500" th:text="${'R$ ' + #numbers.formatDecimal(cart.valorTotal, 1, 2)}">R$ 0,00</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <button hx-post="/vendas/pdv/clear" hx-target="#cart-response-container"
+                                    class="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all border-none cursor-pointer">Limpar</button>
+                            <a th:href="@{/vendas/checkout}" th:classappend="${#lists.isEmpty(cart.itens)} ? 'opacity-50 pointer-events-none' : ''"
+                               class="bg-gradient-to-br from-primary to-primary-container px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all no-underline text-white font-bold">Finalizar Venda</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="h-24"></div> <!-- Spacer for floating footer -->
+            </div>
+
+            <!-- Hidden container for HTMX response and OOB updates -->
+            <div id="cart-response-container" class="hidden"></div>
+
+            <!-- Response Fragment loaded by HTMX -->
+            <div th:fragment="cart-panel" th:if="${isHtmx}" class="hidden">
+                <!-- 1. OOB Swap for the Bottom Floating Summary -->
+                <div id="cart-summary" hx-swap-oob="true" class="st-floating-summary p-6 rounded-lg shadow-2xl pointer-events-auto flex items-center gap-12 max-w-2xl">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] uppercase tracking-widest font-bold text-stone-400">Total do Pedido</span>
+                        <span class="text-2xl font-black tracking-tighter text-orange-500" th:text="${'R$ ' + #numbers.formatDecimal(cart.valorTotal, 1, 2)}">R$ 0,00</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button hx-post="/vendas/pdv/clear" hx-target="#cart-response-container"
+                                class="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest transition-all border-none cursor-pointer">Limpar</button>
+                        <a th:href="@{/vendas/checkout}" th:classappend="${#lists.isEmpty(cart.itens)} ? 'opacity-50 pointer-events-none' : ''"
+                           class="bg-gradient-to-br from-primary to-primary-container px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all no-underline text-white font-bold">Finalizar Venda</a>
+                    </div>
+                </div>
+
+                <!-- 2. OOB Swap for the quantity selector of the updated product -->
+                <div th:if="${lastUpdatedProdutoId != null}"
+                     th:id="'product-qty-container-' + ${lastUpdatedProdutoId}"
+                     hx-swap-oob="true"
+                     class="flex items-center bg-surface-container-low rounded-full px-2 py-1">
+                     <button th:hx-post="@{/vendas/pdv/add-item(produtoId=${lastUpdatedProdutoId},quantidade=${(itemQuantities.getOrDefault(lastUpdatedProdutoId, 0)) - 1})}"
+                             hx-target="#cart-response-container"
+                             class="w-8 h-8 flex items-center justify-center text-stone-600 hover:text-orange-600 transition-colors border-none bg-transparent cursor-pointer">
+                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                         </svg>
+                     </button>
+                     <span class="w-8 text-center font-bold text-sm" th:text="${itemQuantities.getOrDefault(lastUpdatedProdutoId, 0)}">0</span>
+                     <button th:hx-post="@{/vendas/pdv/add-item(produtoId=${lastUpdatedProdutoId},quantidade=${(itemQuantities.getOrDefault(lastUpdatedProdutoId, 0)) + 1})}"
+                             hx-target="#cart-response-container"
+                             class="w-8 h-8 flex items-center justify-center text-stone-600 hover:text-orange-600 transition-colors border-none bg-transparent cursor-pointer">
+                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                         </svg>
+                     </button>
+                </div>
+
+                <!-- 2b. OOB Swap for the quantity selector of the updated service -->
+                <div th:if="${lastUpdatedServicoId != null}"
+                     th:id="'servico-qty-container-' + ${lastUpdatedServicoId}"
+                     hx-swap-oob="true"
+                     class="flex items-center bg-surface-container-low rounded-full px-2 py-1">
+                     <button th:hx-post="@{/vendas/pdv/add-item(servicoId=${lastUpdatedServicoId},quantidade=${(itemServicoQuantities.getOrDefault(lastUpdatedServicoId, 0)) - 1})}"
+                             hx-target="#cart-response-container"
+                             class="w-8 h-8 flex items-center justify-center text-stone-600 hover:text-orange-600 transition-colors border-none bg-transparent cursor-pointer">
+                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                         </svg>
+                     </button>
+                     <span class="w-8 text-center font-bold text-sm" th:text="${itemServicoQuantities.getOrDefault(lastUpdatedServicoId, 0)}">0</span>
+                     <button th:hx-post="@{/vendas/pdv/add-item(servicoId=${lastUpdatedServicoId},quantidade=${(itemServicoQuantities.getOrDefault(lastUpdatedServicoId, 0)) + 1})}"
+                             hx-target="#cart-response-container"
+                             class="w-8 h-8 flex items-center justify-center text-stone-600 hover:text-orange-600 transition-colors border-none bg-transparent cursor-pointer">
+                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                         </svg>
+                     </button>
+                </div>
+
+                <!-- 3. If the cart was cleared, we can return OOB swaps for all product card quantity selectors to reset them to 0 -->
+                <th:block th:if="${cartCleared}">
+                    <div th:each="prod : ${produtos}"
+                         th:id="'product-qty-container-' + ${prod.id}"
+                         hx-swap-oob="true"
+                         class="flex items-center bg-surface-container-low rounded-full px-2 py-1">
+                         <button th:hx-post="@{/vendas/pdv/add-item(produtoId=${prod.id},quantidade=-1)}"
+                                 hx-target="#cart-response-container"
+                                 class="w-8 h-8 flex items-center justify-center text-stone-600 hover:text-orange-600 transition-colors border-none bg-transparent cursor-pointer">
+                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                             </svg>
+                         </button>
+                         <span class="w-8 text-center font-bold text-sm">0</span>
+                         <button th:hx-post="@{/vendas/pdv/add-item(produtoId=${prod.id},quantidade=1)}"
+                                 hx-target="#cart-response-container"
+                                 class="w-8 h-8 flex items-center justify-center text-stone-600 hover:text-orange-600 transition-colors border-none bg-transparent cursor-pointer">
+                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                             </svg>
+                         </button>
+                    </div>
+
+                    <div th:each="srv : ${servicos}"
+                         th:id="'servico-qty-container-' + ${srv.id}"
+                         hx-swap-oob="true"
+                         class="flex items-center bg-surface-container-low rounded-full px-2 py-1">
+                         <button th:hx-post="@{/vendas/pdv/add-item(servicoId=${srv.id},quantidade=-1)}"
+                                 hx-target="#cart-response-container"
+                                 class="w-8 h-8 flex items-center justify-center text-stone-600 hover:text-orange-600 transition-colors border-none bg-transparent cursor-pointer">
+                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                             </svg>
+                         </button>
+                         <span class="w-8 text-center font-bold text-sm">0</span>
+                         <button th:hx-post="@{/vendas/pdv/add-item(servicoId=${srv.id},quantidade=1)}"
+                                 hx-target="#cart-response-container"
+                                 class="w-8 h-8 flex items-center justify-center text-stone-600 hover:text-orange-600 transition-colors border-none bg-transparent cursor-pointer">
+                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                             </svg>
+                         </button>
+                    </div>
+                </th:block>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

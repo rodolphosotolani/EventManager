@@ -1,0 +1,201 @@
+<aside id="app-sidebar" th:fragment="sidebar"
+       class="fixed top-0 left-0 bottom-0 z-40 w-64 bg-inverse-surface/95 backdrop-blur-xl text-white transition-all duration-300 ease-in-out flex flex-col justify-between"
+       xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <!-- Top Brand Area -->
+    <div>
+        <div class="h-16 flex items-center justify-between px-6 border-b border-white/5">
+            <div class="flex items-center gap-3 overflow-hidden">
+                <!-- SVG Logo representing Event Manager -->
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-primary-container flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                              d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <span id="brand-text" class="font-bold text-lg tracking-tight transition-opacity duration-200">EventManager</span>
+            </div>
+
+            <!-- Sidebar Collapse Toggle Button -->
+            <button id="sidebar-toggle"
+                    class="p-1 rounded-md hover:bg-white/10 text-white/70 hover:text-white transition-colors">
+                <svg id="toggle-icon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Sidebar Navigation Menu -->
+        <nav class="mt-6 px-3 space-y-1 flex-1 overflow-y-auto max-h-[calc(100vh-14rem)]">
+            <!-- Dashboard Item -->
+            <a th:href="@{/dashboard}" class="st-sidebar-item group"
+               th:classappend="${pageTitle == 'Dashboard' ? 'active' : ''}">
+
+                <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                <span  class="menu-label transition-opacity duration-200" th:text="#{label.dashboard}">Dashboard</span>
+            </a>
+
+            <!-- Terminal PDV -->
+            <a th:href="@{/vendas/pdv}" class="st-sidebar-item group"
+               th:classappend="${pageTitle == 'Terminal PDV' ? 'active' : ''}"
+               sec:authorize="hasAnyAuthority('ROLE_MASTER', 'VENDAS_ACESSO')">
+
+                <svg class=" w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+            </svg>
+            <span  class="menu-label transition-opacity duration-200" th:text="#{fragments.sidebar.terminal_pdv}">Terminal PDV</span>
+            </a>
+
+            <!-- Relatório de Vendas -->
+            <a th:href="@{/vendas}" class="st-sidebar-item group"
+               th:classappend="${pageTitle == 'Relatório de Vendas' ? 'active' : ''}"
+               sec:authorize="hasAnyAuthority('ROLE_MASTER', 'VENDAS_ACESSO')">
+
+                <svg class=" w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+            </svg>
+            <span  class="menu-label transition-opacity duration-200" th:text="#{fragments.sidebar.historico_de_vendas}">Histórico de Vendas</span>
+            </a>
+
+            <!-- Categorias -->
+            <a th:href="@{/categorias}" class="st-sidebar-item group"
+               th:classappend="${pageTitle == 'Categorias' ? 'active' : ''}"
+               sec:authorize="hasAnyAuthority('ROLE_MASTER', 'CATEGORIAS_ACESSO')">
+                <svg class=" w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+            </svg>
+            <span  class="menu-label transition-opacity duration-200" th:text="#{label.categories}">Categorias</span>
+            </a>
+
+            <!-- Produtos -->
+            <a th:href="@{/produtos}" class="st-sidebar-item group"
+               th:classappend="${pageTitle == 'Produtos' ? 'active' : ''}"
+               sec:authorize="hasAnyAuthority('ROLE_MASTER', 'PRODUTOS_ACESSO')">
+
+                <svg class=" w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+            </svg>
+            <span  class="menu-label transition-opacity duration-200" th:text="#{label.products}">Produtos</span>
+            </a>
+
+            <!-- Serviços -->
+            <a th:href="@{/servicos}" class="st-sidebar-item group"
+               th:classappend="${pageTitle == 'Serviços' ? 'active' : ''}"
+               sec:authorize="hasAnyAuthority('ROLE_MASTER', 'SERVICOS_ACESSO', 'SERVICOS_LISTAR')">
+
+                <svg class=" w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+            <span  class="menu-label transition-opacity duration-200" th:text="#{label.services}">Serviços</span>
+            </a>
+
+            <!-- Estoques -->
+            <a th:href="@{/estoques}" class="st-sidebar-item group"
+               th:classappend="${pageTitle == 'Estoque' ? 'active' : ''}"
+               sec:authorize="hasAnyAuthority('ROLE_MASTER', 'ESTOQUES_ACESSO')">
+
+                <svg class=" w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+            </svg>
+            <span  class="menu-label transition-opacity duration-200" th:text="#{label.stock}">Estoque</span>
+            </a>
+
+            <!-- Clientes -->
+            <a th:href="@{/clientes}" class="st-sidebar-item group"
+               th:classappend="${pageTitle == 'Clientes' ? 'active' : ''}"
+               sec:authorize="hasAnyAuthority('ROLE_MASTER', 'CLIENTES_ACESSO')">
+
+                <svg class=" w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 005.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            <span  class="menu-label transition-opacity duration-200" th:text="#{label.clients}">Clientes</span>
+            </a>
+
+            <!-- Admin Area -->
+            <div class="pt-4 pb-2 px-3 border-t border-white/5 mt-4" sec:authorize="hasAnyAuthority('ROLE_MASTER', 'INSTITUICOES_ACESSO', 'EVENTOS_ACESSO', 'USUARIOS_ACESSO', 'PERFIS_ACESSO', 'PERMISSOES_ACESSO')">
+                <span  class="text-[10px] font-black text-white/30 uppercase tracking-widest menu-label" th:text="#{label.security}">Segurança</span>
+
+                <!-- Instituições -->
+                <a th:href="@{/instituicoes}" class="st-sidebar-item group"
+                   th:classappend="${pageTitle == 'Instituições' ? 'active' : ''}"
+                   sec:authorize="hasAnyAuthority('ROLE_MASTER', 'INSTITUICOES_ACESSO')">
+
+                <svg class=" w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                <span  class="menu-label transition-opacity duration-200" th:text="#{label.institutions}">Instituições</span>
+                </a>
+
+                <!-- Eventos -->
+                <a th:href="@{/eventos}" class="st-sidebar-item group"
+                   th:classappend="${pageTitle == 'Eventos' ? 'active' : ''}"
+                   sec:authorize="hasAnyAuthority('ROLE_MASTER', 'EVENTOS_ACESSO')">
+
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span  class="menu-label transition-opacity duration-200" th:text="#{label.events}">Eventos</span>
+                </a>
+
+                <!-- Usuários -->
+                <a th:href="@{/usuarios}" class="st-sidebar-item group"
+                   th:classappend="${pageTitle == 'Usuários' ? 'active' : ''}"
+                   sec:authorize="hasAnyAuthority('ROLE_MASTER', 'USUARIOS_ACESSO')">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    <span  class="menu-label transition-opacity duration-200" th:text="#{label.users}">Usuários</span>
+                </a>
+
+                <!-- Perfis de Acesso -->
+                <a th:href="@{/perfis}" class="st-sidebar-item group"
+                   th:classappend="${pageTitle == 'Perfis de Acesso' ? 'active' : ''}"
+                   sec:authorize="hasAnyAuthority('ROLE_MASTER', 'PERFIS_ACESSO')">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                    <span  class="menu-label transition-opacity duration-200" th:text="#{label.profiles}">Perfis</span>
+                </a>
+
+                <!-- Permissões de Acesso -->
+                <a th:href="@{/permissoes}" class="st-sidebar-item group"
+                   th:classappend="${pageTitle == 'Permissões de Acesso' ? 'active' : ''}"
+                   sec:authorize="hasAnyAuthority('ROLE_MASTER', 'PERMISSOES_ACESSO')">
+                    <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                    </svg>
+                    <span  class="menu-label transition-opacity duration-200" th:text="#{label.permissions}">Permissões</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Bottom Tenant Info & User Quick Profile (Compact when collapsed) -->
+    <div class="p-4 border-t border-white/5 bg-black/10">
+        <div class="flex items-center gap-3 overflow-hidden">
+            <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                <span class="font-bold text-white uppercase text-sm"
+                      th:text="${tenant != null ? (#strings.length(tenant.nome) >= 2 ? #strings.substring(tenant.nome, 0, 2) : tenant.nome) : 'N/A'}">EV</span>
+            </div>
+            <div class="menu-label flex flex-col transition-opacity duration-200">
+                <span class="text-sm font-semibold truncate"
+                      th:text="${tenant != null ? tenant.nome : 'Nenhuma'}">Instituição Demo</span>
+                <span  class="text-xs text-white/50 truncate" th:text="#{fragments.sidebar.workspace_ativo}">Workspace Ativo</span>
+            </div>
+        </div>
+    </div>
+</aside>

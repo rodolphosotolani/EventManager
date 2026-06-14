@@ -1,13 +1,13 @@
 package br.com.rts.eventmanager.seguranca.usuario.entities;
 
-import br.com.rts.eventmanager.seguranca.perfil.entities.PerfilUsuario;
+import br.com.rts.eventmanager.seguranca.perfilusuario.entities.PerfilUsuario;
+import br.com.rts.eventmanager.seguranca.usuarioinstituicao.entities.UsuarioInstituicao;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;

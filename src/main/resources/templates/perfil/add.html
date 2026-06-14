@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{perfil.add.novo_perfil}">Novo Perfil</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-4xl mx-auto py-8 px-4">
+            <div class="mb-8">
+                <a th:href="@{/perfis}" class="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span th:text="#{label.back_to_profiles}">Voltar para Perfis</span>
+                </a>
+                <h1  class="text-3xl font-black text-on-surface mt-4" style="letter-spacing: -0.02em;" th:text="#{perfil.add.novo_perfil}">Novo Perfil</h1>
+                <p  class="text-xs text-on-surface-variant mt-1" th:text="#{perfil.add.defina_o_nome_do}">Defina o nome do perfil e selecione as permissões de acesso associadas.</p>
+            </div>
+
+            <div class="st-card">
+                <form th:action="@{/perfis/add}" th:object="${perfil}" method="post" class="space-y-8">
+                    <div>
+                        <label  for="nome" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{perfil.add.nome_do_perfil}">Nome do Perfil</label>
+                        <input type="text" id="nome" th:field="*{nome}" class="st-input" th:placeholder="#{perfil.add.ex_operador_de_caixa}" required />
+                        <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></p>
+                    </div>
+
+                    <div>
+                        <label  class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-4" th:text="#{perfil.add.permissoes_de_acesso}">Permissões de Acesso</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                            <div th:each="perm : ${permissoes}" class="flex items-start gap-3 p-3 bg-surface-container-low rounded-xl hover:bg-surface-container-high transition-colors">
+                                <input type="checkbox" name="permissaoIds" th:value="${perm.id}" th:id="${'perm_' + perm.id}" class="rounded border-slate-300 text-primary focus:ring-primary w-4 h-4 mt-0.5" />
+                                <label th:for="${'perm_' + perm.id}" class="text-xs cursor-pointer select-none flex-1">
+                                    <span class="font-bold block text-on-surface" th:text="${perm.tela}">TELA</span>
+                                    <span class="text-[10px] text-on-surface-variant" th:text="${perm.acao.descricao}">Ação</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-100 flex items-center justify-end gap-4">
+                        <a  th:href="@{/perfis}" class="text-xs font-bold text-on-surface-variant hover:text-on-surface transition-colors" th:text="#{label.cancel}">Cancelar</a>
+                        <button  type="submit" class="st-button-primary" th:text="#{perfil.add.salvar_perfil}">Salvar Perfil</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

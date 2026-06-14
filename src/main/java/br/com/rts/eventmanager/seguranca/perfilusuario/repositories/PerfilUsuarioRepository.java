@@ -1,6 +1,6 @@
-package br.com.rts.eventmanager.seguranca.perfil.repositories;
+package br.com.rts.eventmanager.seguranca.perfilusuario.repositories;
 
-import br.com.rts.eventmanager.seguranca.perfil.entities.PerfilUsuario;
+import br.com.rts.eventmanager.seguranca.perfilusuario.entities.PerfilUsuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{label.services}">Serviços</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-6xl mx-auto py-8 px-4">
+            <!-- Warning/Alert when event is missing -->
+            <div th:if="${activeEvent == null}" class="p-6 rounded-2xl bg-amber-50 text-amber-800 border border-amber-200 shadow-sm flex flex-col gap-3 max-w-xl mx-auto my-12">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <h3 class="font-bold text-sm uppercase tracking-wide" th:text="#{servico.list.atencao_nenhum_evento_ativo}">Atenção: Nenhum Evento Ativo</h3>
+                </div>
+                <p class="text-xs" th:utext="#{servico.list.no_active_event_warning}">Não existe nenhum evento ativo configurado para esta instituição. Para realizar cadastros de serviços ou efetuar vendas, é necessário que um usuário <strong>Master</strong> ou <strong>Administrador</strong> crie um evento.</p>
+                <div class="mt-4 flex gap-4" sec:authorize="hasAnyAuthority('ROLE_MASTER')">
+                    <a th:href="@{/eventos/add}" class="st-button-primary text-xs py-2 px-6" th:text="#{servico.list.criar_evento}">Criar Evento</a>
+                </div>
+            </div>
+
+            <!-- Full View when activeEvent exists -->
+            <div th:if="${activeEvent != null}">
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+                    <div>
+                        <span class="st-chip-sales mb-2" th:text="${activeEvent.nome}">Evento Demo</span>
+                        <h1 class="text-4xl font-black text-on-surface" style="letter-spacing: -0.02em;" th:text="#{label.services}">Serviços</h1>
+                        <p class="text-xs text-on-surface-variant font-medium mt-1" th:text="#{servico.list.servicos_cadastrados_para_venda}">Serviços cadastrados para venda no catálogo do evento.</p>
+                    </div>
+                    <div>
+                        <a th:href="@{/servicos/add}" class="st-button-primary" th:text="#{servico.list.novo_servico}">Novo Serviço</a>
+                    </div>
+                </div>
+
+                <!-- Messages feedback -->
+                <div th:if="${msgSuccess}" class="mb-6 p-4 rounded-xl bg-green-50 text-green-700 text-xs font-semibold border border-green-100" th:text="${msgSuccess}"></div>
+                <div th:if="${msgInfo}" class="mb-6 p-4 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100" th:text="${msgInfo}"></div>
+                <div th:if="${msgError}" class="mb-6 p-4 rounded-xl bg-red-50 text-red-700 text-xs font-semibold border border-red-100" th:text="${msgError}"></div>
+
+                <!-- List Grid -->
+                <div class="st-card p-0 overflow-hidden">
+                    <table class="min-w-full divide-y divide-slate-100">
+                        <thead class="bg-surface-container-low">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.name}">Nome</th>
+                                <th class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{servico.label.valor_venda}">Preço Unitário</th>
+                                <th class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{servico.label.categoria}">Categoria / Sub</th>
+                                <th class="px-6 py-4 text-right text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.actions}">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-slate-50">
+                            <tr th:each="srv : ${servicos}">
+                                <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-on-surface" th:text="${srv.nome}">Corte de Cabelo</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-primary" th:text="${'R$ ' + #numbers.formatDecimal(srv.valorVenda, 1, 2)}">R$ 50,00</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-xs text-on-surface-variant">
+                                    <span th:text="${srv.categoria != null ? srv.categoria.nome : '-'}">Salão</span>
+                                    <span th:if="${srv.subCategoria != null}" th:text="${' / ' + srv.subCategoria.nome}"> / Corte</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium space-x-3">
+                                    <a th:href="@{/servicos/edit/{id}(id=${srv.id})}" class="text-primary hover:text-primary-container font-semibold transition-colors" th:text="#{label.edit}">Editar</a>
+                                    <form th:action="@{/servicos/delete/{id}(id=${srv.id})}" method="post" class="inline-block" th:onsubmit="|return confirm('#{servico.list.deseja_excluir}')|">
+                                        <button type="submit" class="text-red-600 hover:text-red-800 font-semibold transition-colors bg-transparent border-none p-0 cursor-pointer" th:text="#{label.delete}">Excluir</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(servicos)}">
+                                <td colspan="4" class="px-6 py-12 text-center text-xs text-on-surface-variant" th:text="#{servico.list.nenhum_servico_cadastrado}">Nenhum serviço cadastrado para este evento.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

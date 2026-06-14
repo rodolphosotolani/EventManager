@@ -1,5 +1,6 @@
 package br.com.rts.eventmanager.seguranca.perfil.controllers;
 
+import br.com.rts.eventmanager.seguranca.PerfilDTO;
 import br.com.rts.eventmanager.seguranca.perfil.entities.Perfil;
 import br.com.rts.eventmanager.seguranca.perfil.services.PerfilService;
 import br.com.rts.eventmanager.seguranca.permissao.services.PermissaoService;
@@ -9,6 +10,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/perfis")
@@ -79,4 +83,27 @@ public class PerfilController {
         redirectAttributes.addFlashAttribute(WebUtils.MSG_SUCCESS, "Perfil cadastrado com sucesso!");
         return "redirect:/perfis";
     }
+
+    @GetMapping("/edit/perfis")
+    @ResponseBody
+    @PreAuthorize("hasAnyAuthority('ROLE_MASTER', 'USUARIOS_EDITAR')")
+    public List<PerfilDTO> getPerfisForInstituicao(@RequestParam("instituicaoId") Long instituicaoId) {
+        List<Perfil> perfis = service.listByInstituicao(instituicaoId);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isMaster = authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_MASTER".equals(a.getAuthority()));
+
+        if (!isMaster) {
+            perfis = perfis.stream()
+                    .filter(p -> !"MASTER".equalsIgnoreCase(p.getNome()) && !"ROLE_MASTER".equalsIgnoreCase(p.getNome()))
+                    .toList();
+        }
+
+        return perfis.stream()
+                .map(p -> new PerfilDTO(p.getId(), p.getNome()))
+                .collect(Collectors.toList());
+    }
+
+
 }

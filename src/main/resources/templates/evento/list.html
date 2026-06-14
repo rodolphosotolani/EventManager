@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{label.events}">Eventos</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-6xl mx-auto py-8 px-4">
+            <!-- Header section with asymmetry -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+                <div>
+                    <span  class="st-chip-sales mb-2" th:text="#{evento.list.administracao}">Administração</span>
+                    <h1  class="text-4xl font-black text-on-surface" style="letter-spacing: -0.02em;" th:text="#{label.events}">Eventos</h1>
+                    <p  class="text-xs text-on-surface-variant font-medium mt-1" th:text="#{evento.list.gerencie_os_eventos_ativos}">Gerencie os eventos ativos da instituição.</p>
+                </div>
+                <div th:if="${noTenantSelected == null || !noTenantSelected}">
+                    <a  th:href="@{/eventos/add}" class="st-button-primary" th:text="#{evento.list.novo_evento}">Novo Evento</a>
+                </div>
+            </div>
+
+            <!-- Message when no institution is selected -->
+            <div th:if="${noTenantSelected}" class="mb-8 p-6 rounded-2xl bg-amber-50/50 text-amber-800 border border-amber-100/50 flex flex-col items-center justify-center text-center backdrop-blur-md">
+                <svg class="w-12 h-12 text-amber-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <h3 class="text-sm font-bold mb-1">Nenhuma Instituição Selecionada</h3>
+                <p class="text-xs font-medium text-amber-700/80">Por favor, selecione uma instituição no menu superior para visualizar seus eventos.</p>
+            </div>
+
+            <!-- Messages feedback -->
+            <div th:if="${msgSuccess}" class="mb-6 p-4 rounded-xl bg-green-50 text-green-700 text-xs font-semibold border border-green-100" th:text="${msgSuccess}"></div>
+            <div th:if="${msgInfo}" class="mb-6 p-4 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100" th:text="${msgInfo}"></div>
+            <div th:if="${msgError}" class="mb-6 p-4 rounded-xl bg-red-50 text-red-700 text-xs font-semibold border border-red-100" th:text="${msgError}"></div>
+
+            <!-- List Grid -->
+            <div class="st-card p-0 overflow-hidden">
+                <table class="min-w-full divide-y divide-slate-100">
+                    <thead class="bg-surface-container-low">
+                        <tr>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.id}">ID</th>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.name}">Nome</th>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.status}">Status</th>
+                            <th  class="px-6 py-4 text-right text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.actions}">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-50">
+                        <tr th:each="ev : ${eventosList}">
+                            <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-on-surface-variant" th:text="${ev.id}">1</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-on-surface" th:text="${ev.nome}">Evento Demo</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-semibold rounded-full"
+                                      th:classappend="${ev.ativo} ? 'bg-green-50 text-green-800' : 'bg-slate-100 text-slate-500'"
+                                      th:text="${ev.ativo} ? #{label.active} : #{label.inactive}">Ativo</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium space-x-3">
+                                <a  th:href="@{/eventos/edit/{id}(id=${ev.id})}" class="text-primary hover:text-primary-container font-semibold transition-colors" th:text="#{label.edit}">Editar</a>
+                                <form th:action="@{/eventos/delete/{id}(id=${ev.id})}" method="post" class="inline-block" th:onsubmit="'return confirm(\'' + #{evento.list.deseja_realmente_excluir_este} + '\')'">
+                                    <button  type="submit" class="text-red-600 hover:text-red-800 font-semibold transition-colors bg-transparent border-none p-0 cursor-pointer" th:text="#{label.delete}">Excluir</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(eventosList)}">
+                            <td  colspan="4" class="px-6 py-12 text-center text-xs text-on-surface-variant" 
+                                 th:text="${noTenantSelected} ? 'Por favor, selecione uma instituição no menu superior para listar os eventos.' : #{evento.list.nenhum_evento_cadastrado_para}">Nenhum evento cadastrado para esta instituição.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

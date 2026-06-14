@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+@source "src/main/resources/templates/**/*.html";
+@source "src/main/java/**/*.java";
+
+@theme {
+  --color-primary: var(--tenant-primary, #a43700);
+  --color-primary-container: var(--tenant-primary-container, #cd4700);
+  --color-secondary: var(--tenant-secondary, #b22c01);
+  --color-surface: #fcf9f5;
+  --color-surface-container: #f1ede9;
+  --color-surface-container-high: #ebe8e4;
+  --color-surface-container-highest: #e5e2de;
+  --color-surface-container-low: #f6f3ef;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-surface: #1c1c19;
+  --color-on-surface-variant: #5a4138;
+  --color-outline: #8f7066;
+  --color-outline-variant: #e3bfb2;
+  --color-inverse-surface: #31302e;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+/* Editorial Asymmetry / Asymmetrical Image Crops */
+.st-asymmetric-crop {
+  aspect-ratio: 3/4;
+  object-fit: cover;
+  border-radius: 1.5rem;
+}
+
+  /* The "No-Line" Rule Card */
+  .st-card {
+    background-color: var(--color-surface-container-lowest);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    /* Soft Lift ambient shadow */
+    box-shadow: 0 12px 40px -12px rgba(28, 28, 25, 0.06);
+    /* Ghost Border for accessibility, very subtle */
+    outline: 1px solid rgba(227, 191, 178, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .st-card:hover {
+    box-shadow: 0 20px 40px -8px rgba(28, 28, 25, 0.1);
+    transform: translateY(-2px);
+  }
+
+  /* Primary Button with Sun-Baked Gradient and Pill Shape */
+  .st-button-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-container) 100%);
+    color: #ffffff;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 2rem;
+    border-radius: 9999px;
+    box-shadow: 0 4px 12px rgba(164, 55, 0, 0.2);
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    border: none;
+  }
+
+  .st-button-primary:hover {
+    filter: brightness(1.1);
+    transform: scale(1.02);
+    box-shadow: 0 6px 16px rgba(164, 55, 0, 0.3);
+  }
+
+  .st-button-primary:active {
+    transform: scale(0.98);
+  }
+
+  /* Ghost-Style Input Fields (no harsh bottom lines, filled) */
+  .st-input {
+    width: 100%;
+    background-color: var(--color-surface-container-high);
+    color: var(--color-on-surface);
+    font-family: var(--font-sans);
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid transparent;
+    transition: all 0.2s ease-in-out;
+    outline: none;
+  }
+
+  .st-input::placeholder {
+    color: var(--color-on-surface-variant);
+    opacity: 0.6;
+  }
+
+  /* Custom rule to make the main content container occupy 90% width of the available layout content area */
+#main-content-area > div {
+  width: 90% !important;
+  max-width: 90% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+  .st-input:focus {
+    background-color: var(--color-surface-container-highest);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(164, 55, 0, 0.15);
+  }
+
+  /* Sleek Sidebar Nav Item */
+  .st-sidebar-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .st-sidebar-item:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  /* Active Sidebar Item with right-edge primary indicator bar */
+  .st-sidebar-item.active {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .st-sidebar-item.active::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: var(--color-primary);
+    border-radius: 4px 0 0 4px;
+  }
+  /* Sales Chips */
+  .st-chip-sales {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: var(--color-primary-container);
+    color: #ffffff;
+  }
+
+  .st-floating-summary {
+    background-color: #1c1c19;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+

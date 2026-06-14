@@ -1,5 +1,6 @@
-package br.com.rts.eventmanager.seguranca.perfil.entities;
+package br.com.rts.eventmanager.seguranca.perfilusuario.entities;
 
+import br.com.rts.eventmanager.seguranca.perfil.entities.Perfil;
 import br.com.rts.eventmanager.seguranca.usuario.entities.Usuario;
 import jakarta.persistence.*;
 import lombok.*;

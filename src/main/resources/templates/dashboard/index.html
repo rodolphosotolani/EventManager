@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{dashboard.index.inicio}">Início</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <!-- Main Container using Editorial Asymmetry and Breathing Room -->
+        <div class="max-w-4xl mx-auto py-12 px-4">
+            
+            <!-- Welcoming Editorial Header -->
+            <div class="mb-12">
+                <span  class="st-chip-sales mb-4" th:text="#{dashboard.index.bemvindo}">Bem-vindo</span>
+                <h1  class="text-5xl font-black tracking-tight text-on-surface mb-3" style="letter-spacing: -0.02em;" th:text="#{dashboard.index.eventmanager_saas}">EventManager SaaS</h1>
+                <p  class="text-base text-on-surface-variant font-medium leading-relaxed max-w-xl" th:text="#{dashboard.index.selecione_uma_instituicao_no}">Selecione uma instituição no menu superior ou explore as opções de navegação lateral para gerenciar suas vendas, produtos e clientes.</p>
+            </div>
+
+            <!-- Tonal Layering Cards Showcase -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Card 1 -->
+                <div class="st-card flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-6">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                            </svg>
+                        </div>
+                        <h2  class="text-lg font-bold text-on-surface mb-2" th:text="#{dashboard.index.resumos_de_venda}">Resumos de Venda</h2>
+                        <p  class="text-xs text-on-surface-variant leading-relaxed" th:text="#{dashboard.index.acompanhe_o_faturamento_do}">Acompanhe o faturamento do seu evento em tempo real através do painel de controle.</p>
+                    </div>
+                    <div class="pt-8">
+                        <a  th:href="@{/dashboard}" class="st-button-primary w-full" th:text="#{dashboard.index.visualizar_painel}">Visualizar Painel</a>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="st-card flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary mb-6">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                        </div>
+                        <h2  class="text-lg font-bold text-on-surface mb-2" th:text="#{dashboard.index.controle_multitenancy}">Controle Multitenancy</h2>
+                        <p  class="text-xs text-on-surface-variant leading-relaxed" th:text="#{dashboard.index.alterne_de_forma_transparente}">Alterne de forma transparente entre suas filiais ou paróquias cadastradas.</p>
+                    </div>
+                    <div class="pt-8">
+                        <span  class="text-xs font-semibold text-on-surface-variant block text-center" th:text="#{dashboard.index.use_o_seletor_no}">Use o seletor no topo da tela</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>

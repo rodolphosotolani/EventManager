@@ -1,7 +1,7 @@
-package br.com.rts.eventmanager.seguranca.usuario.mappers;
+package br.com.rts.eventmanager.seguranca.usuarioinstituicao.mappers;
 
 import br.com.rts.eventmanager.seguranca.UsuarioInstituicaoDTO;
-import br.com.rts.eventmanager.seguranca.usuario.entities.UsuarioInstituicao;
+import br.com.rts.eventmanager.seguranca.usuarioinstituicao.entities.UsuarioInstituicao;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

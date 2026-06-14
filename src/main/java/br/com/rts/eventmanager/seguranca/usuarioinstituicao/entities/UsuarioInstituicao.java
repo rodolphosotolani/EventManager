@@ -1,5 +1,6 @@
-package br.com.rts.eventmanager.seguranca.usuario.entities;
+package br.com.rts.eventmanager.seguranca.usuarioinstituicao.entities;
 
+import br.com.rts.eventmanager.seguranca.usuario.entities.Usuario;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;

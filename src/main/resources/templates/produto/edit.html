@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{produto.edit.editar_produto}">Editar Produto</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-2xl mx-auto py-8 px-4">
+            <div class="mb-8">
+                <a th:href="@{/produtos}" class="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span th:text="#{label.back_to_products}">Voltar para Produtos</span>
+                </a>
+                <h1  class="text-3xl font-black text-on-surface mt-4" style="letter-spacing: -0.02em;" th:text="#{produto.edit.editar_produto}">Editar Produto</h1>
+                <p  class="text-xs text-on-surface-variant mt-1" th:text="#{produto.edit.altere_as_informacoes_do}">Altere as informações do produto selecionado.</p>
+            </div>
+
+            <div class="st-card">
+                <form th:action="@{/produtos/edit/{id}(id=${produto.id})}" th:object="${produto}" method="post" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label  for="nome" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{produto.edit.nome_do_produto}">Nome do Produto</label>
+                            <input type="text" id="nome" th:field="*{nome}" class="st-input" required />
+                            <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></p>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label  for="especificacao" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{produto.edit.especificacao}">Especificação</label>
+                            <input type="text" id="especificacao" th:field="*{especificacao}" class="st-input" />
+                            <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('especificacao')}" th:errors="*{especificacao}"></p>
+                        </div>
+
+                        <div>
+                            <label  for="valorVendaUnitarioFormatado" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{produto.edit.valor_de_venda_r}">Valor de Venda (R$)</label>
+                            <input type="hidden" id="valorVendaUnitario" th:field="*{valorVendaUnitario}" />
+                            <input type="text" id="valorVendaUnitarioFormatado" class="st-input" th:placeholder="#{produto.add.000}" required />
+                            <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('valorVendaUnitario')}" th:errors="*{valorVendaUnitario}"></p>
+                        </div>
+
+                        <div>
+                            <label  for="quantidadeMinima" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{produto.edit.qtd_minima_alerta}">Qtd Mínima Alerta</label>
+                            <input type="number" id="quantidadeMinima" th:field="*{quantidadeMinima}" class="st-input" min="0" />
+                            <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('quantidadeMinima')}" th:errors="*{quantidadeMinima}"></p>
+                        </div>
+
+                        <div>
+                            <label  for="categoria" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{produto.edit.categoria}">Categoria</label>
+                            <select id="categoria" th:field="*{categoria.id}" class="st-input" required>
+                                <option  value="" th:text="#{produto.edit.selecione_uma_categoria}">Selecione uma Categoria</option>
+                                <option th:each="cat : ${categorias}"
+                                        th:value="${cat.id}"
+                                        th:text="${cat.nome}"></option>
+                            </select>
+                            <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('categoria')}" th:errors="*{categoria}"></p>
+                        </div>
+
+                        <div>
+                            <label  for="subCategoria" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{produto.edit.subcategoria_opcional}">Subcategoria (Opcional)</label>
+                            <input type="hidden" id="subCategoriaIdAtual" th:value="${produto.subCategoria != null ? produto.subCategoria.id : ''}" />
+                            <select id="subCategoria" name="subCategoria.id" class="st-input" disabled
+                                    th:attr="data-placeholder-nenhuma=#{produto.edit.nenhuma_subcategoria}">
+                                <option value="" th:text="#{produto.edit.nenhuma_subcategoria}">Nenhuma Subcategoria</option>
+                            </select>
+                            <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('subCategoria')}" th:errors="*{subCategoria}"></p>
+                        </div>
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-100 flex items-center justify-end gap-4">
+                        <a  th:href="@{/produtos}" class="text-xs font-bold text-on-surface-variant hover:text-on-surface transition-colors" th:text="#{label.cancel}">Cancelar</a>
+                        <button  type="submit" class="st-button-primary" th:text="#{label.save_changes}">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <th:block layout:fragment="custom-scripts">
+        <script th:inline="javascript">
+            document.addEventListener('DOMContentLoaded', () => {
+                aplicarMascaraMonetaria(
+                    document.getElementById('valorVendaUnitarioFormatado'),
+                    document.getElementById('valorVendaUnitario')
+                );
+
+                const selectCategoria    = document.getElementById('categoria');
+                const selectSubCategoria = document.getElementById('subCategoria');
+                const inputSubIdAtual    = document.getElementById('subCategoriaIdAtual');
+                const placeholderNenhuma = selectSubCategoria.dataset.placeholderNenhuma || 'Nenhuma Subcategoria';
+
+                async function carregarSubCategorias(categoriaId, preSelectId) {
+                    selectSubCategoria.innerHTML = '';
+                    selectSubCategoria.disabled = true;
+
+                    const optNenhuma = document.createElement('option');
+                    optNenhuma.value = '';
+                    optNenhuma.textContent = placeholderNenhuma;
+                    selectSubCategoria.appendChild(optNenhuma);
+
+                    if (!categoriaId) return;
+
+                    try {
+                        const resp = await fetch(`/produtos/subcategorias?categoriaId=${categoriaId}`);
+                        if (!resp.ok) return;
+                        const lista = await resp.json();
+
+                        lista.forEach(sub => {
+                            const opt = document.createElement('option');
+                            opt.value = sub.id;
+                            opt.textContent = sub.nome;
+                            if (preSelectId && String(sub.id) === String(preSelectId)) {
+                                opt.selected = true;
+                            }
+                            selectSubCategoria.appendChild(opt);
+                        });
+
+                        if (lista.length > 0) {
+                            selectSubCategoria.disabled = false;
+                        }
+                    } catch (e) {
+                        console.error('Erro ao carregar subcategorias:', e);
+                    }
+                }
+
+                // Ao carregar a página, pré-carrega subcategorias da categoria atual
+                const categoriaInicialId = selectCategoria.value;
+                const subCategoriaInicialId = inputSubIdAtual ? inputSubIdAtual.value : null;
+                carregarSubCategorias(categoriaInicialId, subCategoriaInicialId);
+
+                // Ao trocar a categoria, recarrega sem pré-seleção
+                selectCategoria.addEventListener('change', (e) => {
+                    carregarSubCategorias(e.target.value, null);
+                });
+            });
+        </script>
+    </th:block>
+</body>
+</html>

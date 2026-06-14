@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{label.categories}">Categorias</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-6xl mx-auto py-8 px-4">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+                <div>
+                    <span  class="st-chip-sales mb-2" th:text="#{categoria.list.catalogo}">Catálogo</span>
+                    <h1  class="text-4xl font-black text-on-surface" style="letter-spacing: -0.02em;" th:text="#{label.categories}">Categorias</h1>
+                    <p  class="text-xs text-on-surface-variant font-medium mt-1" th:text="#{categoria.list.gerencie_a_hierarquia_de}">Gerencie a hierarquia de classificação dos seus produtos.</p>
+                </div>
+                <div>
+                    <a  th:href="@{/categorias/add}" class="st-button-primary" th:text="#{categoria.list.nova_categoria}">Nova Categoria</a>
+                </div>
+            </div>
+
+            <!-- Messages feedback -->
+            <div th:if="${msgSuccess}" class="mb-6 p-4 rounded-xl bg-green-50 text-green-700 text-xs font-semibold border border-green-100" th:text="${msgSuccess}"></div>
+            <div th:if="${msgInfo}" class="mb-6 p-4 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100" th:text="${msgInfo}"></div>
+            <div th:if="${msgError}" class="mb-6 p-4 rounded-xl bg-red-50 text-red-700 text-xs font-semibold border border-red-100" th:text="${msgError}"></div>
+
+            <!-- List Grid -->
+            <div class="st-card p-0 overflow-hidden">
+                <table class="min-w-full divide-y divide-slate-100">
+                    <thead class="bg-surface-container-low">
+                        <tr>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.id}">ID</th>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{categoria.list.nome_da_categoria}">Nome da Categoria</th>
+                            <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.status}">Status</th>
+                            <th  class="px-6 py-4 text-right text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.actions}">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-50">
+                        <tr th:each="cat : ${categorias}">
+                            <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-on-surface-variant" th:text="${cat.id}">1</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-on-surface" th:text="${cat.nome}">Feijoada Completa</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2.5 py-1 inline-flex text-[10px] leading-5 font-semibold rounded-full"
+                                      th:classappend="${cat.ativo != null && cat.ativo} ? 'bg-green-50 text-green-800' : 'bg-slate-100 text-slate-500'"
+                                      th:text="${cat.ativo != null && cat.ativo} ? #{label.active_fem} : #{label.inactive_fem}">Ativa</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-medium space-x-3">
+                                <a  th:href="@{/categorias/edit/{id}(id=${cat.id})}" class="text-primary hover:text-primary-container font-semibold transition-colors" th:text="#{label.view_edit}">Visualizar/Editar</a>
+                                <form th:action="@{/categorias/delete/{id}(id=${cat.id})}" method="post" class="inline-block" th:onsubmit="|return confirm('#{categoria.list.deseja_realmente_excluir_esta}')|">
+                                    <button  type="submit" class="text-red-600 hover:text-red-800 font-semibold transition-colors bg-transparent border-none p-0 cursor-pointer" th:text="#{label.delete}">Excluir</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(categorias)}">
+                            <td  colspan="4" class="px-6 py-12 text-center text-xs text-on-surface-variant" th:text="#{categoria.list.nenhuma_categoria_cadastrada}">Nenhuma categoria cadastrada.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

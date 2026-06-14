@@ -3,6 +3,7 @@ package br.com.rts.eventmanager.financeiro.venda.services;
 import br.com.rts.eventmanager.financeiro.VendaSumarioDTO;
 import br.com.rts.eventmanager.financeiro.venda.entities.Venda;
 import br.com.rts.eventmanager.financeiro.venda.specs.FiltroVendas;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -21,7 +22,9 @@ public interface VendaService {
 
     Venda get(Long id);
 
-    Venda create(Venda request);
+    Venda create(Venda request,
+                 @NotNull Long instituicaoId,
+                 @NotNull Long eventoId);
 
     Venda update(Long id, Venda request, Long instituicaoId);
 

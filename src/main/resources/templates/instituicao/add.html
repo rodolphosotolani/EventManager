@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{instituicao.add.nova_instituicao}">Nova Instituição</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-2xl mx-auto py-8 px-4">
+            <div class="mb-8">
+                <a th:href="@{/instituicoes}" class="text-xs font-bold text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span th:text="#{label.back_to_institutions}">Voltar para Instituições</span>
+                </a>
+                <h1  class="text-3xl font-black text-on-surface mt-4" style="letter-spacing: -0.02em;" th:text="#{instituicao.add.nova_instituicao}">Nova Instituição</h1>
+                <p  class="text-xs text-on-surface-variant mt-1" th:text="#{instituicao.add.cadastre_uma_nova_instituicao}">Cadastre uma nova instituição no sistema.</p>
+            </div>
+
+            <div class="st-card">
+                <form th:action="@{/instituicoes/add}" th:object="${instituicao}" method="post" class="space-y-6">
+                    <div>
+                        <label  for="nome" class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2" th:text="#{instituicao.add.nome_da_instituicao}">Nome da Instituição</label>
+                        <input type="text" id="nome" th:field="*{nome}" class="st-input" placeholder="Ex: Paróquia Santo Antônio" th:placeholder="#{instituicao.add.ex_paroquia_santo_antonio}" required />
+                        <p class="text-xs text-red-600 mt-1" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></p>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-4">
+                        <a  th:href="@{/instituicoes}" class="text-xs font-bold text-on-surface-variant hover:text-on-surface transition-colors" th:text="#{label.cancel}">Cancelar</a>
+                        <button  type="submit" class="st-button-primary" th:text="#{instituicao.add.salvar_instituicao}">Salvar Instituição</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

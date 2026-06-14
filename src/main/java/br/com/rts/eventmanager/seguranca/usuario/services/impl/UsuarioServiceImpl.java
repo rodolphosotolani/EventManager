@@ -1,13 +1,7 @@
 package br.com.rts.eventmanager.seguranca.usuario.services.impl;
 
-import br.com.rts.eventmanager.seguranca.perfil.entities.Perfil;
-import br.com.rts.eventmanager.seguranca.perfil.entities.PerfilUsuario;
-import br.com.rts.eventmanager.seguranca.perfil.repositories.PerfilRepository;
 import br.com.rts.eventmanager.seguranca.usuario.entities.Usuario;
-import br.com.rts.eventmanager.seguranca.usuario.entities.UsuarioInstituicao;
-import br.com.rts.eventmanager.seguranca.usuario.repositories.UsuarioInstituicaoRepository;
 import br.com.rts.eventmanager.seguranca.usuario.repositories.UsuarioRepository;
-import br.com.rts.eventmanager.seguranca.usuario.services.PerfilUsuarioService;
 import br.com.rts.eventmanager.seguranca.usuario.services.UsuarioService;
 import br.com.rts.eventmanager.utils.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -26,14 +19,11 @@ import java.util.stream.Collectors;
 public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository repository;
-    private final UsuarioInstituicaoRepository usuarioInstituicaoRepository;
-    private final PerfilUsuarioService perfilUsuarioService;
-    private final PerfilRepository perfilRepository;
 
     @Override
     @Transactional
     public Usuario create(Usuario request) {
-        if (request.getEmail() != null && repository.findByEmail(request.getEmail()).isPresent()) {
+        if (repository.existsByEmailIgnoreCase(request.getEmail())) {
             throw new IllegalArgumentException("E-mail já cadastrado!");
         }
         return repository.save(request);
@@ -56,7 +46,6 @@ public class UsuarioServiceImpl implements UsuarioService {
                         .build());
 
         novoUsuario.getPerfilUsuarios().clear();
-        novoUsuario.getPerfilUsuarios().addAll(perfilUsuarioService.getOrCreateInitialPerfil(novoUsuario));
 
         return repository.save(novoUsuario);
     }
@@ -71,73 +60,14 @@ public class UsuarioServiceImpl implements UsuarioService {
         return repository.findAll();
     }
 
-    @Override
-    @Transactional
-    public UsuarioInstituicao linkToInstituicao(Long usuarioId, Long instituicaoId, boolean ativo) {
-        Usuario usuario = this.getUsuarioById(usuarioId);
-
-        Optional<UsuarioInstituicao> existingOpt = usuarioInstituicaoRepository.findByUsuarioIdAndInstituicao(usuarioId, instituicaoId);
-        if (existingOpt.isPresent()) {
-            UsuarioInstituicao ui = existingOpt.get();
-            ui.setAtivo(ativo);
-            ui.setLastUpdated(LocalDateTime.now());
-            if (ativo) {
-                usuario.getUsuarioInstituicaos().add(ui);
-            } else {
-                usuario.getUsuarioInstituicaos().remove(ui);
-            }
-            repository.save(usuario);
-            return usuarioInstituicaoRepository.save(ui);
-        }
-
-        if (!ativo) {
-            return null;
-        }
-
-        UsuarioInstituicao link = UsuarioInstituicao.builder()
-                .usuario(usuario)
-                .instituicao(instituicaoId)
-                .ativo(true)
-                .dateCreated(LocalDateTime.now())
-                .lastUpdated(LocalDateTime.now())
-                .build();
-
-        UsuarioInstituicao saved = usuarioInstituicaoRepository.save(link);
-        usuario.getUsuarioInstituicaos().add(saved);
-        repository.save(usuario);
-        return saved;
-    }
-
-    @Override
-    @Transactional
-    public PerfilUsuario assignPerfilToInstituicao(Long usuarioId, Long perfilId, Long instituicaoId) {
-        Usuario usuario = this.getUsuarioById(usuarioId);
-        Perfil perfil = perfilRepository.findById(perfilId)
-                .orElseThrow(() -> new NotFoundException("Perfil não encontrado!"));
-
-        // Verificar duplicados
-        if (perfilUsuarioService.existsByUsuarioIdAndPerfilIdAndInstituicao(usuarioId, perfilId, instituicaoId)) {
-            return perfilUsuarioService.findAllByUsuarioIdAndInstituicao(usuarioId, instituicaoId)
-                    .stream()
-                    .filter(pu -> pu.getPerfil().getId().equals(perfilId))
-                    .findFirst()
-                    .orElse(null);
-        }
-
-        return perfilUsuarioService.create(perfil, usuario, instituicaoId);
-    }
-
-    @Override
-    public List<Perfil> listPerfisByInstituicao(Long usuarioId, Long instituicaoId) {
-        Usuario usuario = this.getUsuarioById(usuarioId);// Validar usuário
-        return perfilUsuarioService.findAllByUsuarioIdAndInstituicao(usuario.getId(), instituicaoId)
-                .stream()
-                .map(PerfilUsuario::getPerfil)
-                .collect(Collectors.toList());
-    }
 
     @Override
     public Optional<Usuario> findByEmail(String email) {
-        return repository.findByEmail(email);
+        return repository.findAllByEmail(email);
+    }
+
+    @Override
+    public Optional<Usuario> findFetchAllByEmail(String email) {
+        return repository.findFetchAllByEmail(email);
     }
 }

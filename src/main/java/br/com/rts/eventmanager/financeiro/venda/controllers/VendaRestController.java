@@ -71,7 +71,7 @@ public class VendaRestController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping()
+    @PostMapping("/eventos/{eventoId}")
     @Operation(summary = "Cadastrar uma nova venda (Evento informado no payload)",
             description = "Cadastra uma nova venda. O cabeçalho deve conter o ID da instituição e os dados de venda (incluindo o ID do evento obrigatoriamente) no corpo.")
     @ApiResponses(value = {
@@ -81,6 +81,8 @@ public class VendaRestController {
     public ResponseEntity<VendaResponse> create(
             @Parameter(description = "ID da instituição dona do catálogo", required = true)
             @RequestHeader("instituicao_id") Long instituicaoId,
+            @Parameter(description = "ID do evento", required = true)
+            @PathVariable Long eventoId,
             @Parameter(description = "Dados para criação da venda com evento no payload", required = true)
             @RequestBody VendaRequest request) {
 
@@ -92,7 +94,7 @@ public class VendaRestController {
         venda.setInstituicao(instituicaoId);
 
         try {
-            Venda vendaCriada = service.create(venda);
+            Venda vendaCriada = service.create(venda, instituicaoId, eventoId);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(mapper.entityToResponse(vendaCriada));

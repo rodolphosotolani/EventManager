@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout}">
+<head>
+    <title th:text="#{venda.list.relatorio_de_vendas}">Relatório de Vendas</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="max-w-6xl mx-auto py-8 px-4">
+            <!-- Warning/Alert when event is missing -->
+            <div th:if="${activeEvent == null}" class="p-6 rounded-2xl bg-amber-50 text-amber-800 border border-amber-200 shadow-sm flex flex-col gap-3 max-w-xl mx-auto my-12">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <h3  class="font-bold text-sm uppercase tracking-wide" th:text="#{venda.list.atencao_nenhum_evento_ativo}">Atenção: Nenhum Evento Ativo</h3>
+                </div>
+                <p class="text-xs" th:utext="#{venda.list.no_active_event_warning}">Não existe nenhum evento ativo configurado para esta instituição. Para realizar vendas ou emitir relatórios, é necessário que um usuário <strong>Master</strong> ou <strong>Administrador</strong> crie um evento.</p>
+                <div class="mt-4 flex gap-4" sec:authorize="hasAnyAuthority('ROLE_MASTER')">
+                    <a  th:href="@{/eventos/add}" class="st-button-primary text-xs py-2 px-6" th:text="#{venda.list.criar_evento}">Criar Evento</a>
+                </div>
+            </div>
+
+            <!-- Full View when activeEvent exists -->
+            <div th:if="${activeEvent != null}">
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+                    <div>
+                        <span class="st-chip-sales mb-2" th:text="${activeEvent.nome}">Evento Demo</span>
+                        <h1  class="text-4xl font-black text-on-surface" style="letter-spacing: -0.02em;" th:text="#{venda.list.historico_de_vendas}">Histórico de Vendas</h1>
+                        <p  class="text-xs text-on-surface-variant font-medium mt-1" th:text="#{venda.list.visao_geral_do_faturamento}">Visão geral do faturamento e transações do evento.</p>
+                    </div>
+                    <div>
+                        <a  th:href="@{/vendas/pdv}" class="st-button-primary" th:text="#{venda.list.acessar_terminal_pdv}">Acessar Terminal PDV</a>
+                    </div>
+                </div>
+
+                <!-- KPI Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="st-card flex flex-col justify-between">
+                        <span  class="text-xs font-bold text-on-surface-variant uppercase tracking-wider block mb-2" th:text="#{venda.list.total_de_vendas}">Total de Vendas</span>
+                        <span class="text-4xl font-black text-on-surface" th:text="${totalVendas}">0</span>
+                        <span  class="text-[10px] text-green-600 font-semibold mt-2 block" th:text="#{venda.list.transacoes_efetuadas}">Transações efetuadas</span>
+                    </div>
+
+                    <div class="st-card flex flex-col justify-between">
+                        <span  class="text-xs font-bold text-on-surface-variant uppercase tracking-wider block mb-2" th:text="#{venda.list.faturamento_total}">Faturamento Total</span>
+                        <span class="text-4xl font-black text-primary" th:text="${'R$ ' + #numbers.formatDecimal(totalFaturamento, 1, 2)}">R$ 0,00</span>
+                        <span  class="text-[10px] text-green-600 font-semibold mt-2 block" th:text="#{venda.list.receita_bruta_gerada}">Receita bruta gerada</span>
+                    </div>
+                </div>
+
+                <!-- List Grid -->
+                <div class="st-card p-0 overflow-hidden">
+                    <table class="min-w-full divide-y divide-slate-100">
+                        <thead class="bg-surface-container-low">
+                            <tr>
+                                <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{label.id}">ID</th>
+                                <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{venda.list.data_hora}">Data / Hora</th>
+                                <th  class="px-6 py-4 text-left text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{venda.list.forma_de_pagamento}">Forma de Pagamento</th>
+                                <th  class="px-6 py-4 text-right text-[10px] font-black text-on-surface-variant uppercase tracking-wider" th:text="#{venda.list.valor_total}">Valor Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-slate-50">
+                            <tr th:each="venda : ${vendas}">
+                                <td class="px-6 py-4 whitespace-nowrap text-xs font-bold text-on-surface-variant" th:text="${venda.id}">1</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-xs text-on-surface" th:text="${#temporals.format(venda.dataVenda, 'dd/MM/yyyy HH:mm')}">01/01/2026 12:00</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-xs text-on-surface-variant">
+                                    <span class="px-2 py-0.5 inline-flex text-[9px] leading-5 font-semibold rounded-full bg-slate-100 text-slate-700" 
+                                          th:text="${venda.formaPagamento != null ? venda.formaPagamento.descricao : '-'}">Forma</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-xs font-black text-primary" th:text="${'R$ ' + #numbers.formatDecimal(venda.valorTotal, 1, 2)}">R$ 10,00</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(vendas)}">
+                                <td  colspan="4" class="px-6 py-12 text-center text-xs text-on-surface-variant" th:text="#{venda.list.nenhuma_venda_realizada_neste}">Nenhuma venda realizada neste evento até o momento.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
